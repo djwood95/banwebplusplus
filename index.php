@@ -19,7 +19,7 @@
 </body>
 
 <?php
-
+echo "test1";
 require_once("includes/db.php") or die("error loading database config");
 echo "test";
 
