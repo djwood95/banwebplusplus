@@ -20,6 +20,7 @@
 
 <?php
 echo "test1";
+if(!file_exists("includes/db.php")) echo "file does not exist.";
 require_once("includes/db.php") or die("error loading database config");
 echo "test";
 
