@@ -20,7 +20,7 @@
 
 <?php
 
-require_once("includes/db.php");
+require_once("includes/db.php") or die("error loading database config");
 
 $stmt = $con->prepare("SELECT * FROM test");
 $stmt->execute() or die("SQL Error" . $stmt->error);
