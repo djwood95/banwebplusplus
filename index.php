@@ -16,13 +16,11 @@
 </head>
 <body>
 	Enter Username Test: <input type='text' id='usernameTest' onchange='insertUsername()'/>	
-</body>
+	<br/><br/>
 
 <?php
-echo "test1";
-if(!file_exists("includes/db.php")) echo "file does not exist.";
-require_once("includes/db.php") or die("error loading database config");
-echo "test";
+echo "IT WORKS!!!";
+require_once("includes/db.php");
 
 $stmt = $con->prepare("SELECT * FROM test");
 $stmt->execute() or die("SQL Error" . $stmt->error);
@@ -38,3 +36,6 @@ while($row = $res1->fetch_array()){
 }
 
 ?>
+
+</body>
+</html>
