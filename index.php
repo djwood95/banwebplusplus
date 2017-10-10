@@ -19,7 +19,7 @@
 	<br/><br/>
 
 <?php
-echo "IT WORKS4!!!";
+echo "IT WORKS5!!!";
 require_once("includes/db.php");
 
 $stmt = $con->prepare("SELECT * FROM test");
