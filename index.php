@@ -15,11 +15,11 @@
 		</script>
 </head>
 <body>
-	Enter Username Test: <input type='text' id='usernameTest' onchange='insertUsername()'/>	
+	Enter Username Test: <input type='text' id='usernameTest' onchange='insertUsername()'/>
 	<br/><br/>
 
 <?php
-echo "IT WORKS3!!!";
+echo "IT WORKS4!!!";
 require_once("includes/db.php");
 
 $stmt = $con->prepare("SELECT * FROM test");
