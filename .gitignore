@@ -1,1 +1,6 @@
 *.sublime-workspace
+/vendor/
+/logs/*
+!/logs/README.md
+*.sublime-project
+/private/*
