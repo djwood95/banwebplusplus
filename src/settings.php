@@ -17,6 +17,6 @@ return [
         ],
 
         // DB Connection
-        'db' => parse_ini_file(__DIR__ . '/../private/config.ini')
+        'db' => parse_ini_file('../private/config.ini')
     ],
 ];
