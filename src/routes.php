@@ -24,3 +24,9 @@ $app->get('/generateBanwebFiles', function(Request $request, Response $response)
 	$scraper = new Scraper($this->db);
 	$scraper->generateBanwebFiles();
 });
+
+//Begin scraping process by downloading HTML from Banweb
+$app->get('/descriptions', function(Request $request, Response $response) {
+	$scraper = new Scraper($this->db);
+	$scraper->getCourseDescriptions();
+});
