@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
-using MySql.Data;
 using System.Data;
+using MySql.Data.MySqlClient;
 
 namespace BanwebScraper
 {
@@ -28,7 +28,7 @@ namespace BanwebScraper
                 try
                 {
                     command.Connection = connection;
-                    dt.Load(command.ExecuteReader);
+                    dt.Load(command.ExecuteReader());
                 }
                 catch (Exception e)
                 {
@@ -37,19 +37,18 @@ namespace BanwebScraper
             }
             return dt;
         }
-        private static void PushToDb(MySqlCommand[] commands)
+        private static void PushToDb(IEnumerable<MySqlCommand> commands)
         {
-            using (var connection = new MySqlConnection)
+            using (var connection = new MySqlConnection())
             {
-                using (var transaction = new MySqlTransaction)
+                using (var transaction = connection.BeginTransaction())
                 {
                     try
                     {
-                        transaction.Begin();
                         foreach (var command in commands)
                         {
                             command.Connection = connection;
-                            command.Transacation = transaction;
+                            command.Transaction = transaction;
                             command.ExecuteNonQuery();
                         }
                         transaction.Commit();
@@ -57,6 +56,7 @@ namespace BanwebScraper
                     catch (Exception e)
                     {
                         Console.Write($"Exception Caught: {e}");
+                        transaction.Rollback();
                     }
                 }
             }
