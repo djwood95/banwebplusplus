@@ -1,4 +1,36 @@
-CREATE TABLE IF NOT EXISTS Classes (
-	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-	ClassName VARCHAR(150) NOT NULL
-) 
+CREATE TABLE IF NOT EXISTS Users(
+  GoogleId VARCHAR(500) NOT NULL,
+  Email VARCHAR(300) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS Courses(
+  CourseNum VARCHAR(100),
+  NAME VARCHAR(300),
+  SUBJECT VARCHAR(100),
+  Description VARCHAR(5000),
+  SemestersOffered VARCHAR(100),
+  CourseYear VARCHAR(100),
+  Prereq VARCHAR(5000),
+  Coreq VARCHAR(5000)
+);
+CREATE TABLE IF NOT EXISTS Sections(
+  CourseNum VARCHAR(300),
+  CRN INTEGER,
+  SectionNum VARCHAR(100),
+  Type VARCHAR(100),
+  Days VARCHAR(100),
+  SectionTime VARCHAR(300),
+  Location VARCHAR(300),
+  SectionActual VARCHAR(300),
+  Capacity INTEGER,
+  SlotsRemaining INTEGER,
+  Instructor VARCHAR(150),
+  Semester VARCHAR(100),
+  Fee VARCHAR(100)
+);
+CREATE TABLE IF NOT EXISTS StudentSchedule(
+  ScheduleId INT(1) PRIMARY KEY,
+  GoogleId VARCHAR(300) NOT NULL,
+  Semester VARCHAR(100),
+  ScheduleYear VARCHAR(100),
+  CRN_List VARCHAR(5000)
+);
