@@ -4,11 +4,13 @@ CREATE TABLE IF NOT EXISTS Users(
 );
 CREATE TABLE IF NOT EXISTS Courses(
   CourseNum VARCHAR(100),
-  NAME VARCHAR(300),
-  SUBJECT VARCHAR(100),
+  CourseName VARCHAR(300),
   Description VARCHAR(5000),
   SemestersOffered VARCHAR(100),
-  CourseYear VARCHAR(100),
+  Credits FLOAT(3,1),
+  LectureCredits INT(11),
+  RecitationCredits INT(11),
+  LabCredits INT(11),
   Prereq VARCHAR(5000),
   Coreq VARCHAR(5000)
 );
@@ -24,8 +26,16 @@ CREATE TABLE IF NOT EXISTS Sections(
   Capacity INTEGER,
   SlotsRemaining INTEGER,
   Instructor VARCHAR(150),
-  Semester VARCHAR(100),
+  Dates VARCHAR(100),
+  Year INT(11),
   Fee VARCHAR(100)
+);
+CREATE TABLE IF NOT EXISTS StudentSchedule(
+  ScheduleId INT,
+  GoogleId VARCHAR(300) NOT NULL,
+  Semester VARCHAR(100),
+  ScheduleYear VARCHAR(100),
+  CRN VARCHAR(500)
 );
 CREATE TABLE IF NOT EXISTS StudentSchedule(
   ScheduleId INT(1) PRIMARY KEY,
