@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
-using System.Linq;
-using System.Runtime.Remoting.Channels;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -13,7 +11,7 @@ namespace BanwebScraper
 {
     internal class Scraper
     {
-        private readonly string _connectionString, _courseInfoFilepath, _sectionInfoFilepath, _coursePushCommand;
+        private readonly string _connectionString, _courseInfoFilepath, _sectionInfoFilepath;
         private readonly string[] _coursePushCommands, _sectionPushCommands;
         private readonly List<List<object>> _courseParameters, _sectionParameters;
         private readonly HashSet<int> _sectionList, _courseList;
@@ -85,70 +83,121 @@ namespace BanwebScraper
             // wait time reader, consider using:
             // https://stackoverflow.com/a/18342182
 
+            var sw = new Stopwatch();
             while (true)
             {
-                //GetClassInfo(); // runs every day
+                sw.Start();
+                GetCourseInfo(); // runs every day
                 for (var i = 0; i < 24; i++)
                 {
                     GetSectionInfo(); // runs every hour
-                    Task.Delay(3600000).Wait();
+                    sw.Stop();
+                    Task.Delay(3600000 - (int) sw.ElapsedMilliseconds).Wait();
+                    sw.Restart();
                 }
             }
         }
 
         private void GetSectionInfo()
         {
+            Console.Write($"[{DateTime.Now:s}]  -  Section Info Running... ");
             var doc = GetFile(_sectionInfoFilepath);
-            var resultSet = ParseSections(doc, 3);
+            var resultSet = ParseSections(doc);
             Push(resultSet, _sectionPushCommands, _sectionParameters);
+            Console.WriteLine("Done");
         }
-        private void GetClassInfo()
+        private void GetCourseInfo()
         {
+            Console.Write($"[{DateTime.Now:s}]  -  Course Info Running.... ");
             var doc = GetFile(_courseInfoFilepath);
             var resultSet = ParseCourses(doc);
             Push(resultSet, _coursePushCommands, _courseParameters);
+            Console.WriteLine("Done");
         }
 
-        private static HtmlDocument GetFile(string expectedFilepath)
+        private static IEnumerable<List<string>> ParseSections(HtmlDocument doc)
         {
-            HtmlDocument doc = null;
-            doc = new HtmlDocument();
-            doc.Load(expectedFilepath);
-
-            return doc;
-        }
-        private static IEnumerable<List<object>> ParseSections(HtmlDocument doc, int tableIndex)
-        {
-            var resultSet = new List<List<object>>();
-            var table = doc.DocumentNode.SelectNodes("//table")[tableIndex];
+            var resultSet = new List<List<string>>();
+            var table = doc.DocumentNode.SelectNodes("//table")[3];
             foreach (var row in table.SelectNodes("tr"))
             {
-                if (row.SelectNodes("td") == null) continue;
-                var resultRow = new List<object>();
-
-                var cells = row.SelectNodes("td");
-                if (cells[0].InnerText == "&nbsp;")
+                try
                 {
-                    for (var i = 0; i < cells.Count; i++)
-                        resultSet[resultSet.Count-1][i] += (string)resultSet[resultSet.Count-1][i] != cells[i].InnerText && cells[i].InnerText != "&nbsp;" ? "|" + cells[i].InnerText : "";
-                    continue;
-                }
+                    if (row.SelectNodes("td") == null) continue;
+                    var resultRow = new List<string>();
 
-                foreach (var cell in row.SelectNodes("td"))
-                {
-                    resultRow.Add(cell.InnerText);
-                    for (var i = 1; i < int.Parse(cell.Attributes["colspan"]?.Value ?? "0"); i++)
+                    var cells = row.SelectNodes("td");
+                    if (cells[0].InnerText == "&nbsp;")
+                    {
+                        for (var i = 0; i < cells.Count; i++)
+                            resultSet[resultSet.Count - 1][i] += resultSet[resultSet.Count - 1][i] != cells[i].InnerText && cells[i].InnerText != "&nbsp;" ? "|" + cells[i].InnerText : "";
+                        continue;
+                    }
+
+                    foreach (var cell in row.SelectNodes("td"))
+                    {
                         resultRow.Add(cell.InnerText);
+                        for (var i = 1; i < int.Parse(cell.Attributes["colspan"]?.Value ?? "0"); i++)
+                            resultRow.Add(cell.InnerText);
+                    }
+                    if (resultRow.Count > 0) resultSet.Add(resultRow);
                 }
-                if (resultRow.Count > 0) resultSet.Add(resultRow);
+                catch (Exception e)
+                {
+                    Console.WriteLine("\n" + e);
+                }
             }
             return resultSet;
         }
-        private static IEnumerable<List<object>> ParseCourses(HtmlDocument doc)
+        private static IEnumerable<List<string>> ParseCourses(HtmlDocument doc)
         {
-            return new List<object>[0];
+            var resultSet = new List<List<string>>();
+            var resultRow = new List<string>();
+            var resultString = "";
+
+            var nodes = doc.GetElementbyId("content").ChildNodes;
+            for (var i = 0; i < nodes.Count; i++)
+            {
+                if (i <= 10) continue;
+                switch (nodes[i].Name)
+                {
+                    case "br" when nodes[i - 1].Name == "br":
+                        resultRow.RemoveAt(resultRow.Count - 1);
+                        resultSet.Add(resultRow);
+                        resultRow = new List<string>();
+                        break;
+                    case "br":
+                        resultRow.Add(resultString);
+                        resultString = string.Empty;
+                        break;
+                    default:
+                        resultString += nodes[i].InnerText;
+                        break;
+                }
+            }
+
+            return NormalizeCourses(resultSet);
         }
-        private void Push(IEnumerable<List<object>> resultSet, IReadOnlyList<string> commands, IEnumerable<List<object>> parameterSet)
+        private static IEnumerable<List<string>> NormalizeCourses(IEnumerable<List<string>> courses)
+        {
+            foreach (var course in courses)
+            {
+                var sa = course[0].Split('-');
+                course[0] = sa[0].Trim('\n'); // Crse
+                course.Insert(1, sa[1].Trim('\n')); // Title
+                course[3] = course[3].Substring(9).Trim('\n'); // Cred
+
+                /*
+                course[4] = course[4].Substring(12, course[4].Length-13); // [Lec-Rec-Lab]
+                course[7] = course[7].Substring(1).Trim('\n'); // Sem?
+                result[8] = result[8].Substring(13, result[8].Length - 1); // [Restrictions]
+                result[9] = result[9].Substring(19, result[9].Length - 1); // [Preqeqs]
+                result[10] = result[10].Substring(18, result[10].Length - 1); // [Coreqs]
+                */
+            }
+            return courses;
+        }
+        private void Push(IEnumerable<List<string>> resultSet, IReadOnlyList<string> commands, IEnumerable<List<object>> parameterSet)
         {
             using (var connection = new MySqlConnection(_connectionString))
             {
@@ -181,7 +230,7 @@ namespace BanwebScraper
                                 switch (command.Parameters[i].MySqlDbType)
                                 {
                                     case MySqlDbType.Int32:
-                                        command.Parameters[i].Value = int.Parse(ScrubHtml(row[i])); break;
+                                        command.Parameters[i].Value = ScrubHtmlInt(row[i]); break;
                                     case MySqlDbType.VarChar:
                                         command.Parameters[i].Value = ScrubHtml(row[i]); break;
                                 }
@@ -190,32 +239,60 @@ namespace BanwebScraper
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
+                            Console.WriteLine("\n" + e);
                         }
                     }
                     transaction.Commit();
                 }
             }
         }
-        private static string ScrubHtml(object htmlstring)
+
+        private static HtmlDocument GetFile(string expectedFilepath)
         {
-            var s = (string) htmlstring;
+            HtmlDocument doc = null;
+            try
+            {
+                doc = new HtmlDocument();
+                doc.Load(expectedFilepath);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\n" + e);
+            }
+
+            return doc;
+        }
+        private static string ScrubHtml(string htmlstring)
+        {
+            var s = htmlstring;
             var s1 = Regex.Replace(s, @"<[^>]+>|&nbsp;", "").Trim();
             var s2 = Regex.Replace(s1, @"\s{2,}", " ");
-            return s2;
+            return s2 == string.Empty ? null : s2;
+        }
+        private static int? ScrubHtmlInt(string htmlstring)
+        {
+            var s = ScrubHtml(htmlstring);
+            return s == null ? default(int?) : int.Parse(s);
         }
         private HashSet<int> RunQuery(string query)
         {
             var dt = new DataTable();
             var result = new HashSet<int>();
 
-            using (var connection = new MySqlConnection(_connectionString))
-            using (var command = new MySqlCommand(query, connection))
+            try
             {
-                connection.Open();
-                dt.Load(command.ExecuteReader());
-                foreach (DataRow dr in dt.Rows)
-                    result.Add((int) dr[0]);
+                using (var connection = new MySqlConnection(_connectionString))
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    dt.Load(command.ExecuteReader());
+                    foreach (DataRow dr in dt.Rows)
+                        result.Add((int) dr[0]);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\n" + e);
             }
 
             return result;
