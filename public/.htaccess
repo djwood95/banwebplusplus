@@ -17,5 +17,5 @@
   RewriteBase /public/
 
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^ index.php [QSA,R,L]
+  RewriteRule ^ index.php [QSA,L]
 </IfModule>
