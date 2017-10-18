@@ -1,2 +1,2 @@
 RewriteEngine On
-RewriteRule ^$ /view [R,L]
+RewriteRule ^$ /view [L]
