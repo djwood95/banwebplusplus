@@ -124,6 +124,28 @@ class Scraper extends Mapper {
         fclose($file);
 	}
 
+
+	public function search($query) {
+		$stmt = $this->db->prepare("SELECT * FROM sections WHERE CourseNum LIKE :query");
+		$result = $stmt->execute([
+			'query' => $query
+		]);
+
+		$results = [];
+
+		while($row = $stmt->fetch()) {
+			$results[]['CourseNum'] = $row['CourseNum'];
+			$results[]['CRN'] = $row['CRN'];
+		}
+
+
+		if(!$result) throw new Exception("Could not add username.");
+
+		if(count($results) == 0) return "No Results.";
+
+		return json_encode($results);
+	}
+
 }
 
 ?>

@@ -30,3 +30,10 @@ $app->get('/descriptions', function(Request $request, Response $response) {
 	$scraper = new Scraper($this->db);
 	$scraper->getCourseDescriptions();
 });
+
+$app->get('/search/{query}', function(Request $request, Response $response, $args) {
+	$query = $args['query'];
+	$scraper = new Scraper($this->db);
+	$results = $scraper->search($query);
+	echo $results;
+});
