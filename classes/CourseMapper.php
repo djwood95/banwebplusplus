@@ -4,7 +4,7 @@ class CourseMapper extends Mapper {
 
 	/** Search by course name or number **/
 	function search($query) {
-		$stmt = $this->db->prepare("SELECT * FROM courses WHERE CourseNum LIKE :query OR CourseName LIKE :query_wildcard");
+		$stmt = $this->db->prepare("SELECT * FROM Courses WHERE CourseNum LIKE :query OR CourseName LIKE :query_wildcard");
 		$result = $stmt->execute([
 			'query' => $query,
 			'query_wildcard' => "%$query%"
