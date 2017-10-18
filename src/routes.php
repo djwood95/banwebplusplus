@@ -33,7 +33,7 @@ $app->get('/descriptions', function(Request $request, Response $response) {
 
 $app->get('/search/{query}', function(Request $request, Response $response, $args) {
 	$query = $args['query'];
-	$scraper = new Scraper($this->db);
-	$results = $scraper->search($query);
+	$courseMapper = new CourseMapper($this->db);
+	$results = $courseMapper->search($query);
 	echo $results;
 });

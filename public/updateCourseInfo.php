@@ -1,22 +1,15 @@
 <?php
-
-use Sunra\PhpSimple\HtmlDomParser;
-
-class Scraper extends Mapper {
 	
-	public function generateBanwebFiles() {
+	require __DIR__ . '/../vendor/autoload.php';
+	use Sunra\PhpSimple\HtmlDomParser;
+	
+	$semesterCodeList = getAvailableSemesters();
 
-		$semesterCodeList = self::getAvailableSemesters();
-
-		foreach($semesterCodeList as $semesterCode) {
-			self::scrapeSemester($semesterCode);
-		}
-
-		//self::getCourseDescriptions();
-
+	foreach($semesterCodeList as $semesterCode) {
+		scrapeSemester($semesterCode);
 	}
 
-	private function scrapeSemester($semesterCode) {
+	function scrapeSemester($semesterCode) {
 
 		$curl = curl_init();
 
@@ -62,7 +55,7 @@ class Scraper extends Mapper {
 
 	}
 
-	private function getAvailableSemesters() {
+	function getAvailableSemesters() {
 		$currentYear = date("Y");
 
 		$curl = curl_init();
@@ -116,14 +109,6 @@ class Scraper extends Mapper {
 	}
 
 
-	/* Get descriptions and pre-req/co-req info and dump into file */
-	public function getCourseDescriptions() {
-		$html = file_get_contents("https://www.banweb.mtu.edu/pls/owa/stu_ctg_utils.p_online_all_courses_ug");
-		$file = fopen(__DIR__ . "/../banwebFiles/descriptions.html", 'w');
-        fwrite($file, $html);
-        fclose($file);
-	}
-
-}
+	
 
 ?>
