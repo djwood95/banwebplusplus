@@ -14,7 +14,7 @@ namespace BanwebScraper
         private readonly string _connectionString, _courseInfoFilepath, _sectionInfoFilepath;
         private readonly string[] _coursePushCommands, _sectionPushCommands;
         private readonly List<List<object>> _courseParameters, _sectionParameters;
-        private readonly HashSet<int> _sectionList, _courseList;
+        private readonly HashSet<string> _sectionList, _courseList;
 
         public Scraper(string courseInfoFilepath, string sectionInfoFilepath)
         {
@@ -35,8 +35,8 @@ namespace BanwebScraper
             
             _coursePushCommands = new[]
             {
-                "INSERT INTO Courses (CourseNum,Name,Description,SemestersOffered,Credits,LectureCredits,RecitationCredits,LabCredits,Prereq,Coreq) VALUES(@Crse,@Title,@Descr,@Sem,@Cred,@Lec,@Rec,@Lab,@Prereqs,@Coreqs)",
-                "UPDATE Courses SET Name = @Title, Description = @Descr, SemestersOffered = @Sem, Credits = @Cred, LectureCredits = @Lec, RecitationCredits = @Rec, LabCredits = @Lab, Prereq = @Preqeqs, Coreq = @Coreqs WHERE CourseNum = @Crse"
+                "INSERT INTO Courses (CourseNum,CourseName,Description,SemestersOffered,Credits,LectureCredits,RecitationCredits,LabCredits,Restrictions,Prereq,Coreq) VALUES(@Crse,@Title,@Descr,@Sem,@Cred,@Lec,@Rec,@Lab,@Rest,@Prereqs,@Coreqs)",
+                "UPDATE Courses SET CourseName=@Title, Description=@Descr, SemestersOffered=@Sem, Credits=@Cred, LectureCredits=@Lec, RecitationCredits=@Rec, LabCredits=@Lab, Restrictions=@Rest, Prereq=@Preqeqs, Coreq=@Coreqs WHERE CourseNum=@Crse"
             };
             _sectionPushCommands = new[]
             {
@@ -68,16 +68,16 @@ namespace BanwebScraper
                 new List<object> {"@Crse", MySqlDbType.VarChar, 8},
                 new List<object> {"@Title", MySqlDbType.VarChar, 255},
                 new List<object> {"@Descr", MySqlDbType.VarChar, 5000},
-                new List<object> {"@Cred", MySqlDbType.VarChar, 16},
+                new List<object> {"@Cred", MySqlDbType.VarChar, 64},
                 new List<object> {"@Lec", MySqlDbType.Int32},
                 new List<object> {"@Rec", MySqlDbType.Int32},
                 new List<object> {"@Lab", MySqlDbType.Int32},
                 new List<object> {"@Sem", MySqlDbType.VarChar, 32},
+                new List<object> {"@Rest", MySqlDbType.VarChar, 255},
                 new List<object> {"@Prereqs", MySqlDbType.VarChar, 255},
                 new List<object> {"@Coreqs", MySqlDbType.VarChar, 255}
             };
         }
-
         public void Run()
         {
             // wait time reader, consider using:
@@ -103,7 +103,7 @@ namespace BanwebScraper
             Console.Write($"[{DateTime.Now:s}]  -  Section Info Running... ");
             var doc = GetFile(_sectionInfoFilepath);
             var resultSet = ParseSections(doc);
-            Push(resultSet, _sectionPushCommands, _sectionParameters);
+            Push(resultSet, _sectionPushCommands, _sectionParameters, _sectionList);
             Console.WriteLine("Done");
         }
         private void GetCourseInfo()
@@ -111,10 +111,25 @@ namespace BanwebScraper
             Console.Write($"[{DateTime.Now:s}]  -  Course Info Running.... ");
             var doc = GetFile(_courseInfoFilepath);
             var resultSet = ParseCourses(doc);
-            Push(resultSet, _coursePushCommands, _courseParameters);
+            Push(resultSet, _coursePushCommands, _courseParameters, _courseList);
             Console.WriteLine("Done");
         }
 
+        private static HtmlDocument GetFile(string expectedFilepath)
+        {
+            HtmlDocument doc = null;
+            try
+            {
+                doc = new HtmlDocument();
+                doc.Load(expectedFilepath);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\n" + e);
+            }
+
+            return doc;
+        }
         private static IEnumerable<List<string>> ParseSections(HtmlDocument doc)
         {
             var resultSet = new List<List<string>>();
@@ -151,9 +166,9 @@ namespace BanwebScraper
         }
         private static IEnumerable<List<string>> ParseCourses(HtmlDocument doc)
         {
-            var resultSet = new List<List<string>>();
-            var resultRow = new List<string>();
             var resultString = "";
+            var resultRow = new List<string>();
+            var resultSet = new List<List<string>>();
 
             var nodes = doc.GetElementbyId("content").ChildNodes;
             for (var i = 0; i < nodes.Count; i++)
@@ -167,7 +182,7 @@ namespace BanwebScraper
                         resultRow = new List<string>();
                         break;
                     case "br":
-                        resultRow.Add(resultString);
+                        resultRow.Add(resultString.Trim('\n',' '));
                         resultString = string.Empty;
                         break;
                     default:
@@ -176,28 +191,10 @@ namespace BanwebScraper
                 }
             }
 
-            return NormalizeCourses(resultSet);
+            NormalizeCourses(resultSet);
+            return resultSet;
         }
-        private static IEnumerable<List<string>> NormalizeCourses(IEnumerable<List<string>> courses)
-        {
-            foreach (var course in courses)
-            {
-                var sa = course[0].Split('-');
-                course[0] = sa[0].Trim('\n'); // Crse
-                course.Insert(1, sa[1].Trim('\n')); // Title
-                course[3] = course[3].Substring(9).Trim('\n'); // Cred
-
-                /*
-                course[4] = course[4].Substring(12, course[4].Length-13); // [Lec-Rec-Lab]
-                course[7] = course[7].Substring(1).Trim('\n'); // Sem?
-                result[8] = result[8].Substring(13, result[8].Length - 1); // [Restrictions]
-                result[9] = result[9].Substring(19, result[9].Length - 1); // [Preqeqs]
-                result[10] = result[10].Substring(18, result[10].Length - 1); // [Coreqs]
-                */
-            }
-            return courses;
-        }
-        private void Push(IEnumerable<List<string>> resultSet, IReadOnlyList<string> commands, IEnumerable<List<object>> parameterSet)
+        private void Push(IEnumerable<List<string>> resultSet, IReadOnlyList<string> commands, IEnumerable<List<object>> parameterSet, HashSet<string> set)
         {
             using (var connection = new MySqlConnection(_connectionString))
             {
@@ -209,13 +206,13 @@ namespace BanwebScraper
                     foreach (var parameter in parameterSet)
                         if (parameter.Count == 2)
                         {
-                            insertCommand.Parameters.Add((string) parameter[0], (MySqlDbType) parameter[1]);
-                            updateCommand.Parameters.Add((string) parameter[0], (MySqlDbType) parameter[1]);
+                            insertCommand.Parameters.Add((string)parameter[0], (MySqlDbType)parameter[1]);
+                            updateCommand.Parameters.Add((string)parameter[0], (MySqlDbType)parameter[1]);
                         }
                         else
                         {
-                            insertCommand.Parameters.Add((string) parameter[0], (MySqlDbType) parameter[1], (int) parameter[2]);
-                            updateCommand.Parameters.Add((string) parameter[0], (MySqlDbType) parameter[1], (int) parameter[2]);
+                            insertCommand.Parameters.Add((string)parameter[0], (MySqlDbType)parameter[1], (int)parameter[2]);
+                            updateCommand.Parameters.Add((string)parameter[0], (MySqlDbType)parameter[1], (int)parameter[2]);
                         }
                     insertCommand.Prepare();
                     updateCommand.Prepare();
@@ -224,7 +221,7 @@ namespace BanwebScraper
                     {
                         try
                         {
-                            var command = _sectionList.Contains(int.Parse(ScrubHtml(row[0]))) ? updateCommand : insertCommand;
+                            var command = set.Contains(ScrubHtml(row[0])) ? updateCommand : insertCommand;
                             for (var i = 0; i < command.Parameters.Count; i++)
                             {
                                 switch (command.Parameters[i].MySqlDbType)
@@ -247,23 +244,49 @@ namespace BanwebScraper
             }
         }
 
-        private static HtmlDocument GetFile(string expectedFilepath)
+        private static void NormalizeCourses(IEnumerable<List<string>> courses)
         {
-            HtmlDocument doc = null;
-            try
+            foreach (var course in courses)
             {
-                doc = new HtmlDocument();
-                doc.Load(expectedFilepath);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("\n" + e);
-            }
+                var sa = course[0].Split('-');
+                course[0] = sa[0].Trim('\n', ' ');
+                course.Insert(1, sa[1].Trim('\n', ' '));
+                course[3] = course[3].Substring(9).Trim('\n', ' ');
 
-            return doc;
+                for (var i = 4; i <= 8; i++)
+                    if (i < course.Count) HandleOptional(course, i);
+                    else course.Insert(i, null);
+
+                sa = course[4]?.Split('-') ?? new string[] {null, null, null};
+                course[4] = sa[0];
+                course.Insert(5, sa[1]);
+                course.Insert(6, sa[2]);
+
+                if (course[9] != null) course[9] = course[9].Replace(" or ", "|").Replace(" and ", "&");
+                if (course[10] != null) course[10] = course[10].Replace(" or ", "|").Replace(" and ", "&");
+            }
+        }
+        private static void HandleOptional(IList<string> l, int i)
+        {
+            string s;
+            if (l[i].StartsWith("Lec-Rec-Lab:") && i >= 4)
+                s = l[i].Substring(12, l[i].Length - 13).Trim(' ','(',')','\n');
+            else if (l[i].StartsWith("Semesters Offered:") && i >= 5)
+                s = l[i].Substring(18).Trim(' ', '\n');
+            else if (l[i].StartsWith("Restrictions:") && i >= 6)
+                s = l[i].Substring(13).Trim(' ', '\n');
+            else if (l[i].StartsWith("Pre-Requisite(s):") && i >= 7)
+                s = l[i].Substring(17).Trim(' ', '\n');
+            else if (l[i].StartsWith("Co-Requisite(s):") && i >= 7)
+                s = l[i].Substring(16).Trim(' ', '\n');
+            else s = string.Empty;
+
+            if (s == string.Empty) l.Insert(i, null);
+            else l[i] = s;
         }
         private static string ScrubHtml(string htmlstring)
         {
+            if (htmlstring == null) return null;
             var s = htmlstring;
             var s1 = Regex.Replace(s, @"<[^>]+>|&nbsp;", "").Trim();
             var s2 = Regex.Replace(s1, @"\s{2,}", " ");
@@ -274,10 +297,10 @@ namespace BanwebScraper
             var s = ScrubHtml(htmlstring);
             return s == null ? default(int?) : int.Parse(s);
         }
-        private HashSet<int> RunQuery(string query)
+        private HashSet<string> RunQuery(string query)
         {
             var dt = new DataTable();
-            var result = new HashSet<int>();
+            var result = new HashSet<string>();
 
             try
             {
@@ -287,7 +310,7 @@ namespace BanwebScraper
                     connection.Open();
                     dt.Load(command.ExecuteReader());
                     foreach (DataRow dr in dt.Rows)
-                        result.Add((int) dr[0]);
+                        result.Add(dr[0].ToString());
                 }
             }
             catch (Exception e)
