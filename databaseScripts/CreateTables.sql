@@ -31,16 +31,9 @@ CREATE TABLE IF NOT EXISTS Sections(
   Fee VARCHAR(100)
 );
 CREATE TABLE IF NOT EXISTS StudentSchedule(
-  ScheduleId INT,
+  ScheduleName VARCHAR(100),
   GoogleId VARCHAR(300) NOT NULL,
   Semester VARCHAR(100),
   ScheduleYear VARCHAR(100),
   CRN VARCHAR(500)
-);
-CREATE TABLE IF NOT EXISTS StudentSchedule(
-  ScheduleId INT(1) PRIMARY KEY,
-  GoogleId VARCHAR(300) NOT NULL,
-  Semester VARCHAR(100),
-  ScheduleYear VARCHAR(100),
-  CRN_List VARCHAR(5000)
-);
+);	
