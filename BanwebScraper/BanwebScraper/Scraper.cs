@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -248,6 +249,10 @@ namespace BanwebScraper
                             resultRow.Add(resultString.Trim('\n', ' '));
                             resultString = string.Empty;
                             break;
+                        case "A":
+                        case "hr":
+                        case "h3":
+                            break;
                         default:
                             resultString += nodes[i].InnerText;
                             break;
@@ -343,7 +348,7 @@ namespace BanwebScraper
                 {
                     var sa = course[0].Split('-');
                     course[0] = sa[0].Trim('\n', ' ');
-                    course.Insert(1, sa[1].Trim('\n', ' '));
+                    course.Insert(1, string.Join("", sa.Skip(1)).Trim('\n', ' '));
                     course[3] = course[3].Substring(9).Trim('\n', ' ');
 
                     for (var i = 4; i <= 8; i++)
