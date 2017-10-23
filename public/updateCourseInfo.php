@@ -1,5 +1,11 @@
 <?php
 	
+	/* When this script is run, class schedule information is taken from banweb for all semesters within the past year
+	 * And placed into html files in the banwebFiles/ directory with the format YYYYMM.html, where MM is the month number
+	 * that the semester starts in (08 = fall, 01 = spring, 05 = summer).
+	 * There is no return unless there is an error
+	**/
+
 	require __DIR__ . '/../vendor/autoload.php';
 	use Sunra\PhpSimple\HtmlDomParser;
 	
@@ -9,6 +15,7 @@
 		scrapeSemester($semesterCode);
 	}
 
+	/* Get information from specified semester */
 	function scrapeSemester($semesterCode) {
 
 		$curl = curl_init();
@@ -55,6 +62,9 @@
 
 	}
 
+	/* Generate list of semesters available on Banweb that are within the past year
+	 * @return array<SemesterCodeString>
+	 */
 	function getAvailableSemesters() {
 		$currentYear = date("Y");
 
