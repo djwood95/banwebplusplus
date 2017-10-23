@@ -2,21 +2,32 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Threading;
 using HtmlAgilityPack;
 using MySql.Data.MySqlClient;
 
 namespace BanwebScraper
 {
-    internal class Scraper
+    internal sealed class Scraper : IDisposable
     {
-        private readonly string _connectionString, _courseInfoFilepath, _sectionInfoFilepath;
-        private readonly string[] _coursePushCommands, _sectionPushCommands;
-        private readonly List<List<object>> _courseParameters, _sectionParameters;
-        private readonly HashSet<string> _sectionList, _courseList;
+        #region Variables
 
-        public Scraper(string courseInfoFilepath, string sectionInfoFilepath)
+        private static CancellationTokenSource _cts;
+        private static CancellationToken _ct;
+        private static AutoResetEvent _waitForInputFlag, _gotInputFlag;
+        private readonly string _connectionString;
+        private readonly string[] _coursePushCommands, _sectionPushCommands;
+        private List<List<object>> _courseParameters, _sectionParameters;
+        private HashSet<string> _sectionList, _courseList;
+        private readonly Dictionary<string, DateTime> _lastPushInfo;
+        private readonly HtmlWeb _web;
+
+        #endregion
+
+        public Scraper()
         {
             _connectionString = new MySqlConnectionStringBuilder
             {
@@ -26,33 +37,30 @@ namespace BanwebScraper
                 UserID = "dbuser",
                 Password = "BanWeb++"
             }.ConnectionString;
+            _web = new HtmlWeb();
 
-            _sectionList = RunQuery("SELECT crn FROM Sections");
-            _courseList = RunQuery("SELECT CourseNum FROM Courses");
+            var waiterThread = new Thread(Waiter) {IsBackground = true};
+            _waitForInputFlag = new AutoResetEvent(false);
+            _gotInputFlag = new AutoResetEvent(false);
+            _cts = new CancellationTokenSource();
+            _ct = _cts.Token;
+            waiterThread.Start();
 
-            _courseInfoFilepath = courseInfoFilepath;
-            _sectionInfoFilepath = sectionInfoFilepath;
-            
-            _coursePushCommands = new[]
-            {
-                "INSERT INTO Courses (CourseNum,CourseName,Description,SemestersOffered,Credits,LectureCredits,RecitationCredits,LabCredits,Restrictions,Prereq,Coreq) VALUES(@Crse,@Title,@Descr,@Sem,@Cred,@Lec,@Rec,@Lab,@Rest,@Prereqs,@Coreqs)",
-                "UPDATE Courses SET CourseName=@Title, Description=@Descr, SemestersOffered=@Sem, Credits=@Cred, LectureCredits=@Lec, RecitationCredits=@Rec, LabCredits=@Lab, Restrictions=@Rest, Prereq=@Preqeqs, Coreq=@Coreqs WHERE CourseNum=@Crse"
-            };
+            _lastPushInfo = new Dictionary<string, DateTime>();
             _sectionPushCommands = new[]
             {
-                "INSERT INTO Sections (CourseNum,CRN,SectionNum,Days,SectionTime,Location,SectionActual,Capacity,SlotsRemaining,Instructor,Dates,Fee) VALUES (CONCAT(@Subj,' ',@Crse),@CRN,@Sec,@Days,@Time,@Loc,@Act,@Cap,@Rem,@Inst,@Dates,@Fee)",
-                "UPDATE Sections SET CourseNum=CONCAT(@Subj,' ',@Crse), SectionNum=@Sec, Days=@Days, SectionTime=@Time, Location=@Loc, SectionActual=@Act, Capacity=@Cap, SlotsRemaining=@Rem, Instructor=@Inst, Dates=@Dates, Fee=@Fee WHERE CRN=@CRN"
+                "INSERT INTO Sections (CourseNum,CRN,SectionNum,Days,SectionTime,Location,SectionActual,Capacity,SlotsRemaining,Instructor,Dates,Fee,Year) VALUES (CONCAT(@Subj,' ',@Crse),@CRN,@Sec,@Days,@Time,@Loc,@Act,@Cap,@Rem,@Inst,@Dates,@Fee,@Yr)",
+                "UPDATE Sections SET CourseNum=CONCAT(@Subj,' ',@Crse), SectionNum=@Sec, Days=@Days, SectionTime=@Time, Location=@Loc, SectionActual=@Act, Capacity=@Cap, SlotsRemaining=@Rem, Instructor=@Inst, Dates=@Dates, Fee=@Fee WHERE CRN=@CRN AND Year=@Yr"
             };
-
             _sectionParameters = new List<List<object>>
             {
                 new List<object> {"@CRN", MySqlDbType.Int32},
                 new List<object> {"@Subj", MySqlDbType.VarChar, 6},
                 new List<object> {"@Crse", MySqlDbType.Int32},
                 new List<object> {"@Sec", MySqlDbType.VarChar, 3},
-                new List<object> {"@Cmp", MySqlDbType.VarChar, 3},//
-                new List<object> {"@Cred", MySqlDbType.VarChar, 16},//
-                new List<object> {"@Title", MySqlDbType.VarChar, 255},//
+                new List<object> {"@Cmp", MySqlDbType.VarChar, 3},
+                new List<object> {"@Cred", MySqlDbType.VarChar, 16},
+                new List<object> {"@Title", MySqlDbType.VarChar, 255},
                 new List<object> {"@Days", MySqlDbType.VarChar, 10},
                 new List<object> {"@Time", MySqlDbType.VarChar, 64},
                 new List<object> {"@Cap", MySqlDbType.Int32},
@@ -61,7 +69,14 @@ namespace BanwebScraper
                 new List<object> {"@Inst", MySqlDbType.VarChar, 128},
                 new List<object> {"@Dates", MySqlDbType.VarChar, 64},
                 new List<object> {"@Loc", MySqlDbType.VarChar, 8},
-                new List<object> {"@Fee", MySqlDbType.VarChar, 255}
+                new List<object> {"@Fee", MySqlDbType.VarChar, 255},
+                new List<object> {"@Yr", MySqlDbType.Int32}
+            };
+            
+            _coursePushCommands = new[]
+            {
+                "INSERT INTO Courses (CourseNum,CourseName,Description,SemestersOffered,Credits,LectureCredits,RecitationCredits,LabCredits,Restrictions,Prereq,Coreq) VALUES(@Crse,@Title,@Descr,@Sem,@Cred,@Lec,@Rec,@Lab,@Rest,@Prereqs,@Coreqs)",
+                "UPDATE Courses SET CourseName=@Title, Description=@Descr, SemestersOffered=@Sem, Credits=@Cred, LectureCredits=@Lec, RecitationCredits=@Rec, LabCredits=@Lab, Restrictions=@Rest, Prereq=@Prereqs, Coreq=@Coreqs WHERE CourseNum=@Crse"
             };
             _courseParameters = new List<List<object>>
             {
@@ -80,57 +95,104 @@ namespace BanwebScraper
         }
         public void Run()
         {
-            // wait time reader, consider using:
-            // https://stackoverflow.com/a/18342182
-
+            // implemented wait timer: https://stackoverflow.com/a/18342182
             var sw = new Stopwatch();
             while (true)
             {
                 sw.Start();
-                GetCourseInfo(); // runs every day
+                while (!PushCourseInfo()) WaitForInput(10000);
                 for (var i = 0; i < 24; i++)
                 {
-                    GetSectionInfo(); // runs every hour
+                    PushAllSectionInfo();
+                    Console.Write($"[{DateTime.Now:s}]  -  Waiting for next run, press <Enter> to quit ");
                     sw.Stop();
-                    Task.Delay(3600000 - (int) sw.ElapsedMilliseconds).Wait();
+                    if (WaitForInput(3600000 - (int) sw.ElapsedMilliseconds)) return;
+                    Console.WriteLine();
                     sw.Restart();
                 }
             }
         }
 
-        private void GetSectionInfo()
+        private void PushAllSectionInfo()
         {
-            Console.Write($"[{DateTime.Now:s}]  -  Section Info Running... ");
-            var doc = GetFile(_sectionInfoFilepath);
-            var resultSet = ParseSections(doc);
-            Push(resultSet, _sectionPushCommands, _sectionParameters, _sectionList);
-            Console.WriteLine("Done");
-        }
-        private void GetCourseInfo()
-        {
-            Console.Write($"[{DateTime.Now:s}]  -  Course Info Running.... ");
-            var doc = GetFile(_courseInfoFilepath);
-            var resultSet = ParseCourses(doc);
-            Push(resultSet, _coursePushCommands, _courseParameters, _courseList);
-            Console.WriteLine("Done");
-        }
+            Console.Write($"[{DateTime.Now:s}]  -  Section Info Running ");
 
-        private static HtmlDocument GetFile(string expectedFilepath)
+            _sectionList = RunQuery("SELECT crn FROM Sections");
+            foreach (var section in GetSections())
+            {
+                Console.Write(".");
+                if (_lastPushInfo.ContainsKey(section.Key) && section.Value.Equals(_lastPushInfo[section.Key])) continue;
+                while (!PushSectionInfo(section.Key)) WaitForInput(10000);
+                if (!_lastPushInfo.ContainsKey(section.Key)) _lastPushInfo.Add(section.Key, section.Value);
+                else _lastPushInfo[section.Key] = section.Value;
+            }
+
+            Console.WriteLine("Done");
+        }
+        private bool PushSectionInfo(string pageName)
         {
-            HtmlDocument doc = null;
+            var doc = new HtmlDocument();
+            var year = pageName.Substring(0, 4);
+
             try
             {
-                doc = new HtmlDocument();
-                doc.Load(expectedFilepath);
+                doc.Load(new WebClient().OpenRead("https://banwebplusplus.me/banwebFiles/" + pageName));
             }
             catch (Exception e)
             {
-                Console.WriteLine("\n" + e);
+                Console.WriteLine($"\n{e.GetType()} encountered while getting section html.\n{e.StackTrace}");
+                GC.Collect();
+                return false;
             }
 
-            return doc;
+            try
+            {
+                Push(ParseSections(doc), _sectionPushCommands, _sectionParameters, _sectionList, year);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"\n{e.GetType()} encountered while parsing section info.\n{e.StackTrace}");
+                GC.Collect();
+                return false;
+            }
+
+            GC.Collect();
+            return true;
         }
-        private static IEnumerable<List<string>> ParseSections(HtmlDocument doc)
+        private bool PushCourseInfo()
+        {
+            Console.Write($"[{DateTime.Now:s}]  -  Course Info Running...... ");
+            _courseList = RunQuery("SELECT CourseNum FROM Courses");
+            HtmlDocument doc;
+
+            try
+            {
+                doc = _web.Load("https://banwebplusplus.me/banwebFiles/descriptions.html");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"\n{e.GetType()} encountered while getting course html.\n{e.StackTrace}");
+                GC.Collect();
+                return false;
+            }
+
+            try
+            {
+                Push(ParseCourses(doc), _coursePushCommands, _courseParameters, _courseList);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"\n{e.GetType()} encountered while parsing course info.\n{e.StackTrace}");
+                GC.Collect();
+                return false;
+            }
+
+            GC.Collect();
+            Console.WriteLine("Done");
+            return true;
+        }
+
+        private static List<List<string>> ParseSections(HtmlDocument doc)
         {
             var resultSet = new List<List<string>>();
             var table = doc.DocumentNode.SelectNodes("//table")[3];
@@ -164,7 +226,7 @@ namespace BanwebScraper
             }
             return resultSet;
         }
-        private static IEnumerable<List<string>> ParseCourses(HtmlDocument doc)
+        private static List<List<string>> ParseCourses(HtmlDocument doc)
         {
             var resultString = "";
             var resultRow = new List<string>();
@@ -173,28 +235,39 @@ namespace BanwebScraper
             var nodes = doc.GetElementbyId("content").ChildNodes;
             for (var i = 0; i < nodes.Count; i++)
             {
-                if (i <= 10) continue;
-                switch (nodes[i].Name)
+                try
                 {
-                    case "br" when nodes[i - 1].Name == "br":
-                        resultRow.RemoveAt(resultRow.Count - 1);
-                        resultSet.Add(resultRow);
-                        resultRow = new List<string>();
-                        break;
-                    case "br":
-                        resultRow.Add(resultString.Trim('\n',' '));
-                        resultString = string.Empty;
-                        break;
-                    default:
-                        resultString += nodes[i].InnerText;
-                        break;
+                    if (i <= 10) continue;
+                    switch (nodes[i].Name)
+                    {
+                        case "br" when nodes[i - 1].Name == "br":
+                            resultRow.RemoveAt(resultRow.Count - 1);
+                            resultSet.Add(resultRow);
+                            resultRow = new List<string>();
+                            break;
+                        case "br":
+                            resultRow.Add(resultString.Trim('\n', ' '));
+                            resultString = string.Empty;
+                            break;
+                        case "A":
+                        case "hr":
+                        case "h3":
+                            break;
+                        default:
+                            resultString += nodes[i].InnerText;
+                            break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("\n" + e);
                 }
             }
 
             NormalizeCourses(resultSet);
             return resultSet;
         }
-        private void Push(IEnumerable<List<string>> resultSet, IReadOnlyList<string> commands, IEnumerable<List<object>> parameterSet, HashSet<string> set)
+        private void Push(List<List<string>> resultSet, IReadOnlyList<string> commands, IEnumerable<List<object>> parameterSet, ICollection<string> set, string year = "")
         {
             using (var connection = new MySqlConnection(_connectionString))
             {
@@ -224,12 +297,21 @@ namespace BanwebScraper
                             var command = set.Contains(ScrubHtml(row[0])) ? updateCommand : insertCommand;
                             for (var i = 0; i < command.Parameters.Count; i++)
                             {
-                                switch (command.Parameters[i].MySqlDbType)
+                                try
                                 {
-                                    case MySqlDbType.Int32:
-                                        command.Parameters[i].Value = ScrubHtmlInt(row[i]); break;
-                                    case MySqlDbType.VarChar:
-                                        command.Parameters[i].Value = ScrubHtml(row[i]); break;
+                                    switch (command.Parameters[i].MySqlDbType)
+                                    {
+                                        case MySqlDbType.Int32:
+                                            command.Parameters[i].Value = ScrubHtmlInt(row[i]);
+                                            break;
+                                        case MySqlDbType.VarChar:
+                                            command.Parameters[i].Value = ScrubHtml(row[i]);
+                                            break;
+                                    }
+                                }
+                                catch (ArgumentOutOfRangeException)
+                                {
+                                    command.Parameters[i].Value = year;
                                 }
                             }
                             command.ExecuteNonQuery();
@@ -240,30 +322,51 @@ namespace BanwebScraper
                         }
                     }
                     transaction.Commit();
+
+                    foreach(var result in resultSet) result.Clear();
+                    resultSet.Clear();
                 }
             }
         }
 
+        private IEnumerable<KeyValuePair<string, DateTime>> GetSections()
+        {
+            var sections = new List<KeyValuePair<string, DateTime>>();
+            var rows = _web.Load("https://banwebplusplus.me/banwebFiles/").DocumentNode.SelectSingleNode("//table").SelectNodes("tr");
+            for (var i = 3; i < rows.Count - 2; i++)
+            {
+                var cells = rows[i].SelectNodes("td");
+                sections.Add(new KeyValuePair<string,DateTime>(cells[1].InnerText, DateTime.Parse(cells[2].InnerText)));
+            }
+            return sections;
+        }
         private static void NormalizeCourses(IEnumerable<List<string>> courses)
         {
             foreach (var course in courses)
             {
-                var sa = course[0].Split('-');
-                course[0] = sa[0].Trim('\n', ' ');
-                course.Insert(1, sa[1].Trim('\n', ' '));
-                course[3] = course[3].Substring(9).Trim('\n', ' ');
+                try
+                {
+                    var sa = course[0].Split('-');
+                    course[0] = sa[0].Trim('\n', ' ');
+                    course.Insert(1, string.Join("", sa.Skip(1)).Trim('\n', ' '));
+                    course[3] = course[3].Substring(9).Trim('\n', ' ');
 
-                for (var i = 4; i <= 8; i++)
-                    if (i < course.Count) HandleOptional(course, i);
-                    else course.Insert(i, null);
+                    for (var i = 4; i <= 8; i++)
+                        if (i < course.Count) HandleOptional(course, i);
+                        else course.Insert(i, null);
 
-                sa = course[4]?.Split('-') ?? new string[] {null, null, null};
-                course[4] = sa[0];
-                course.Insert(5, sa[1]);
-                course.Insert(6, sa[2]);
+                    sa = course[4]?.Split('-') ?? new string[] {null, null, null};
+                    course[4] = sa[0];
+                    course.Insert(5, sa[1]);
+                    course.Insert(6, sa[2]);
 
-                if (course[9] != null) course[9] = course[9].Replace(" or ", "|").Replace(" and ", "&");
-                if (course[10] != null) course[10] = course[10].Replace(" or ", "|").Replace(" and ", "&");
+                    if (course[9] != null) course[9] = course[9].Replace(" or ", "|").Replace(" and ", "&");
+                    if (course[10] != null) course[10] = course[10].Replace(" or ", "|").Replace(" and ", "&");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("\n" + e);
+                }
             }
         }
         private static void HandleOptional(IList<string> l, int i)
@@ -297,6 +400,7 @@ namespace BanwebScraper
             var s = ScrubHtml(htmlstring);
             return s == null ? default(int?) : int.Parse(s);
         }
+
         private HashSet<string> RunQuery(string query)
         {
             var dt = new DataTable();
@@ -320,5 +424,53 @@ namespace BanwebScraper
 
             return result;
         }
+        private static void Waiter()
+        {
+            while (!_ct.IsCancellationRequested)
+            {
+                _waitForInputFlag.WaitOne();
+                Console.ReadLine();
+                _gotInputFlag.Set();
+            }
+        }
+        private static bool WaitForInput(int timeoutTime = Timeout.Infinite)
+        {
+            if (timeoutTime <= 0) return false;
+            _waitForInputFlag.Set();
+            return _gotInputFlag.WaitOne(timeoutTime);
+        }
+
+        #region IDisposable Support
+        private bool _disposedValue; // To detect redundant calls
+        
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        ~Scraper() { Dispose(false); }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposedValue) return;
+            if (disposing)
+            {
+                _cts.Cancel();
+                _cts.Dispose();
+                _waitForInputFlag.Dispose();
+                _gotInputFlag.Dispose();
+            }
+            _courseList.Clear();
+            _sectionList.Clear();
+            _courseParameters.Clear();
+            _sectionParameters.Clear();
+            _courseList = null;
+            _sectionList = null;
+            _courseParameters = null;
+            _sectionParameters = null;
+
+            _disposedValue = true;
+        }
+        #endregion
     }
 }
