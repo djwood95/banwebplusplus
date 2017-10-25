@@ -10,6 +10,7 @@
   </head>
   <body>
 
+  <!--
 	<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <a class="navbar-brand" href="index.html">Banweb++<span class="sr-only">(current)</span></a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,19 +28,34 @@
             <a class="nav-link" href="update/update.html">Update</a>
           </li>
         </ul>
-        <form class="form-inline mt-2 mt-md-0" onclick="return false;">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" id='searchBox'>
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
       </div>
     </nav>
+  -->
 
-    <br/><br/><br/><br/><br/>
-    <!--
-    <h1>Try Searching:</h1>
-    <input type='text' id='searchBox' /><br/>
-    -->
-    <div id='searchResults'></div>
+    <div class='container-fluid mt-5'>
+      <div class="row">
+        <div class='col-sm'>
+          <p>Search for courses to add:</p>
+          <input type='text' id='searchBox' class='form-control'/>
+          <ul id='searchResults' class='list-group' style='max-height:500px;overflow:auto;'></ul>
+        </div>
+
+        <div class='col-xl'>
+          CALENDAR
+        </div>
+
+        <div class='col-sm'>
+          OPEN/SAVE MENU
+        </div>
+      </div>
+    </div>
+
+    <div class='modal fade courseInfoBox' tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" area-hidden="true">
+      <div class='modal-dialog modal-lg'>
+        <div class='modal-content p-2 text-center'></div>
+      </div>
+    </div>
+
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

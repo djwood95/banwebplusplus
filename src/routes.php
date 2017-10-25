@@ -18,7 +18,16 @@ $app->get('/search/{query}', function(Request $request, Response $response, $arg
 	$query = $args['query'];
 	$courseMapper = new CourseMapper($this->db);
 	$results = $courseMapper->search($query);
-	echo $results;
+	$response = $response->withJson($results);
+	return $response;
+});
+
+$app->get('/getCourseInfo/{courseNum}', function(Request $request, Response $response, $args) {
+	$query = $args['courseNum'];
+	$courseMapper = new CourseMapper($this->db);
+	$results = $courseMapper->getCourseInfo($query);
+	$response = $response->withJson($results);
+	return $response;
 });
 
 $app->get('/search/', function(Request $request, Response $response, $args) {
