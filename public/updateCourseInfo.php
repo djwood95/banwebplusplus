@@ -13,6 +13,7 @@
 
 	foreach($semesterCodeList as $semesterCode) {
 		scrapeSemester($semesterCode);
+		echo $semesterCode . "<br/>";
 	}
 
 	/* Get information from specified semester */
@@ -47,13 +48,15 @@
       $response = curl_exec($curl);
       $err = curl_error($curl);
 
+      if(!$response) die($err);
+
       curl_close($curl);
 
       if ($err) {
         return "cURL Error #:" . $err;
       } else {
         //Save response into an html file
-        $file = fopen(__DIR__ . "/../banwebFiles/$semesterCode.html", 'w');
+        $file = fopen(__DIR__ . "/../banwebFiles/$semesterCode.html", 'w') or die("could not open file");
         fwrite($file, $response);
         fclose($file);
         //return "success";
