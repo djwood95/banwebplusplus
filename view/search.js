@@ -4,34 +4,45 @@ $(document).ready(function(){
 
 });
 
+// For buttons embedded in search results, add event listeners here!!
 function listenForSearchClickEvents() {
 	$('.courseInfoBox').on('show.bs.modal', function(event){
 		var clicker = $(event.relatedTarget);
 		var courseNum = clicker.data('coursenum');
-		var newHtml = "";
-		$.get('/public/getCourseInfo/' + courseNum, function(responseTxt){
-			console.log(responseTxt);
-			//var data = JSON.parse(responseTxt);
-			var info = responseTxt[courseNum];
-			newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
-			newHtml += info.Credits + " Credits (" + info.LectureCredits + " Lec/" + info.RecitationCredits + " Rec/" + info.LabCredits + " Lab) | ";
-			newHtml += "Offered " + info.SemestersOffered + " Semesters<br/>";
-			newHtml += "Pre-Reqs: " + info.Prereq + " | Co-Reqs: " + info.CoReq;
-			newHtml += " | Restrictions: " + info.Restrictions + "<hr/>"; 
-			newHtml += info.Description + "<br/><br/>";
+		loadCourseInfo(courseNum);
+	});
 
-			newHtml += "<h3>Sections</h3>";
-			$.each(info.SectionInfo, function(CRN, sectionInfo){
-				newHtml += "<p>" + sectionInfo.Semester + " " + sectionInfo.SectionNum + " " + CRN + ": " + sectionInfo.Days + " " + sectionInfo.SectionTime;
-				newHtml += " - " + sectionInfo.Instructor + " ";
-				var badgeColor = getBadgeColor(sectionInfo.Capacity - sectionInfo.SectionActual);
-				newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Availabe Slots'>";
-					newHtml += sectionInfo.SectionActual + "/" + sectionInfo.Capacity;
-				newHtml += "</span></p>";
-			});
+	$('.addCourseBtn').on('click', function(event){
+		var btn = $(event.relatedTarget);
+		var crn = btn.data('crn');
+		alert("Add Course to Calendar: CRN = " + btn);
+	});
+}
 
-			$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
+function loadCourseInfo(courseNum) {
+	var newHtml = "";
+	$.get('/public/getCourseInfo/' + courseNum, function(responseTxt){
+		console.log(responseTxt);
+		//var data = JSON.parse(responseTxt);
+		var info = responseTxt[courseNum];
+		newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
+		newHtml += info.Credits + " Credits (" + info.LectureCredits + " Lec/" + info.RecitationCredits + " Rec/" + info.LabCredits + " Lab) | ";
+		newHtml += "Offered " + info.SemestersOffered + " Semesters<br/>";
+		newHtml += "Pre-Reqs: " + info.Prereq + " | Co-Reqs: " + info.Coreq;
+		newHtml += " | Restrictions: " + info.Restrictions + "<hr/>"; 
+		newHtml += info.Description + "<br/><br/>";
+
+		newHtml += "<h3>Sections</h3>";
+		$.each(info.SectionInfo, function(CRN, sectionInfo){
+			newHtml += "<p>" + sectionInfo.Semester + " " + sectionInfo.SectionNum + " " + CRN + ": " + sectionInfo.Days + " " + sectionInfo.SectionTime;
+			newHtml += " - " + sectionInfo.Instructor + " ";
+			var badgeColor = getBadgeColor(sectionInfo.Capacity - sectionInfo.SectionActual);
+			newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Availabe Slots'>";
+				newHtml += sectionInfo.SectionActual + "/" + sectionInfo.Capacity;
+			newHtml += "</span></p>";
 		});
+
+		$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
 	});
 }
 
@@ -77,7 +88,7 @@ function displaySearchResults(data) {
 		//Display Sections:
 		$.each(e.SectionInfo, function(CRN, sectionData){
 			html += "<p>";
-				html += "<a href='#' class='badge badge-success mr-1'>Add</a>";
+				html += "<a href='#' class='badge badge-success mr-1 addCourseBtn' data-crn='"+CRN+"'>Add</a>";
 				html += sectionData.Semester + " " + sectionData.SectionNum + ": " + sectionData.Days + " " + sectionData.SectionTime;
 				html += " - " + sectionData.Instructor;
 			html += "</p>";

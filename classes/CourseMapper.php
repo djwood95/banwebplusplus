@@ -4,7 +4,7 @@ class CourseMapper extends Mapper {
 
 	/**
 	 * @param  $query - search query string
-	 * @return JSON object that contains an array of resulting courses with all corresponding info from database
+	 * @return JSON object that contains an array of resulting courses with corresponding info from database
 	 */
 	public function search($query) {
 		if(strlen($query) <= 3) {
@@ -14,7 +14,10 @@ class CourseMapper extends Mapper {
 			$query = "%$query%";
 		}
 
-		$stmt = $this->db->prepare("SELECT c.*, s.*, c.CourseNum as CourseNum FROM Courses c JOIN Sections s ON c.CourseNum = s.CourseNum WHERE c.CourseNum LIKE :query OR c.CourseName LIKE :query_wildcard OR (s.Instructor LIKE :query_wildcard) GROUP BY c.CourseNum ORDER BY c.CourseNum LIMIT 15");
+		$stmt = $this->db->prepare("SELECT c.*, s.*, c.CourseNum as CourseNum FROM Courses c
+									INNER JOIN Sections s ON c.CourseNum = s.CourseNum
+									WHERE c.CourseNum LIKE :query OR c.CourseName LIKE :query_wildcard OR s.Instructor LIKE :query_wildcard
+									GROUP BY c.CourseNum ORDER BY c.CourseNum LIMIT 15");
 		$result = $stmt->execute([
 			'query' => $query,
 			'query_wildcard' => $query_wildcard
@@ -29,6 +32,8 @@ class CourseMapper extends Mapper {
 				$results[$courseNum]['CourseName'] = $row['CourseName'];	//add general information
 				$results[$courseNum]['Description'] = $row['Description'];
 				$CRN = $row['CRN'];
+				$sectionInfo = [];	//new course - reset sectionInfo list
+				$sectionInfo[$CRN]['CourseNum'] = $row['CourseNum'];
 				$sectionInfo[$CRN]['SectionNum'] = $row['SectionNum'];	//add section info for the first section
 				$sectionInfo[$CRN]['Type'] = $row['Type'];
 				$sectionInfo[$CRN]['Days'] = $row['Days'];
@@ -40,6 +45,7 @@ class CourseMapper extends Mapper {
 			}else{	//This course has already been seen - just add new section info
 				$sectionInfo = $results[$courseNum]['SectionInfo']; //load in the sections we already have
 				$CRN = $row['CRN'];
+				$sectionInfo[$CRN]['CourseNum'] = $row['CourseNum'];
 				$sectionInfo[$CRN]['SectionNum'] = $row['SectionNum'];	//then add the new section (indexed by CRN)
 				$sectionInfo[$CRN]['Type'] = $row['Type'];
 				$sectionInfo[$CRN]['Days'] = $row['Days'];
@@ -58,6 +64,7 @@ class CourseMapper extends Mapper {
 
 		return $results;
 	}
+
 
 	/**
 	 * @param  $dateRange (eg 09/05-12/15)
@@ -125,6 +132,8 @@ class CourseMapper extends Mapper {
 				$sectionInfo[$CRN]['SectionTime'] = $row['SectionTime'];
 				$sectionInfo[$CRN]['Location'] = $row['Location'];
 				$sectionInfo[$CRN]['Instructor'] = $row['Instructor'];
+				$sectionInfo[$CRN]['SectionActual'] = $row['SectionActual'];
+				$sectionInfo[$CRN]['Capacity'] = $row['Capacity'];
 				$sectionInfo[$CRN]['Semester'] = self::getSemesterFromDate($row['Dates'], $row['Year']);
 				$results[$courseNum]['SectionInfo'] = $sectionInfo;
 			}else{	//This course has already been seen - just add new section info
