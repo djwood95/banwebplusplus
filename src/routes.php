@@ -5,13 +5,6 @@ use Slim\Http\Response;
 
 // Routes
 
-//Get Username list from DB (test)
-$app->get('/', function (Request $request, Response $response) {
-	$mapper = new UserMapper($this->db);
-	$users = $mapper->getUsers();
-	echo $users;
-});
-
 //Add Username to DB (test)
 $app->get('/newUser/{username}', function (Request $request, Response $response, $args) {
 	$username = $args['username'];
@@ -19,21 +12,47 @@ $app->get('/newUser/{username}', function (Request $request, Response $response,
 	$users = $mapper->addUser($username);
 });
 
-//Begin scraping process by downloading HTML from Banweb
-$app->get('/generateBanwebFiles', function(Request $request, Response $response) {
-	$scraper = new Scraper($this->db);
-	$scraper->generateBanwebFiles();
-});
-
-//Begin scraping process by downloading HTML from Banweb
-$app->get('/descriptions', function(Request $request, Response $response) {
-	$scraper = new Scraper($this->db);
-	$scraper->getCourseDescriptions();
-});
-
-$app->get('/search/{query}', function(Request $request, Response $response, $args) {
-	$query = $args['query'];
+$app->get('/getAvailableSemesters', function(Request $request, Response $response) {
 	$courseMapper = new CourseMapper($this->db);
-	$results = $courseMapper->search($query);
-	echo $results;
+	$semesterList = $courseMapper->getAvailableSemesters();
+	$response = $response->withJson($semesterList);
+	return $response;
+});
+
+/* Search for course by name (Intro to Programming) or title (CS 1121)
+	returns JSON object */
+$app->get('/search/{semester}/{query}', function(Request $request, Response $response, $args) {
+	$query = $args['query'];
+	$semester = $args['semester'];
+	$courseMapper = new CourseMapper($this->db);
+	$results = $courseMapper->search($query, $semester);
+	$response = $response->withJson($results);
+	return $response;
+});
+
+$app->get('/search/{semester}/', function(Request $request, Response $response, $args) {
+	$results = "Please enter a search query.";
+	$response = $response->withJson($results);
+	return $response;
+});
+
+$app->get('/getCourseInfo/{semester}/{courseNum}', function(Request $request, Response $response, $args) {
+	$query = $args['courseNum'];
+	$semester = $args['semester'];
+	$courseMapper = new CourseMapper($this->db);
+	$results = $courseMapper->getCourseInfo($query, $semester);
+	$response = $response->withJson($results);
+	return $response;
+});
+
+$app->get('/getCourseInfoForCalendar/{crn}', function(Request $request, Response $response, $args) {
+	$query = $args['crn'];
+	$courseMapper = new CourseMapper($this->db);
+	$results = $courseMapper->getCourseInfoForCalendar($query);
+	$response = $response->withJson($results);
+	return $response;
+});
+
+$app->get('/search/', function(Request $request, Response $response, $args) {
+	echo "Please enter search query";
 });
