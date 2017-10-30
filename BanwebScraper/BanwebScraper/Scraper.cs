@@ -67,7 +67,7 @@ namespace BanwebScraper
             {
                 new List<object> {"@CRN", MySqlDbType.Int32},
                 new List<object> {"@Subj", MySqlDbType.VarChar, 6},
-                new List<object> {"@Crse", MySqlDbType.Int32},
+                new List<object> {"@Crse", MySqlDbType.VarChar, 4},
                 new List<object> {"@Sec", MySqlDbType.VarChar, 3},
                 new List<object> {"@Cmp", MySqlDbType.VarChar, 3},
                 new List<object> {"@Cred", MySqlDbType.VarChar, 16},

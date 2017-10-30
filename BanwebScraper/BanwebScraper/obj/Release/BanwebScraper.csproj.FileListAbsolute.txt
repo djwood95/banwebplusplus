@@ -7,3 +7,4 @@ C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\bin\Rele
 C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\bin\Release\HtmlAgilityPack.xml
 C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\obj\Release\BanwebScraper.exe
 C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\obj\Release\BanwebScraper.pdb
+C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\obj\Release\BanwebScraper.csprojResolveAssemblyReference.cache
