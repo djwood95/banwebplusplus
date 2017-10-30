@@ -1,3 +1,5 @@
+var CRNList = [];
+
 $(document).ready(function(){
 
 	$('#searchBox').on("input", function(){search();});
@@ -13,9 +15,12 @@ function listenForSearchClickEvents() {
 	});
 
 	$('.addCourseBtn').on('click', function(event){
-		var btn = $(event.relatedTarget);
-		var crn = btn.data('crn');
-		alert("Add Course to Calendar: CRN = " + btn);
+		crn = $(this).data('coursecrn');
+		$.get('/public/getCourseInfoForCalendar/' + crn, function(responseTxt){
+			console.log(responseTxt);
+			CRNList.push(crn);
+			console.log("CRNList = " + CRNList);
+		});
 	});
 }
 
@@ -88,7 +93,7 @@ function displaySearchResults(data) {
 		//Display Sections:
 		$.each(e.SectionInfo, function(CRN, sectionData){
 			html += "<p>";
-				html += "<a href='#' class='badge badge-success mr-1 addCourseBtn' data-crn='"+CRN+"'>Add</a>";
+				html += "<a href='#' class='badge badge-success mr-1 addCourseBtn' data-coursecrn='"+CRN+"'>Add</a>";
 				html += sectionData.Semester + " " + sectionData.SectionNum + ": " + sectionData.Days + " " + sectionData.SectionTime;
 				html += " - " + sectionData.Instructor;
 			html += "</p>";

@@ -30,6 +30,14 @@ $app->get('/getCourseInfo/{courseNum}', function(Request $request, Response $res
 	return $response;
 });
 
+$app->get('/getCourseInfoForCalendar/{crn}', function(Request $request, Response $response, $args) {
+	$query = $args['crn'];
+	$courseMapper = new CourseMapper($this->db);
+	$results = $courseMapper->getCourseInfoForCalendar($query);
+	$response = $response->withJson($results);
+	return $response;
+});
+
 $app->get('/search/', function(Request $request, Response $response, $args) {
 	echo "Please enter search query";
 });

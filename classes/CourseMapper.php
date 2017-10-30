@@ -34,7 +34,7 @@ class CourseMapper extends Mapper {
 				$CRN = $row['CRN'];
 				$sectionInfo = [];	//new course - reset sectionInfo list
 				$sectionInfo[$CRN]['CourseNum'] = $row['CourseNum'];
-				$sectionInfo[$CRN]['SectionNum'] = $row['SectionNum'];	//add section info for the first section
+				$sectionInfo[$CRN]['SectionNum'] = $row['SectionNum'] . " F";	//add section info for the first section
 				$sectionInfo[$CRN]['Type'] = $row['Type'];
 				$sectionInfo[$CRN]['Days'] = $row['Days'];
 				$sectionInfo[$CRN]['SectionTime'] = $row['SectionTime'];
@@ -150,6 +150,20 @@ class CourseMapper extends Mapper {
 				$sectionInfo[$CRN]['Semester'] = self::getSemesterFromDate($row['Dates'], $row['Year']);
 				$results[$courseNum]['SectionInfo'] = $sectionInfo;	//then add the updated sectionInfo array back to the main results array
 			}
+		}
+
+		return $results;
+	}
+
+	public function getCourseInfoForCalendar($CRN) {
+		$stmt = $this->db->prepare("SELECT * FROM Sections WHERE CRN=:CRN");
+		$stmt->execute([
+			'CRN' => $CRN
+		]);
+
+		$results = [];
+		while($row = $stmt->fetch()){
+			$results[] = $row;
 		}
 
 		return $results;
