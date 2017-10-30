@@ -3,8 +3,21 @@ var CRNList = [];
 $(document).ready(function(){
 
 	$('#searchBox').on("input", function(){search();});
+	getAvailableSemesters();
 
 });
+
+function getAvailableSemesters() {
+	$.get('/public/getAvailableSemesters', function(responseTxt) {
+		var semesterList = responseTxt;
+		$.each(semesterList, function (i, semesterName) {
+		    $('#semester').append($('<option>', { 
+		        value: semesterName,
+		        text : semesterName 
+		    }));
+		});
+	});
+}
 
 // For buttons embedded in search results, add event listeners here!!
 function listenForSearchClickEvents() {
@@ -26,7 +39,8 @@ function listenForSearchClickEvents() {
 
 function loadCourseInfo(courseNum) {
 	var newHtml = "";
-	$.get('/public/getCourseInfo/' + courseNum, function(responseTxt){
+	var semester = $('#semester').val();
+	$.get('/public/getCourseInfo/' +semester + "/" + courseNum, function(responseTxt){
 		console.log(responseTxt);
 		//var data = JSON.parse(responseTxt);
 		var info = responseTxt[courseNum];
@@ -67,15 +81,16 @@ function getBadgeColor(slotsRemaining) {
 
 function search() {
 	var query = $('#searchBox').val();
+	var semester = $('#semester').val();
 	console.log("Trying to search for " + query);
-	$.get('/public/search/' + query, function(responseTxt, status) {
+	$.get('/public/search/' + semester + "/" + query, function(responseTxt, status) {
 		console.log(status);
 		try {
 			var data = responseTxt;
-			console.log(data);
+			//console.log(data);
 			displaySearchResults(data);
 		} catch(e) {
-			console.log(e);
+			//console.log(e);
 			displayNoResults();
 		}
 	});

@@ -12,20 +12,35 @@ $app->get('/newUser/{username}', function (Request $request, Response $response,
 	$users = $mapper->addUser($username);
 });
 
+$app->get('/getAvailableSemesters', function(Request $request, Response $response) {
+	$courseMapper = new CourseMapper($this->db);
+	$semesterList = $courseMapper->getAvailableSemesters();
+	$response = $response->withJson($semesterList);
+	return $response;
+});
+
 /* Search for course by name (Intro to Programming) or title (CS 1121)
 	returns JSON object */
-$app->get('/search/{query}', function(Request $request, Response $response, $args) {
+$app->get('/search/{semester}/{query}', function(Request $request, Response $response, $args) {
 	$query = $args['query'];
+	$semester = $args['semester'];
 	$courseMapper = new CourseMapper($this->db);
-	$results = $courseMapper->search($query);
+	$results = $courseMapper->search($query, $semester);
 	$response = $response->withJson($results);
 	return $response;
 });
 
-$app->get('/getCourseInfo/{courseNum}', function(Request $request, Response $response, $args) {
+$app->get('/search/{semester}/', function(Request $request, Response $response, $args) {
+	$results = "Please enter a search query.";
+	$response = $response->withJson($results);
+	return $response;
+});
+
+$app->get('/getCourseInfo/{semester}/{courseNum}', function(Request $request, Response $response, $args) {
 	$query = $args['courseNum'];
+	$semester = $args['semester'];
 	$courseMapper = new CourseMapper($this->db);
-	$results = $courseMapper->getCourseInfo($query);
+	$results = $courseMapper->getCourseInfo($query, $semester);
 	$response = $response->withJson($results);
 	return $response;
 });
