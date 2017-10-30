@@ -99,7 +99,7 @@ class CourseMapper extends Mapper {
 		if($startDateMonth == 1 && $endDateMonth == 4) {
 			$semester = "Spring $year";
 		}elseif($startDateMonth == 1 && ($endDateMonth == 2 || $endDateMonth == 3)) {
-			$semester = "Spring$year (A)";
+			$semester = "Spring $year (A)";
 		}elseif($endDateMonth == 4 && ($startDateMonth > 1 && $startDateMonth < 4)) {
 			$semester = "Spring $year (B)";
 		}elseif($startDateMonth == 5 && $endDateMonth == 8) {
