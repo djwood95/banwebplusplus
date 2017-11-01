@@ -14,13 +14,13 @@
   </head>
   <body>
 
-	<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+	<nav class="navbar navbar-default">
       <a class="navbar-brand" href="index.html">Banweb++<span class="sr-only">(current)</span></a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse" align="right">
-        <ul class="navbar-nav mr-auto" align="right">
+        <ul class="nav navbar-nav navbar-right" align="right">
           <li class="nav-item" align="right">
             <a class="nav-link" href="view/view.html"><div class="g-signin2" data-onsuccess="onSignIn"></div></a>
           </li>
