@@ -27,7 +27,7 @@
       <a class="navbar-brand mx-auto justify-content-center" href="#" font-size="larger"><img src="logo.png" height="50%" width="50%"></a>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" href="" data-target="#myModal" data-toggle="modal"><a class="g-signin2" data-onsuccess="onSignIn"></a></a>
+                <a class="g-signin2" data-onsuccess="onSignIn"></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="" data-target="#myModal" data-toggle="modal" onclick="signOut();">Sign Out</a>
