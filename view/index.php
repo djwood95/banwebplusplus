@@ -18,7 +18,7 @@
 
 
   <nav class="navbar navbar-expand-md navbar-dark bg-primary">
-    <a class="navbar-brand" text-align="center" position="absolute" margin="auto" href="#">Banweb++</a>
+    <a class="navbar-brand d-flex mx-auto" href="#">Banweb++</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
         <span class="navbar-toggler-icon"></span>
     </button>
