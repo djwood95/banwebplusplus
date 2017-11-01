@@ -25,16 +25,25 @@
             <a class="nav-link" href="new/new.html">New</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="view/view.html">View</a>
+            <a class="nav-link" href="view/view.html"><div class="g-signin2" data-onsuccess="onSignIn"></div></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="update/update.html">Update</a>
+            <a class="nav-link" href="update/update.html"><a href="#" onclick="signOut();">Sign out</a>
+              <script>
+                function signOut() {
+                  var auth2 = gapi.auth2.getAuthInstance();
+                  auth2.signOut().then(function () {
+                    console.log('User signed out.');
+                  });
+                }
+            </script>
+            </a>
           </li>
         </ul>
       </div>
     </nav>
 
-  </br></br></br></br></br></br>
+  </br></br>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <div class='container-fluid mt-5'>
       <div class="row">
