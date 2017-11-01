@@ -18,14 +18,14 @@
 
 
   <nav class="navbar navbar-expand-md navbar-dark bg-primary">
-    <a class="navbar-brand abs navbar-center" text-align="center" href="#">Banweb++</a>
+    <a class="navbar-brand" text-align="center" position="absolute" margin="auto" href="#">Banweb++</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="navbar-collapse collapse" id="collapsingNavbar">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" href="" data-target="#myModal" data-toggle="modal"><a class="nav-link" href="view/view.html"><div class="g-signin2" data-onsuccess="onSignIn"></div></a></a>
+                <a class="nav-link" href="" data-target="#myModal" data-toggle="modal"><a class="nav-link" href="view/view.html"><a class="g-signin2" data-onsuccess="onSignIn"></a></a></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="" data-target="#myModal" data-toggle="modal"><a class="nav-link" href="view/view.html"><a class="nav-link" href="update/update.html"><a href="#" onclick="signOut();" class="nav-link">Sign out</a>
