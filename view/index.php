@@ -20,7 +20,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav navbar-right">
+        <ul class="nav navbar-nav navbar-right">
           <li class="nav-item">
             <a class="nav-link" href="view/view.html"><div class="g-signin2" data-onsuccess="onSignIn"></div></a>
           </li>
