@@ -21,14 +21,11 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="new/new.html">New</a>
-          </li>
-          <li class="nav-item">
+          <li class="nav-item" align="right">
             <a class="nav-link" href="view/view.html"><div class="g-signin2" data-onsuccess="onSignIn"></div></a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="update/update.html"><a href="#" onclick="signOut();">Sign out</a>
+          <li class="nav-item" align="right">
+            <a class="nav-link" href="update/update.html"><a href="#" onclick="signOut();" class="nav-link">Sign out</a>
               <script>
                 function signOut() {
                   var auth2 = gapi.auth2.getAuthInstance();
@@ -99,7 +96,6 @@
 	  
 	</br></br></br></br></br></br></br></br>
   <meta name="google-signin-client_id" content="1079673860784-13aa7jbs3nrmo7t3j5pqk75lu795elec.apps.googleusercontent.com">
-    <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
     <script> function onSignIn(googleUser) {
   var profile = googleUser.getBasicProfile();
