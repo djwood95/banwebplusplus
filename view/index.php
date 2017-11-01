@@ -24,7 +24,7 @@
     </button>
     <div class="navbar-collapse collapse" id="collapsingNavbar">
       <a class="navbar-nav mr-auto"></a>
-      <a class="navbar-brand mx-auto justify-content-center" href="#" font-size="larger"><img src="logo.png"></a>
+      <a class="navbar-brand mx-auto justify-content-center" href="#" font-size="larger"><img src="logo.png" height="50%" width="50%"></a>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a class="nav-link" href="" data-target="#myModal" data-toggle="modal"><a class="nav-link" href="view/view.html"><a class="g-signin2" data-onsuccess="onSignIn"></a></a></a>
