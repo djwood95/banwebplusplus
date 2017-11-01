@@ -18,11 +18,13 @@
 
 
   <nav class="navbar navbar-expand-md navbar-dark bg-primary">
-    <a class="navbar-brand d-flex mx-auto" href="#">Banweb++</a>
+    
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="navbar-collapse collapse" id="collapsingNavbar">
+      <a class="navbar-nav mr-auto"></a>
+      <a class="navbar-brand mx-auto justify-content-center" href="#">Banweb++</a>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a class="nav-link" href="" data-target="#myModal" data-toggle="modal"><a class="nav-link" href="view/view.html"><a class="g-signin2" data-onsuccess="onSignIn"></a></a></a>
