@@ -27,10 +27,10 @@
       <a class="navbar-brand mx-auto justify-content-center" href="#" font-size="larger"><img src="logo.png" height="50%" width="50%"></a>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" href="" data-target="#myModal" data-toggle="modal"><a class="nav-link" href="view/view.html"><a class="my-signin2" data-onsuccess="onSignIn"></a></a></a>
+                <a class="nav-link" href="" data-target="#myModal" data-toggle="modal"><a class="nav-link" href="view/view.html"><a class="g-signin" data-onsuccess="onSignIn"></a></a></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="" data-target="#myModal" data-toggle="modal"><a class="nav-link" href="view/view.html"><a class="nav-link" href="update/update.html"><a href="#" onclick="signOut();" class="nav-link">Sign out</a>
+                <a class="nav-link" href="" data-target="#myModal" data-toggle="modal" onclick="signOut();">Sign Out</a>
               <script>
                 function signOut() {
                   var auth2 = gapi.auth2.getAuthInstance();
