@@ -18,7 +18,7 @@
 
 
   <nav class="navbar navbar-expand-md navbar-dark bg-primary">
-    <a class="navbar-brand abs navbar-center" href="#">Banweb++</a>
+    <a class="navbar-brand abs navbar-center" text-align="center" href="#">Banweb++</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -37,7 +37,7 @@
                   });
                 }
             </script>
-            </a></a>
+            </a></a></a>
             </li>
         </ul>
     </div>
