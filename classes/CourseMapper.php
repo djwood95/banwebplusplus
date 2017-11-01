@@ -177,10 +177,11 @@ class CourseMapper extends Mapper {
 		return $results;
 	}
 
-	public function getCourseInfoForCalendar($CRN) {
-		$stmt = $this->db->prepare("SELECT * FROM Sections WHERE CRN=:CRN");
+	public function getCourseInfoForCalendar($CRN, $courseNum) {
+		$stmt = $this->db->prepare("SELECT * FROM Sections WHERE CRN=:CRN AND CourseNum=:courseNum");
 		$stmt->execute([
-			'CRN' => $CRN
+			'CRN' => $CRN,
+			'courseNum' => $courseNum
 		]);
 
 		$results = [];

@@ -45,10 +45,11 @@ $app->get('/getCourseInfo/{semester}/{courseNum}', function(Request $request, Re
 	return $response;
 });
 
-$app->get('/getCourseInfoForCalendar/{crn}', function(Request $request, Response $response, $args) {
-	$query = $args['crn'];
+$app->get('/getCourseInfoForCalendar/{crn}/{courseNum}', function(Request $request, Response $response, $args) {
+	$crn = $args['crn'];
+	$courseNum = $args['courseNum'];
 	$courseMapper = new CourseMapper($this->db);
-	$results = $courseMapper->getCourseInfoForCalendar($query);
+	$results = $courseMapper->getCourseInfoForCalendar($crn, $courseNum);
 	$response = $response->withJson($results);
 	return $response;
 });
