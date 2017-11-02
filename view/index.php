@@ -30,7 +30,18 @@
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
                 <a class="g-signin2" data-onsuccess="onSignIn"></a>
+              </br>
+              <a class="nav-link" href="" data-target="#myModal" data-toggle="modal" onclick="signOut();">Sign Out</a>
+              <script>
+                function signOut() {
+                  var auth2 = gapi.auth2.getAuthInstance();
+                  auth2.signOut().then(function () {
+                    console.log('User signed out.');
+                  });
+                }
+            </script>
             </li>
+            <!--
             <li class="nav-item">
                 <a class="nav-link" href="" data-target="#myModal" data-toggle="modal" onclick="signOut();">Sign Out</a>
               <script>
@@ -41,7 +52,7 @@
                   });
                 }
             </script>
-            </li>
+            </li>-->
         </ul>
     </div>
   </nav>
