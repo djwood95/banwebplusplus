@@ -37,7 +37,7 @@ function addCourseToCalendar(crn, courseNum) {
 		$.each(days, function(i, day){
 			$("." + day + "-" + startTimeH + startTimeAP).addClass('full');
 			$("." + day + "-" + startTimeH + startTimeAP).html(courseNum + "<br/>" + timeTxt);
-		});
+		})
 
 		//THIS IS TESTING FOR GENERATING THE ICS FILE!
 		var str = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//hacksw/handcal//NONSGML v1.0//EN\n";
