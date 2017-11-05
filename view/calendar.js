@@ -60,6 +60,7 @@ function addCourseToCalendar(crn, courseNum) {
 		str = str + "END:VCALENDAR";
 		calList.push(str);
 		console.log(calList);
+		console.log(str);
 
 
 		$.each(days, function(i, day){
