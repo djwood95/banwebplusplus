@@ -3,6 +3,7 @@ function addCourseToCalendar(crn, courseNum) {
 		console.log(crn);
 		console.log(responseTxt);
 		CRNList.push(crn);
+		console.log(str);
 
 		var data = responseTxt[0];
 		var days = data.Days.split(""); //puts days list into an array
