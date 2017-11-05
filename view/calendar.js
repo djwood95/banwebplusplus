@@ -41,7 +41,7 @@ function addCourseToCalendar(crn, courseNum) {
 
 		//THIS IS TESTING FOR GENERATING THE ICS FILE!
 		var str = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//hacksw/handcal//NONSGML v1.0//EN\n";
-		$.each(crnList, function(j, crn){
+		for(var i = 0; i < crnList.length; i++) {
 			var actualStartH = 0;
 			if(startTimeAP == "pm") {
 				actualStartH = startTimeAP + 12;
@@ -58,7 +58,7 @@ function addCourseToCalendar(crn, courseNum) {
 			str = str + "DTEND:" + year + endMonth + endMonth + "T" + actualEndH + endTimeM + "00Z\n";
 			str = str + "SUMMARY:" + course + "\n";
 			str = str + "END:VEVENT\n";
-		})
+		}
 		str = str + "END:VCALENDAR";
 		console.log(str);
 	});		
