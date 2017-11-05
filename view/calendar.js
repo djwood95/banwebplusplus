@@ -38,10 +38,9 @@ function addCourseToCalendar(crn, courseNum) {
 			$("." + day + "-" + startTimeH + startTimeAP).addClass('full');
 			$("." + day + "-" + startTimeH + startTimeAP).html(courseNum + "<br/>" + timeTxt);
 		});
-	});
 
 		//THIS IS TESTING FOR GENERATING THE ICS FILE!
-		var str = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//hacksw/handcal//NONSGML v1.0//EN";
+		var str = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//hacksw/handcal//NONSGML v1.0//EN\n";
 		$.each(crnList, function(j, crn){
 			var actualStartH = 0;
 			if(startTimeAP == "pm") {
@@ -62,6 +61,7 @@ function addCourseToCalendar(crn, courseNum) {
 		})
 		str = str + "END:VCALENDAR";
 		console.log(str);
+	});		
 }
 
 function roundTime(timeH, timeM) {
