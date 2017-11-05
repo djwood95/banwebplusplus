@@ -37,7 +37,7 @@ function addCourseToCalendar(crn, courseNum) {
 
 		//THIS IS TESTING FOR GENERATING THE ICS FILE!
 		var str = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//hacksw/handcal//NONSGML v1.0//EN\n";
-		for(var i = 0; i < crnList.length; i++) {
+		for(var i = 0; i < CRNList.length; i++) {
 			var actualStartH = 0;
 			if(startTimeAP == "pm") {
 				actualStartH = startTimeAP + 12;
