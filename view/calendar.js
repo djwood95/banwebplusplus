@@ -1,9 +1,11 @@
+var count = 0;
+var calList = [];
 function addCourseToCalendar(crn, courseNum) {
 	$.get('/public/getCourseInfoForCalendar/' + crn + "/" + courseNum, function(responseTxt){
 		console.log(crn);
 		console.log(responseTxt);
 		CRNList.push(crn);
-		console.log(str);
+		console.log(calList);
 
 		var data = responseTxt[0];
 		var days = data.Days.split(""); //puts days list into an array
@@ -37,14 +39,14 @@ function addCourseToCalendar(crn, courseNum) {
 
 		//THIS IS TESTING FOR GENERATING THE ICS FILE!
 		var str = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//hacksw/handcal//NONSGML v1.0//EN\n";
-		for(var i = 0; i < CRNList.length; i++) {
+		//for(var i = 0; i < CRNList.length; i++) {
 			var actualStartH = 0;
 			if(startTimeAP == "pm") {
-				actualStartH = startTimeAP + 12;
+				actualStartH = parseInt(startTimeH + 12);
 			}
 			var actualEndH = 0;
 			if(endTimeAP == "pm") {
-				actualEndH = endTimeAP + 12;
+				actualEndH = parseInt(endTimeH + 12);
 			}
 			str = str + "BEGIN:VEVENT\n";
 			str = str + "UID:" + "uid1@example.com\n"; //NEED TO GRAB EMAIL
@@ -54,9 +56,10 @@ function addCourseToCalendar(crn, courseNum) {
 			str = str + "DTEND:" + year + endMonth + endMonth + "T" + actualEndH + endTimeM + "00Z\n";
 			str = str + "SUMMARY:" + course + "\n";
 			str = str + "END:VEVENT\n";
-		}
+		//}
 		str = str + "END:VCALENDAR";
-		console.log(str);
+		calList.push(str);
+		console.log(calList);
 
 
 		$.each(days, function(i, day){
