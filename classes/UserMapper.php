@@ -29,9 +29,9 @@ class UserMapper extends Mapper {
 		if ($payload) {
 		  $userid = $payload['sub'];
 		  if(self::userExists($userid)){
-		  	self::login($userId, $email, $name);
+		  	self::login($userid, $email, $name);
 		  }else{
-		  	self::createUser($userId, $email, $name);
+		  	self::createUser($userid, $email, $name);
 		  }
 		  // If request specified a G Suite domain:
 		  //$domain = $payload['hd'];
