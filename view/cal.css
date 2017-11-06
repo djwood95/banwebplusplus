@@ -53,3 +53,15 @@ td.timeLabel {
     height:100%;
     color:white;
 }
+
+.courseFiller.bottomHalf{
+    background-color:#28a745;
+    border:none;
+    border-top:1px solid black;
+    border-bottom:1px solid #28a745;
+    height:50%;
+    top:50%;
+    overflow-y:visible;
+    z-index:1;
+    color:white;
+}

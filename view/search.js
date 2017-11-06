@@ -5,6 +5,14 @@ $(document).ready(function(){
 	$('#searchBox').on("input", function(){search();});
 	getAvailableSemesters();
 
+	/*
+	$('.full').click(function(){
+		alert('TEST');
+		var courseNum = $(this).data('coursenum');
+		loadCourseInfo(courseNum);
+	});
+	*/
+
 });
 
 function getAvailableSemesters() {

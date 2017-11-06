@@ -27,8 +27,21 @@ function addCourseToCalendar(crn, courseNum) {
 		console.log(startTimeH+":"+startTimeM + " - " + endTimeH+":"+endTimeM);
 
 		$.each(days, function(i, day){
-			$("." + day + "-" + startTimeH + startTimeAP).addClass('full');
-			$("." + day + "-" + startTimeH + startTimeAP).html(courseNum + "<br/>" + timeTxt);
+			if(startTimeM == 0){
+				$("." + day + "-" + startTimeH + startTimeAP).addClass('full');
+				$("." + day + "-" + startTimeH + startTimeAP).html(courseNum + "<br/>" + timeTxt);
+				$("." + day + "-" + startTimeH + startTimeAP).attr('data-target', '.courseInfoBox');
+				$("." + day + "-" + startTimeH + startTimeAP).attr('data-toggle', 'modal');
+				$("." + day + "-" + startTimeH + startTimeAP).attr('data-coursenum', courseNum);
+			}else{
+				$("." + day + "-" + startTimeH + startTimeAP).addClass('bottomHalf');
+				var newStartTimeH = (startTimeH == 12 ? 1 : startTimeH + 1);
+				$("." + day + "-" + newStartTimeH + startTimeAP).addClass('full');
+				$("." + day + "-" + startTimeH + startTimeAP).html(courseNum + "<br/>" + timeTxt);
+				$("." + day + "-" + startTimeH + startTimeAP).attr('data-target', '.courseInfoBox');
+				$("." + day + "-" + startTimeH + startTimeAP).attr('data-toggle', 'modal');
+				$("." + day + "-" + startTimeH + startTimeAP).attr('data-coursenum', courseNum);
+			}
 		});
 	});
 }

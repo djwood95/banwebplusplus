@@ -12,7 +12,7 @@
 	$semesterCodeList = getAvailableSemesters();
 
 	foreach($semesterCodeList as $semesterCode) {
-		scrapeSemester($semesterCode);
+		//scrapeSemester($semesterCode);
 		echo $semesterCode . "<br/>";
 	}
 
@@ -65,7 +65,7 @@
 
 	}
 
-	/* Generate list of semesters available on Banweb that are within the past year
+	/* Generate list of semesters available on Banweb starting from the current semester forward
 	 * @return array<SemesterCodeString>
 	 */
 	function getAvailableSemesters() {
@@ -107,13 +107,15 @@
 		$dom = HtmlDomParser::str_get_html( $response );
 		$semesterList = $dom->find('#term_input_id')[0]->find('option');
 		$earliestYear = date("Y");
+
+		echo $earliestYear;
 		foreach($semesterList as $semesterElement) {
 			$semesterName = $semesterElement->plaintext;
 			$semesterCode = $semesterElement->value;
 			$semesterYear = (int) explode(" ", $semesterName)[1];
 
 			//If semester is within last year, add it to list of semesters to scrape.
-			if($semesterYear >= $earliestYear){
+			if($semesterYear > $earliestYear){
 				$semesterCodeList[] = $semesterCode;
 			}
 		}
