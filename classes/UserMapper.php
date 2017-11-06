@@ -24,8 +24,8 @@ class UserMapper extends Mapper {
 	}
 
 	public function verifyIdToken($idToken, $email, $name) {
-		$client = new Google_Client(['client_id' => $idToken]);
-		$payload = $client->verifyIdToken($id_token);
+		$client = new Google_Client(['client_id' => $CLIENT_ID]);
+		$payload = $client->verifyIdToken($idToken);
 		if ($payload) {
 		  $userid = $payload['sub'];
 		  if(self::userExists($userid)){
