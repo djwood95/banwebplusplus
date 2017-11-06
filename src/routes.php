@@ -59,7 +59,7 @@ $app->get('/search/', function(Request $request, Response $response, $args) {
 });
 
 $app->post('/verifyIdToken', function(Request $request, Response $response) {
-	$idToken = $request->getParsedBody()['idToken'];
+	$idToken = $request->getParsedBody()['idtoken'];
 	$email = $request->getParsedBody()['email'];
 	$name = $request->getParsedBody()['name'];
 	$userMapper = new UserMapper($this->db);
