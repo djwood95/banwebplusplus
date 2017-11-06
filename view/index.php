@@ -135,12 +135,14 @@
       var id_token = googleUser.getAuthResponse().id_token;
 
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', 'https://yourbackend.example.com/tokensignin');
+      var email = profile.getEmail();
+      var name = profile.getName();
+      xhr.open('POST', '/public/verifyIdToken');
       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
       xhr.onload = function() {
         console.log('Signed in as: ' + xhr.responseText);
       };
-      xhr.send('idtoken=' + id_token);
+      xhr.send('idtoken=' + id_token + '&email=' + email + '&name=' + name);
 
   var profile = googleUser.getBasicProfile();
   console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
