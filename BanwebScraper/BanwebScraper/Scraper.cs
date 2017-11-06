@@ -42,7 +42,7 @@ namespace BanwebScraper
         {
             _connectionString = new MySqlConnectionStringBuilder
             {
-                Server = "localhost",
+                Server = "159.203.102.52",
                 Port = 3306,
                 Database = "banwebpp",
                 UserID = "dbuser",
@@ -112,13 +112,13 @@ namespace BanwebScraper
             while (true)
             {
                 sw.Start();
-                //for (var i = 0; !PushCourseInfo() && i < 5; i++) WaitForInput(10000);
+                for (var i = 0; !PushCourseInfo() && i < 5; i++) WaitForInput(10000);
                 for (var i = 0; i < 24; i++)
                 {
                     PushAllSectionInfo();
                     Console.Write($"[{DateTime.Now:s}]  -  Waiting for next run, press <Enter> to quit ");
                     sw.Stop();
-                    if (WaitForInput(3600000 - (int) sw.ElapsedMilliseconds)) return;
+                    if (WaitForInput(600000 - (int) sw.ElapsedMilliseconds)) return;
                     Console.WriteLine();
                     sw.Restart();
                 }
@@ -229,7 +229,7 @@ namespace BanwebScraper
                 if (_firstRun || int.Parse(cells[1].InnerText.Substring(0, 4)) > DateTime.Today.Year || int.Parse(cells[1].InnerText.Substring(0, 4)) == DateTime.Today.Year && int.Parse(cells[1].InnerText.Substring(4, 2)) >= DateTime.Today.Month)
                     sections.Add(new KeyValuePair<string, DateTime>(cells[1].InnerText, DateTime.Parse(cells[2].InnerText)));
             }
-            return sections.GetRange(sections.Count - 1, 1);
+            return sections;
         }
         private static List<List<string>> ParseSections(HtmlDocument doc)
         {
@@ -280,14 +280,18 @@ namespace BanwebScraper
                     if (i <= 10) continue;
                     switch (nodes[i].Name)
                     {
-                        case "br" when nodes[i - 1].Name == "br":
-                            resultRow.RemoveAt(resultRow.Count - 1);
-                            resultSet.Add(resultRow);
-                            resultRow = new List<string>();
-                            break;
                         case "br":
-                            resultRow.Add(resultString.Trim('\n', ' '));
-                            resultString = string.Empty;
+                            if (nodes[i - 1].Name == "br")
+                            {
+                                resultRow.RemoveAt(resultRow.Count - 1);
+                                resultSet.Add(resultRow);
+                                resultRow = new List<string>();
+                            }
+                            else
+                            {
+                                resultRow.Add(resultString.Trim('\n', ' '));
+                                resultString = string.Empty;
+                            }
                             break;
                         case "A":
                         case "hr":
