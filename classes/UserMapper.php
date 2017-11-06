@@ -41,7 +41,7 @@ class UserMapper extends Mapper {
 	}
 
 	private function userExists($userId) {
-		$stmt = $this->db->prepare("SELECT * FROM Users WHERE GoogleId=:userId");
+		$stmt = $this->db->prepare("SELECT COUNT(*) FROM Users WHERE GoogleId=:userId");
 		$stmt->execute([
 			'userId' => $userId
 		]);
