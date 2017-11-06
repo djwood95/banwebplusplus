@@ -24,7 +24,7 @@ class UserMapper extends Mapper {
 	}
 
 	public function verifyIdToken($idToken, $email, $name) {
-		$client = new Google_Client(['client_id' => $CLIENT_ID]);
+		$client = new Google_Client(['client_id' => $idToken]);
 		$payload = $client->verifyIdToken($id_token);
 		if ($payload) {
 		  $userid = $payload['sub'];
@@ -55,7 +55,7 @@ class UserMapper extends Mapper {
 		$_SESSION['userId'] = $userId;
 		$_SESSION['email'] = $email;
 		$_SESSION['name'] = $name;
-		
+
 	}
 
 	private function createUser($userId, $email, $name) {
