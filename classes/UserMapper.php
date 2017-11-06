@@ -47,6 +47,8 @@ class UserMapper extends Mapper {
 		]);
 		$numUsers = $stmt->fetchColumn();
 
+		echo $numUsers;
+
 		return $numUsers == 1;
 	}
 
