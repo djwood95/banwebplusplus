@@ -59,7 +59,7 @@ class UserMapper extends Mapper {
 	}
 
 	private function createUser($userId, $email, $name) {
-		$stmt = $this->db->prepare("INSERT INTO users (GoogleId, Email) VALUES (:userId, :email)");
+		$stmt = $this->db->prepare("INSERT INTO Users (GoogleId, Email) VALUES (:userId, :email)");
 		$stmt->execute([
 			'userId' => $userId,
 			'email' => $email
