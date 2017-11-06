@@ -1,8 +1,11 @@
+var count = 0;
+var calList = [];
 function addCourseToCalendar(crn, courseNum) {
 	$.get('/public/getCourseInfoForCalendar/' + crn + "/" + courseNum, function(responseTxt){
 		console.log(crn);
 		console.log(responseTxt);
 		CRNList.push(crn);
+		console.log(calList);
 
 		var data = responseTxt[0];
 		var days = data.Days.split(""); //puts days list into an array
@@ -15,6 +18,14 @@ function addCourseToCalendar(crn, courseNum) {
 		var roundedStartTime = roundTime(startTimeH, startTimeM);
 			startTimeH = roundedStartTime.timeH;
 			startTimeM = roundedStartTime.timeM;
+
+		var year = data.Year;
+		var date = data.Dates.split("\/");
+		var startMonth = date[0];
+		var startDate = date[1].split("-")[0];
+		var endDate = startDate[1];
+		var endMonth = date[2];
+		var course = data.CourseNum;
 		
 		var endTime = time[1].split(" ")[0];
 		var endTimeAP = time[1].split(" ")[1];
@@ -25,6 +36,32 @@ function addCourseToCalendar(crn, courseNum) {
 			endTimeM = roundedEndTime.timeM;
 
 		console.log(startTimeH+":"+startTimeM + " - " + endTimeH+":"+endTimeM);
+
+		//THIS IS TESTING FOR GENERATING THE ICS FILE!
+		var str = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//hacksw/handcal//NONSGML v1.0//EN\n";
+		//for(var i = 0; i < CRNList.length; i++) {
+			var actualStartH = 0;
+			if(startTimeAP == "pm") {
+				actualStartH = parseInt(startTimeH + 12);
+			}
+			var actualEndH = 0;
+			if(endTimeAP == "pm") {
+				actualEndH = parseInt(endTimeH + 12);
+			}
+			str = str + "BEGIN:VEVENT\n";
+			str = str + "UID:" + "uid1@example.com\n"; //NEED TO GRAB EMAIL
+			str = str + "DTSTAMP:" + year + startMonth + startDate + "T" + actualStartH + startTimeM + "00Z\n";
+			str = str + "ORGANIZER;CN=John Doe:MAILTO:john.doe@example.com\n" //need to grab name and email here too
+			str = str + "DTSTART:" + year + startMonth + startDate + "T" + actualStartH + startTimeM + "00Z\n";
+			str = str + "DTEND:" + year + endMonth + endMonth + "T" + actualEndH + endTimeM + "00Z\n";
+			str = str + "SUMMARY:" + course + "\n";
+			str = str + "END:VEVENT\n";
+		//}
+		str = str + "END:VCALENDAR";
+		calList.push(str);
+		console.log(calList);
+		console.log(str);
+
 
 		$.each(days, function(i, day){
 			if(startTimeM == 0){

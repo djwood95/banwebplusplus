@@ -42,7 +42,7 @@ namespace BanwebScraper
         {
             _connectionString = new MySqlConnectionStringBuilder
             {
-                Server = "159.203.102.52",
+                Server = "localhost",
                 Port = 3306,
                 Database = "banwebpp",
                 UserID = "dbuser",
@@ -112,7 +112,7 @@ namespace BanwebScraper
             while (true)
             {
                 sw.Start();
-                for (var i = 0; !PushCourseInfo() && i < 5; i++) WaitForInput(10000);
+                //for (var i = 0; !PushCourseInfo() && i < 5; i++) WaitForInput(10000);
                 for (var i = 0; i < 24; i++)
                 {
                     PushAllSectionInfo();
@@ -229,7 +229,7 @@ namespace BanwebScraper
                 if (_firstRun || int.Parse(cells[1].InnerText.Substring(0, 4)) > DateTime.Today.Year || int.Parse(cells[1].InnerText.Substring(0, 4)) == DateTime.Today.Year && int.Parse(cells[1].InnerText.Substring(4, 2)) >= DateTime.Today.Month)
                     sections.Add(new KeyValuePair<string, DateTime>(cells[1].InnerText, DateTime.Parse(cells[2].InnerText)));
             }
-            return sections;
+            return sections.GetRange(sections.Count - 1, 1);
         }
         private static List<List<string>> ParseSections(HtmlDocument doc)
         {
