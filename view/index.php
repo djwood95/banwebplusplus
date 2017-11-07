@@ -107,14 +107,22 @@
             </tr>
 
               <?php
-                $times = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm'];
+                $timeLabels = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm'];
+                $timeList = ['0600am', '0630am', '0700am', '0730am', '0800am', '0830am', '0900am', '0930am', '1000am', '1030am', 
+                             '1100am', '1130am', '1200pm', '1230pm', '0100pm', '0130pm', '0200pm', '0230pm', '0300pm', '0330pm', 
+                             '0400pm', '0430pm', '0500pm', '0530pm', '0600pm', '0630pm', '0700pm', '0730pm', '0800pm', '0830pm', 
+                             '0900pm', '0930pm', '1000pm', '1030pm'];
                 $days = ['M', 'T', 'W', 'R', 'F'];
-                foreach($times as $time) {
+                foreach($timeLabels as $i => $time) {
                   echo "<tr>";
                   echo "<td class='timeLabel'>$time</td>";
+                  $timeListIndex = $i*2;
+                  $topTime = $timeList[$timeListIndex];
+                  $bottomTime = $timeList[$timeListIndex + 1];
                   foreach($days as $day) {
-                    echo "<td>";
-                      echo "<div class='courseFiller $day-$time'></div>";
+                    echo "<td class='normal $day-$topTime'>";
+                      echo "<div class='courseFiller top $day-$topTime'></div>";
+                      echo "<div class='courseFiller bottom $day-$bottomTime'></div>";
                     echo "</td>";
                   }
                   echo "</tr>";
@@ -142,13 +150,9 @@
       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
       xhr.onload = function() {
         console.log('Signed in as: ' + xhr.responseText);
+        signInSuccess();
       };
       xhr.send('idtoken=' + id_token + '&email=' + email + '&name=' + name);
-
-  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-  console.log('Name: ' + profile.getName());
-  console.log('Image URL: ' + profile.getImageUrl());
-  console.log('Email: ' + profile.getEmail()); 
     } </script>
 	  
 	  

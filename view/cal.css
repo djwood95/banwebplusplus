@@ -5,10 +5,18 @@
     border-collapse: collapse;
 }
 
-td {
-    width:auto;
-    border:1px solid black;
+td{
     position:relative;
+    border:1px solid black;
+    width:auto;
+}
+
+td.greenBorderTop {
+    border-top: 1px solid #28a745;
+}
+
+td.greenBorderBottom {
+    border-bottom: 1px solid #28a745;
 }
 
 tr.labels {
@@ -20,7 +28,7 @@ tr {
 }
 
 td.timeLabel {
-    color:balck;
+    color:black;
     text-align:right;
 }
 
@@ -40,28 +48,37 @@ td.timeLabel {
     position:absolute;
     width:100%;
     height:50%;
-    top:0;
     left:0;
     text-align:center;
     font-weight:bold;
+}
+
+.courseFiller.top {
+    top:0;
+    height:50%;
     border-bottom:1px solid lightgray;
+}
+
+.courseFiller.bottom {
+    top:50%;
+    border-bottom:none;
 }
 
 .courseFiller.full {
     background-color:#28a745;
     border:none;
-    height:100%;
     color:white;
 }
 
-.courseFiller.bottomHalf{
-    background-color:#28a745;
-    border:none;
-    border-top:1px solid black;
-    border-bottom:1px solid #28a745;
-    height:50%;
-    top:50%;
-    overflow-y:visible;
+.courseFiller.full:hover{
+    cursor:pointer;
+    color:black;
+}
+
+.courseFiller.full.first{
     z-index:1;
-    color:white;
+}
+
+.borderBottom {
+    border-bottom:1px solid black !important;
 }

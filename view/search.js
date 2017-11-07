@@ -15,6 +15,10 @@ $(document).ready(function(){
 
 });
 
+function signInSuccess() {
+	//Add stuff here
+}
+
 function getAvailableSemesters() {
 	$.get('/public/getAvailableSemesters', function(responseTxt) {
 		var semesterList = responseTxt;
