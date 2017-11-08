@@ -130,6 +130,7 @@ function roundTime(timeH, timeM, timeAP) {
 	} else if(timeM > 45) {
 		timeM = "00";
 		timeH++;
+		timeH = (timeH == 13 ? 1 : timeH);
 		timeAP = (timeH == 12 ? "pm" : timeAP); //switch to pm if h went 11->12
 	}
 
