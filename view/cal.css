@@ -1,6 +1,7 @@
 #calendar {
     width:100%;
-    border:1px solid black;
+    /*border:1px solid black;*/
+    border-left:none;
     table-layout:fixed;
     border-collapse: collapse;
 }
@@ -9,14 +10,6 @@ td{
     position:relative;
     border:1px solid black;
     width:auto;
-}
-
-td.greenBorderTop {
-    border-top: 1px solid #28a745;
-}
-
-td.greenBorderBottom {
-    border-bottom: 1px solid #28a745;
 }
 
 tr.labels {
@@ -30,6 +23,16 @@ tr {
 td.timeLabel {
     color:black;
     text-align:right;
+    border:none;
+}
+
+.timeLabelText {
+    position:absolute;
+    top:-10%;
+    right:2px;
+    width:100%;
+    height:100%;
+    font-size:.9em;
 }
 
 .timeLabelCol {
@@ -38,47 +41,33 @@ td.timeLabel {
 }
 
 #calendar th {
-    border:1px solid black;
+    /* border:1px solid black; */
     text-align:center;
     width:auto;
 }
 
-.courseFiller {
-    background-color:transparent;
-    position:absolute;
-    width:100%;
-    height:50%;
-    left:0;
-    text-align:center;
-    font-weight:bold;
-}
-
+/* needed for half-hour lines */
 .courseFiller.top {
     top:0;
     height:50%;
     border-bottom:1px solid lightgray;
 }
 
-.courseFiller.bottom {
-    top:50%;
-    border-bottom:none;
-}
-
-.courseFiller.full {
+.calClass {
+    position:absolute;
     background-color:#28a745;
-    border:none;
+    display:inline-block;
+    width:100%;
+    text-align:center;
+    margin-left:-1px;
     color:white;
-}
-
-.courseFiller.full:hover{
-    cursor:pointer;
-    color:black;
-}
-
-.courseFiller.full.first{
+    font-weight:bold;
+    font-size:.8em;
     z-index:1;
 }
 
-.borderBottom {
-    border-bottom:1px solid black !important;
+.calClass:hover, .calClass.hover{
+    cursor:pointer;
+    color:black;
+    box-shadow:0px 0px 2px black;
 }

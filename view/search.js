@@ -1,4 +1,3 @@
-var CRNList = [];
 
 $(document).ready(function(){
 
@@ -65,7 +64,7 @@ function loadCourseInfo(courseNum) {
 			newHtml += "<p>" + sectionInfo.Semester + " " + sectionInfo.SectionNum + " " + CRN + ": " + sectionInfo.Days + " " + sectionInfo.SectionTime;
 			newHtml += " - " + sectionInfo.Instructor + " ";
 			var badgeColor = getBadgeColor(sectionInfo.Capacity - sectionInfo.SectionActual);
-			newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Availabe Slots'>";
+			newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Filled Slots'>";
 				newHtml += sectionInfo.SectionActual + "/" + sectionInfo.Capacity;
 			newHtml += "</span></p>";
 		});

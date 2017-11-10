@@ -76,6 +76,9 @@
  -->
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <div class='container-fluid mt-5'>
+
+      <div class="alert alert-danger" role="alert" style='display:none;'></div>
+
       <div class="row">
         <div class='col-sm'>
           <p>Search for courses to add:</p>
@@ -115,18 +118,18 @@
                 $days = ['M', 'T', 'W', 'R', 'F'];
                 foreach($timeLabels as $i => $time) {
                   echo "<tr>";
-                  echo "<td class='timeLabel'>$time</td>";
+                  echo "<td class='timeLabel'><div class='timeLabelText'>$time</div></td>";
                   $timeListIndex = $i*2;
                   $topTime = $timeList[$timeListIndex];
                   $bottomTime = $timeList[$timeListIndex + 1];
                   foreach($days as $day) {
                     echo "<td class='normal $day-$topTime'>";
                       echo "<div class='courseFiller top $day-$topTime'></div>";
-                      echo "<div class='courseFiller bottom $day-$bottomTime'></div>";
                     echo "</td>";
                   }
                   echo "</tr>";
                 }
+                //echo "<tr><td class='timeLabel'><div class='timeLabelText'>11pm</div></td></tr>";
               ?>
             </tr>
           </table>
