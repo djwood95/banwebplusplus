@@ -1,0 +1,14 @@
+<?php
+
+class ScheduleMapper extends Mapper
+{
+    public function AddCourseToSchedule($ScheduleName, $UserID, $Email, $Semester, $Year, $CRN)
+    {
+        $stmt = $this->db->prepare("CALL AddCourseToSchedule(:scheduleName, :userID, :email, :semester, :year, :crn");
+        $stmt->execute(['scheduleName' => $ScheduleName, 'userID' => $UserID, 'email' => $Email, 'semester' => $Semester, 'year' => $Year, 'crn' => $CRN]);
+        if(!$stmt) die("SQL Error");
+        return;
+    }
+}
+
+?>
