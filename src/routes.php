@@ -67,16 +67,24 @@ $app->post('/verifyIdToken', function(Request $request, Response $response) {
 	return $result;
 });
 
-$app->get('/addSchedule', function(Request $request, Response $response)
+$app->get('/addSchedule/{year}/{sem}', function(Request $request, Response $response)
 {
-	// TODO: What do I add here?
+	$Year = $args['year'];
+	$Semester = $args['sem'];
+	$UserID = $_SESSION['email'];
+	$ScheduleName = $_SESSION['ScheduleName'];
+	
 	$scheduleMapper = new ScheduleMapper($this->db);
 	$scheduleMapper->AddSchedule($ScheduleName, $UserID, $Semester, $Year);
 });
 		  
 
-$app->get('/addCourseToCalendar/{crn}', function(Request $request, Response $response) {
-	//TODO:What do I do here?
+$app->get('/addCourseToCalendar/{crn}', function(Request $request, Response $response)
+{
+	$CRN = $args['crn'];
+	$UserID = $_SESSION['email'];
+	$ScheduleName = $_SESSION['ScheduleName'];
+	
 	$scheduleMapper = new ScheduleMapper($this->db);
 	$scheduleMapper->AddCourseToSchedule($ScheduleName, $UserID, $CRN);
 });
