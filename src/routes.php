@@ -58,6 +58,16 @@ $app->get('/search/', function(Request $request, Response $response, $args) {
 	echo "Please enter search query";
 });
 
+$app->get('/isLoggedIn', function(Request $request, Response $response, $args) {
+	$userMapper = new UserMapper($this->db);
+	$results = $userMapper->isLoggedIn();
+	return $response->withJson($results);
+});
+
+$app->get('/logout', function(Request $request, Response $response, $args) {
+	$_SESSION = array();
+});
+
 $app->post('/verifyIdToken', function(Request $request, Response $response) {
 	$idToken = $request->getParsedBody()['idtoken'];
 	$email = $request->getParsedBody()['email'];

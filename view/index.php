@@ -7,6 +7,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <script src="googleCal.js"></script>
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
     <script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -26,17 +28,18 @@
     </button>
     <div class="navbar-collapse collapse" id="collapsingNavbar">
       <!--<a class="navbar-nav mr-auto"></a>-->
-      <a class="navbar-brand mx-auto justify-content-center" href="#" font-size="larger"><img src="logo.png" height="25%" width="25%"></a>
+      <a class="navbar-brand mx-auto justify-content-center" href="#" font-size="larger"><img src="logo.png" height="10%" width="10%"></a>
         <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><input id="addToCalendar" type="button" value="Button to test fucntion on my google calendar"
+          onclick="addCalendar('mtu.edu_oqjo36vmkooiovc897nnutplro@group.calendar.google.com','test', '2017-11-13', '2017-12-13', 'MO,WE,FR', '12:00:00.000', '13:00:00.000');" /></li>
             <li class="nav-item">
-                <a class="g-signin2" data-onsuccess="onSignIn"></a>
-              </br>
-              <a class="nav-link" href="" data-target="#myModal" data-toggle="modal" onclick="signOut();">Sign Out</a>
+              <a class="g-signin2" data-onsuccess="onSignIn" style='display:inline-block;'></a>
+              <a class="nav-link" href="" data-target="#myModal" data-toggle="modal" onclick="signOut();" style='float:right;'>Sign Out</a>
               <script>
                 function signOut() {
                   var auth2 = gapi.auth2.getAuthInstance();
                   auth2.signOut().then(function () {
-                    console.log('User signed out.');
+                    $.get('/public/logout');
                   });
                 }
             </script>
@@ -135,6 +138,8 @@
           </table>
         </div>
 
+        <div class='col-xs-6'>TEST</div>
+
       </div>
     </div>
 	  
@@ -144,6 +149,7 @@
     <script> function onSignIn(googleUser) {
 
       var id_token = googleUser.getAuthResponse().id_token;
+      console.log(id_token);
       var profile = googleUser.getBasicProfile();
 
       var xhr = new XMLHttpRequest();

@@ -70,6 +70,10 @@ class UserMapper extends Mapper {
 		//now login.
 		self::login($userId);
 	}
+
+	public function isLoggedIn() {
+		return isset($_SESSION['userId']);
+	}
 }
 
 ?>

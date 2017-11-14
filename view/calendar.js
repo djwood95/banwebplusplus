@@ -46,7 +46,7 @@ function addCourseToCalendar(crn, courseNum) {
 		} else if (duration < 1) {
 			showDangerAlert(`Sorry, the course you tried to add does not have a valid time, and can't be added to your calendar.`);
 			return;
-		} else if (hasTimeConflicts(startTimeMin, endTimeMin)) {
+		} else if (hasTimeConflicts(days, startTimeMin, endTimeMin)) {
 			showDangerAlert(`Sorry, the course you tried to add conflicts with another course on your calendar, and can't be added to your calendar.`);
 			return;
 		}
@@ -55,7 +55,7 @@ function addCourseToCalendar(crn, courseNum) {
 			var startOffset = (startTimeM / 60) * 100;
 			var durationOffset = (duration / 60) * 100;
 			var courseNoSpaces = course.replace(" ", "");
-			var newHTML = `<div class='calClass course-`+courseNoSpaces+`'
+			var newHTML = `<div class='calClass course-`+courseNoSpaces+` crn-`+crn+`'
 							style='top:`+startOffset+`%;height:`+durationOffset+`%;'
 							data-courseNum='`+course+`' data-section='`+section+`'
 							data-toggle='modal' data-target='.courseInfoBox' data-coursenum='`+courseNum+`'
@@ -69,7 +69,8 @@ function addCourseToCalendar(crn, courseNum) {
 			'crn': crn,
 			'courseNum': courseNum,
 			'startTimeMin': startTimeMin,
-			'duration': duration
+			'duration': duration,
+			'days': days
 		}
 
 		courseList.push(Course);
@@ -99,19 +100,36 @@ function updateCalEventListeners() {
 
 }
 
-function hasTimeConflicts(startTimeMin, endTimeMin) {
+function infoBoxEventListeners() {
+	$('.removeBtn').click(function() {
+		var crn = $(this).data('crn');
+		removeCourse(crn);
+	});
+}
+
+function removeCourse(crn) {
+	$('.calClass.crn-'+crn).remove();
+	$('.courseInfoBox').modal('hide');
+}
+
+
+function hasTimeConflicts(days, startTimeMin, endTimeMin) {
 
 	var returnVal = false;
-	$.each(courseList, function(i, Course){
-		console.log(startTimeMin + `>=` + Course.startTimeMin + ` && ` + startTimeMin + `<=` + (Course.startTimeMin + Course.duration));
-		//if course's start time is between the start and end time of another course
-		if(startTimeMin >= Course.startTimeMin && startTimeMin <= (Course.startTimeMin + Course.duration)) {
-			returnVal = true;
-			return false;
-		}else if(endTimeMin >= Course.startTimeMin && endTimeMin <= (Course.startTimeMin + Course.duration)) {
-			returnVal = true;
-			return false;
-		}
+	$.each(days, function(i, day) {
+		$.each(courseList, function(j, Course) {
+
+			//if course's start time is between the start and end time of another course for the same day, time conflict = true
+			if(startTimeMin >= Course.startTimeMin && startTimeMin <= (Course.startTimeMin + Course.duration) && Course.days.indexOf(day) != -1) {
+				returnVal = true;
+				return false;
+
+			//If the course's end time is between the start and end time of another course for the same day, time conflict = true
+			}else if(endTimeMin >= Course.startTimeMin && endTimeMin <= (Course.startTimeMin + Course.duration) && Course.days.indexOf(day) != -1) {
+				returnVal = true;
+				return false;
+			}
+		});
 	});
 
 	return returnVal;
