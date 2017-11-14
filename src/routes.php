@@ -76,3 +76,17 @@ $app->post('/verifyIdToken', function(Request $request, Response $response) {
 	$result = $userMapper->verifyIdToken($idToken, $email, $name);
 	return $result;
 });
+
+$app->get('/addSchedule', function(Request $request, Response $response)
+{
+	// TODO: What do I add here?
+	$scheduleMapper = new ScheduleMapper($this->db);
+	$scheduleMapper->AddSchedule($ScheduleName, $UserID, $Semester, $Year);
+});
+		  
+
+$app->get('/addCourseToCalendar/{crn}', function(Request $request, Response $response) {
+	//TODO:What do I do here?
+	$scheduleMapper = new ScheduleMapper($this->db);
+	$scheduleMapper->AddCourseToSchedule($ScheduleName, $UserID, $CRN);
+});
