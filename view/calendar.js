@@ -108,6 +108,14 @@ function infoBoxEventListeners() {
 }
 
 function removeCourse(crn) {
+	var indexes = $.map(courseList, function(Course, index) {
+	    if(Course.crn == crn) {
+	        return index;
+	    }
+	});
+	var i = indexes[0];
+
+	courseList.splice(i, 1); //remove course from courseList
 	$('.calClass.crn-'+crn).remove();
 	$('.courseInfoBox').modal('hide');
 }
