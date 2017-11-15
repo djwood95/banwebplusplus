@@ -104,17 +104,17 @@ function calendarTest() {
       'dateTime': '2017-11-14T21:00:00-05:00',
       'timeZone': 'America/Detroit'
     }
-    //'recurrence': [
-    //  'RRULE:FREQ=DAILY;COUNT=2'
-    //],
-    //'reminders': {
-    //  'useDefault': false,
-    //  'overrides': [
-    //    {'method': 'email', 'minutes': 24 * 60},
-    //    {'method': 'popup', 'minutes': 10}
-    //  ]
-    //}
-  };
+    'recurrence': [
+      'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
+    ],
+    'reminders': {
+      'useDefault': false,
+      'overrides': [
+        {'method': 'email', 'minutes': 24 * 60},
+        {'method': 'popup', 'minutes': 10}
+      ]
+    }
+};
 
   var request = gapi.client.calendar.events.insert({
     'calendarId': 'primary',
