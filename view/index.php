@@ -11,7 +11,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <!--<script src="https://apis.google.com/js/platform.js" async defer></script>-->
 
     <!-- Calendar CSS -->
     <link rel="stylesheet" href="cal.css" />
@@ -30,10 +30,11 @@
       <!--<a class="navbar-nav mr-auto"></a>-->
       <a class="navbar-brand mx-auto justify-content-center" href="#" font-size="larger"><img src="logo.png" height="10%" width="10%"></a>
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item"><input id="addToCalendar" type="button" value="Button to test fucntion on my google calendar"
-          onclick="addCalendar('mtu.edu_oqjo36vmkooiovc897nnutplro@group.calendar.google.com','test', '2017-11-13', '2017-12-13', 'MO,WE,FR', '12:00:00.000', '13:00:00.000');" /></li>
+            <li class='nav-item' id='calendarTest' onclick='calendarTest()'>TEST CALENDAR</li>
             <li class="nav-item">
-              <a class="g-signin2" data-onsuccess="onSignIn" style='display:inline-block;'></a>
+              <a id='signInButton'>Sign In</a>
+              <a id='signOutButton'>Sign Out</a>
+              <!--
               <a class="nav-link" href="" data-target="#myModal" data-toggle="modal" onclick="signOut();" style='float:right;'>Sign Out</a>
               <script>
                 function signOut() {
@@ -43,6 +44,7 @@
                   });
                 }
             </script>
+          -->
             </li>
             <!--
             <li class="nav-item">
@@ -77,19 +79,20 @@
       </div>
     </nav>
  -->
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <!--<script src="https://apis.google.com/js/platform.js" async defer></script>-->
     <div class='container-fluid mt-5'>
 
       <div class="alert alert-danger" role="alert" style='display:none;'></div>
+      <div class="alert alert-success" role="alert" style='display:none;'></div>
 
       <div class="row">
-        <div class='col-sm'>
+        <div class='col-4'>
           <p>Search for courses to add:</p>
           <div class='form-row'>
-            <div class='col-8'>
+            <div class='col-9'>
               <input type='text' id='searchBox' class='form-control' placeholder='Search by course number, course name, or instructor'/>
             </div>
-            <div class='col'>
+            <div class='col-3'>
               <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="semester">
                 <!-- values filled with javascript on page load -->
               </select>
@@ -138,15 +141,18 @@
           </table>
         </div>
 
-        <div class='col-xs-6'>TEST</div>
+        <div class='col-2'>
+          <p>Courses Added:</p>
+          <ul id='searchResults' class='list-group' style='max-height:500px;overflow:auto;'></ul>
+        </div>
 
       </div>
     </div>
 	  
 	</br></br></br></br></br></br></br></br>
-  <meta name="google-signin-client_id" content="1079673860784-13aa7jbs3nrmo7t3j5pqk75lu795elec.apps.googleusercontent.com">
+  <!--<meta name="google-signin-client_id" content="1079673860784-13aa7jbs3nrmo7t3j5pqk75lu795elec.apps.googleusercontent.com">-->
 
-    <script> function onSignIn(googleUser) {
+    <!--<script> function onSignIn(googleUser) {
 
       var id_token = googleUser.getAuthResponse().id_token;
       console.log(id_token);
@@ -162,7 +168,7 @@
         signInSuccess();
       };
       xhr.send('idtoken=' + id_token + '&email=' + email + '&name=' + name);
-    } </script>
+    } </script>-->
 	  
 	  
     <div class='modal fade courseInfoBox' tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" area-hidden="true">
@@ -180,6 +186,11 @@
 
     <script src="search.js"></script>
     <script src="calendar.js"></script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
 
   </body>
 </html>

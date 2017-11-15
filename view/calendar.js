@@ -164,6 +164,18 @@ function showDangerAlert(text) {
 	}, 5000);
 }
 
+function showGreenAlert(text) {
+	hideAllAlerts();
+	$('.alert-success').fadeIn();
+	$('.alert-success').text(text);
+
+	$('.alert').click(function(){ hideAllAlerts(); });
+
+	alertTimer = setTimeout(function() {
+		hideAllAlerts();
+	}, 5000);
+}
+
 function hideAllAlerts() {
 	$('.alert').fadeOut();
 	clearTimeout(alertTimer);

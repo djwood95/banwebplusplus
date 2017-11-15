@@ -22,10 +22,13 @@ function checkSignIn() {
 	});
 }
 
-function signInSuccess() {
+function signInSuccess(name) {
 	//check backend
 	$.get('/public/isLoggedIn', function(responseTxt) {
-		alert(responseTxt);
+		console.log(responseTxt);
+		if(responseTxt){
+			showGreenAlert("Welcome, "+name+"! You are logged in.");
+		}
 	});
 }
 
@@ -114,8 +117,9 @@ function loadCourseInfo(courseNum) {
 		newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
 		newHtml += info.Credits + " Credits (" + info.LectureCredits + " Lec/" + info.RecitationCredits + " Rec/" + info.LabCredits + " Lab) | ";
 		newHtml += "Offered " + info.SemestersOffered + " Semesters<br/>";
-		newHtml += "Pre-Reqs: " + info.Prereq + " | Co-Reqs: " + info.Coreq;
-		newHtml += " | Restrictions: " + info.Restrictions + "<hr/>"; 
+		//newHtml += "Pre-Reqs: " + info.Prereq + " | Co-Reqs: " + info.Coreq;
+		//newHtml += " | Restrictions: " + info.Restrictions + "<hr/>";
+		newHtml += "<hr/>";
 		newHtml += info.Description + "<br/><br/>";
 
 		newHtml += "<h3>Sections</h3>";
@@ -130,6 +134,9 @@ function loadCourseInfo(courseNum) {
 			newHtml += removeButton(CRN);
 			newHtml += "</p>";
 		});
+
+		newHtml += "<h3>Restrictions</h3>";
+		if(info.Restrictions != null) newHtml += info.Restrictions + "<br/>";
 
 		$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
 
