@@ -159,10 +159,10 @@ function calendarTest(classArray) {
           'dateTime': endDateTime,
           'timeZone': 'America/Detroit'
         },
-        'recurrence': [
-          rrule[0]
+        'recurrence':
+          rrule
           //'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
-        ]
+        
     };
     console.log(event);
 
