@@ -105,13 +105,13 @@ function calendarTest(classArray) {
     var startDateTime = classArray[i].startDate;
     startDateTime = startDateTime.concat("T");
     startDateTime= startDateTime.concat(classArray[i].startTime);
-    console.log(startDateTime);
+  //  console.log(startDateTime);
 
 
     var endDateTime = classArray[i].startDate;
     endDateTime = endDateTime.concat("T");
     endDateTime= endDateTime.concat(classArray[i].endTime);
-    console.log(endDateTime);
+    //console.log(endDateTime);
 
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
     for (var j = 0; j < classArray[i].days.length; j++){
@@ -147,7 +147,7 @@ function calendarTest(classArray) {
     rrule = rrule.concat("T");
     rrule = rrule.concat(classArray[i].endTime);
     rrule=rrule.concat(";");
-        console.log(rrule);
+
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
@@ -164,6 +164,7 @@ function calendarTest(classArray) {
           //'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
         ]
     };
+    console.log(event);
 
       var request = gapi.client.calendar.events.insert({
         'calendarId': 'primary',
