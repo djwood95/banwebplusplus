@@ -114,13 +114,34 @@ function calendarTest(classArray) {
     console.log(endDateTime);
 
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
+    var formatDay;
     for (var j = 0; j < classArray[i].days.length; j++){
-        if (j <classArray[i].days.length-1){
-          rrule = rrule.concat(classArray[i].days[j]);
-          rrule = rrule.concat(",");
-        }
-        else rrule.concat(classArray[i].days[j]);
+      switch(classArray[i].days[j]){
+        case "M":
+          rrule = rrule.concat("MO");
+          break;
+        case "T":
+          rrule = rrule.concat("TU");
+          break;
+        case "W":
+          rrule = rrule.concat("WE");
+          break;
+        case "R":
+          rrule = rrule.concat("TH");
+          break;
+        case "F":
+          rrule = rrule.concat("FR");
+          break;
+        default:
+          break;
+      }
+
+      rrule = rrule.concat(formatDay);
+      if (j <classArray[i].days.length-1){
+        rrule = rrule.concat(",");
+      }
     }
+    console.log(classArray[i].days);
 
     rrule = rrule.concat(";UNTIL=");
     rrule=rrule.concat(classArray[i].endDate);
