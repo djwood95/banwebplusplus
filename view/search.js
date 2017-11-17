@@ -141,17 +141,13 @@ function loadCourseInfo(courseNum) {
 		//Parse pre-req information
 		newHtml += "<b>Pre-Requisites:</b>";
 		newHtml += "<ul>";
-		var req = info.Prereq;
+		var req = info.Prereq.split("&");
 
-		//Parse data between parenthesis first
-		var parenthesisDataList = req.match(/\(([^)]+)\)/g);
-		console.log(parenthesisDataList);
-		for(var i = 0; i < parenthesisDataList.length; i++) {
-			var andData = parenthesisDataList[i].split("&");
-			for(var j = 0; j < andData.length; j++) {
-				newHtml += "<li>" + andData[j] + "</li>";
-			}
+		for(var i = 0; i < req.length; i++) {
+			
+			newHtml += "<li>" + req[i] + "</li>";
 		}
+
 
 		newHtml += "</ul>";
 

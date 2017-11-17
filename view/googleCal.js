@@ -92,73 +92,60 @@ function handleSignoutClick(event) {
   $.get('/public/logout');
 }
 
-function calendarTest() {
-  var event = {
-    'summary': 'Test Event',
-    'location': 'Fisher 135',
-    'start': {
-      'dateTime': '2017-11-14T20:00:00-05:00',
-      'timeZone': 'America/Detroit'
-    },
-    'end': {
-      'dateTime': '2017-11-14T21:00:00-05:00',
-      'timeZone': 'America/Detroit'
-    },
-    'recurrence': [
-      'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
-    ]
-};
+function calendarTest(classArray) {
+  for (i=0; i < classArray.length; i++){
+    var startDateTime = classArray[i].startDate;
+    startDateTime = startDateTime.concat("T");
+    startDateTime= startDateTime.concat(classArray[i].startTime);
 
-  var request = gapi.client.calendar.events.insert({
-    'calendarId': 'primary',
-    'resource': event
-  });
 
-  request.execute(function(event) {
-    if(event.status == "confirmed"){
-      showGreenAlert("Your event has been added to your calendar! "+event.htmlLink);
-    }else{
-      showDangerAlert("Your event could not be added to calendar.");
-      console.log(event);
+    var endDateTime = classArray[i].startDate;
+    endDateTime = endDateTime.concat("T");
+    endDateTime= endDateTime.concat(classArray[i].endTime);
+
+    var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
+    for (i = 0; i < classArray[i].days.length; j++){
+        if (j <classARray[i].days.length-1){
+          rrule = rrule.concat(classArrray[i].days[j]);
+          rrule = rrule.concat(",");
+        }
+        else rrule.concat(classArray[i].days[j]);
     }
-  });
-}
 
-function addCalendar(CalendarId, className, startDate, endDate, days, startTime, endTime){
-      var postURL = "https://www.googleapis.com/calendar/v3/calendars/";
-      postURL = postURL.concat(CalendarId);
-      postURL = postURL.concat("/events");
-      accessURL = "https://www.googleapis.com/auth/calendar/";
-      accessURL = accessURL.concat("111592634476270077742");
-      var recurrenceRule = "RRULE:FREQ=WEEKLY;BYDAY=";
-      recurrenceRule = recurrenceRule.concat(days);
-      recurrenceRule = recurrenceRule.concat(";UNTIL=");
-      recurrenceRule = recurrenceRule.concat(endDate);
-      recurrenceRule = recurrenceRule.concat(";");
-      var startDateTime = startDate;
-      startDateTime = startDateTime.concat("T");
-      startDateTime = startDateTime.concat(startTime);
-      var endDateTime = startDate; //supposed to be start date
-      endDateTime = endDateTime.concat("T");
-      endDateTime = endDateTime.concat(endTime);
-      var timeZone = "America/New_York";
-       $.post(accessURL);
-        $.post(postURL,
-        {
-          "summary": className,
-          "start": {
-            startDateTime,
-            timeZone
-          },
-          "end": {
-            endDateTime,
-            timeZone
-          },
-          "recurrence": {
-          recurrenceRule
-          },
+    rrule = rrule.concat(";UNTIL=");
+    rrule=rrule.concat(classArray[i].endDate);
+    rrule = rrule.concat("T");
+    rrule = rrule.concat(classArray[i].endTime);
+    rrule=rrule.concat(";");
+      var event = {
+        'summary': classArray[i].courseName,
+        'location': classArray[i].location,
+        'start': {
+          'dateTime': startDateTime,
+          'timeZone': 'America/Detroit'
         },
-        function(data,status){
-            alert("Data: " + data + "\nStatus: " + status);
-        });
-}
+        'end': {
+          'dateTime': endDateTime,
+          'timeZone': 'America/Detroit'
+        },
+        'recurrence': [
+          rrule
+          //'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
+        ]
+    };
+
+      var request = gapi.client.calendar.events.insert({
+        'calendarId': 'primary',
+        'resource': event
+      });
+
+      request.execute(function(event) {
+        if(event.status == "confirmed"){
+          showGreenAlert("Your event has been added to your calendar! "+event.htmlLink);
+        }else{
+          showDangerAlert("Your event could not be added to calendar.");
+          console.log(event);
+        }
+      });
+    }
+  }
