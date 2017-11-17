@@ -15,19 +15,21 @@ function addCourseToCalendar(crn, courseNum) {
 			var startTimeAP = time[0].split(` `)[1];
 			var startTimeH = parseInt(startTime.split(`:`)[0], 10);
 			var startTimeH24 = convertTo24Hr(startTimeH, startTimeAP);
+			var startTimeH24_padded = (`0` + startTimeH24).slice(-2);
 			var startTimeM = parseInt(startTime.split(`:`)[1], 10);
 			var startTimeM_padded = (`0` + startTimeM).slice(-2);
 			var startTimeMin = startTimeH24 * 60 + startTimeM;
-			var startTime24H = startTimeH24+":"+startTimeM_padded+":00";
+			var startTime24H = startTimeH24_padded+":"+startTimeM_padded+":00";
 
 			var endTime = time[1].split(` `)[0];
 			var endTimeAP = time[1].split(` `)[1];
 			var endTimeH = parseInt(endTime.split(`:`)[0]);
 			var endTimeH24 = convertTo24Hr(endTimeH, endTimeAP);
+			var endTimeH24_padded = (`0` + endTimeH24).slice(-2);
 			var endTimeM = parseInt(endTime.split(`:`)[1]);
 			var endTimeM_padded = (`0` + endTimeM).slice(-2);
 			var endTimeMin = endTimeH24 * 60 + endTimeM;
-			var endTime24H = endTimeH24+":"+endTimeM_padded+":00";
+			var endTime24H = endTimeH24_padded+":"+endTimeM_padded+":00";
 
 			var dates = data.Dates.split('-');
 			var year = data.Year;
