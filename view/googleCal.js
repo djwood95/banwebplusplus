@@ -53,10 +53,17 @@ function updateSigninStatus(isSignedIn) {
     authorizeButton.style.display = 'none';
     signoutButton.style.display = 'block';
     getProfileInfo();
+    calendarButtonListener();
   } else {
     authorizeButton.style.display = 'block';
     signoutButton.style.display = 'none';
   }
+}
+
+function calendarButtonListener() {
+  $('#calendarTest').click(function() {
+    calendarTest(courseList);
+  });
 }
 
 /**

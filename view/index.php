@@ -30,7 +30,7 @@
       <!--<a class="navbar-nav mr-auto"></a>-->
       <a class="navbar-brand mx-auto justify-content-center" href="#" font-size="larger"><img src="logo.png" height="10%" width="10%"></a>
         <ul class="navbar-nav ml-auto">
-            <li class='nav-item' id='calendarTest' onclick='calendarTest()'>TEST CALENDAR</li>
+            <li class='nav-item' id='calendarTest'>TEST CALENDAR</li>
             <li class="nav-item">
               <a id='signInButton'>Sign In</a>
               <a id='signOutButton'>Sign Out</a>
