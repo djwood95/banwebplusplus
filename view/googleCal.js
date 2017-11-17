@@ -111,8 +111,8 @@ function calendarTest(classArray) {
     endDateTime= endDateTime.concat(classArray[i].endTime);
 
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
-    for (i = 0; i < classArray[i].days.length; j++){
-        if (j <classARray[i].days.length-1){
+    for (var i = 0; i < classArray[i].days.length; j++){
+        if (var j <classARray[i].days.length-1){
           rrule = rrule.concat(classArrray[i].days[j]);
           rrule = rrule.concat(",");
         }
