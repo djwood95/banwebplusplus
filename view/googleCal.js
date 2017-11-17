@@ -162,9 +162,10 @@ function calendarTest(classArray) {
         'recurrence':
           rrule
           //'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
-        
+
     };
     console.log(event);
+    console.log(rrule);
 
       var request = gapi.client.calendar.events.insert({
         'calendarId': 'primary',
