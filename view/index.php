@@ -130,7 +130,9 @@
                   $bottomTime = $timeList[$timeListIndex + 1];
                   foreach($days as $day) {
                     echo "<td class='normal $day-$topTime'>";
+                      echo "<div class='tdWrapper'>";
                       echo "<div class='courseFiller top $day-$topTime'></div>";
+                      echo "</div>";
                     echo "</td>";
                   }
                   echo "</tr>";
@@ -143,7 +145,8 @@
 
         <div class='col-2'>
           <p>Courses Added:</p>
-          <ul id='searchResults' class='list-group' style='max-height:500px;overflow:auto;'></ul>
+          <b><span id='classCount'>0</span> Classes | <span id='creditCount'>0</span> Credits</b><br/>
+          <ul id='coursesAddedList' class='list-group' style='max-height:500px;overflow:auto;'></ul>
         </div>
 
       </div>

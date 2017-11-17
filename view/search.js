@@ -131,12 +131,30 @@ function loadCourseInfo(courseNum) {
 			newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Filled Slots'>";
 				newHtml += sectionInfo.SectionActual + "/" + sectionInfo.Capacity;
 			newHtml += "</span>";
-			newHtml += removeButton(CRN);
+			//newHtml += removeButton(CRN);
 			newHtml += "</p>";
 		});
 
 		newHtml += "<h3>Restrictions</h3>";
 		if(info.Restrictions != null) newHtml += info.Restrictions + "<br/>";
+
+		//Parse pre-req information
+		newHtml += "<b>Pre-Requisites:</b>";
+		newHtml += "<ul>";
+		var req = info.Prereq;
+
+		//Parse data between parenthesis first
+		var parenthesisDataList = req.match(/\(([^)]+)\)/g);
+		console.log(parenthesisDataList);
+		for(var i = 0; i < parenthesisDataList.length; i++) {
+			var andData = parenthesisDataList[i].split("&");
+			for(var j = 0; j < andData.length; j++) {
+				newHtml += "<li>" + andData[j] + "</li>";
+			}
+		}
+
+		newHtml += "</ul>";
+
 
 		$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
 
@@ -165,7 +183,7 @@ function removeButton(CRN) {
 		if(Course.crn == CRN){
 			var courseNum = 
 			removeButton = `<a href='#' class='badge badge-danger ml-1 removeBtn'
-							data-crn='`+CRN+`' data-toggle='tooltip' title='Remove this section from your calendar' data-placement='top'>REMOVE</a>`;
+							data-crn='`+CRN+`' data-credits='`+Course.credits+`' data-toggle='tooltip' title='Remove this section from your calendar' data-placement='top'>REMOVE</a>`;
 		}
 	});
 

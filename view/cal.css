@@ -59,15 +59,25 @@ td.timeLabel {
     display:inline-block;
     width:100%;
     text-align:center;
-    margin-left:-1px;
+    margin-left: 0px;
     color:white;
     font-weight:bold;
     font-size:.8em;
     z-index:1;
+    left: 0px;
 }
 
 .calClass:hover, .calClass.hover{
     cursor:pointer;
     color:black;
     box-shadow:0px 0px 2px black;
+}
+
+.classListItem:hover, .classListItem.hover{
+    border-color:green;
+    z-index: 1;
+}
+
+.classListItem > p:hover{
+    cursor: pointer;
 }

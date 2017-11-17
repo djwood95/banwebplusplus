@@ -1,6 +1,7 @@
 var count = 0;
 var calList = [];
 var courseList = []; //an array of course objects that have been added to the calendar
+var creditCount = 0;
 function addCourseToCalendar(crn, courseNum) {
 	$.get('/public/getCourseInfoForCalendar/' + crn + `/` + courseNum, function(responseTxt){
 
@@ -15,21 +16,32 @@ function addCourseToCalendar(crn, courseNum) {
 			var startTimeH = parseInt(startTime.split(`:`)[0], 10);
 			var startTimeH24 = convertTo24Hr(startTimeH, startTimeAP);
 			var startTimeM = parseInt(startTime.split(`:`)[1], 10);
+			var startTimeM_padded = (`0` + startTimeM).slice(-2);
 			var startTimeMin = startTimeH24 * 60 + startTimeM;
+			var startTime24H = startTimeH24+":"+startTimeM_padded+":00";
 
-			var date = data.Dates.split(`\/`);
-			var startMonth = date[0];
-			var startDate = date[1].split(`-`)[0];
-			var endDate = startDate[1];
-			var endMonth = date[2];
-			var course = data.CourseNum;
-			
 			var endTime = time[1].split(` `)[0];
 			var endTimeAP = time[1].split(` `)[1];
 			var endTimeH = parseInt(endTime.split(`:`)[0]);
 			var endTimeH24 = convertTo24Hr(endTimeH, endTimeAP);
 			var endTimeM = parseInt(endTime.split(`:`)[1]);
+			var endTimeM_padded = (`0` + endTimeM).slice(-2);
 			var endTimeMin = endTimeH24 * 60 + endTimeM;
+			var endTime24H = endTimeH24+":"+endTimeM_padded+":00";
+
+			var dates = data.Dates.split('-');
+			var year = data.Year;
+			var startDate = dates[0].split('/');
+				var startDateMonth = startDate[0];
+				var startDateDay = startDate[1];
+				startDate = year+"-"+startDateMonth+"-"+startDateDay;
+			var endDate = dates[1].split('/');
+				var endDateMonth = endDate[0];
+				var endDateDay = endDate[1];
+				endDate = year+"-"+endDateMonth+"-"+endDateDay;
+
+			var course = data.CourseNum;
+			
 		} catch(e) {
 			showDangerAlert(`Sorry, the course you tried to add does not have a valid time, and can't be added to your calendar.`);
 			console.log(e);
@@ -51,10 +63,10 @@ function addCourseToCalendar(crn, courseNum) {
 			return;
 		}
 
+		var courseNoSpaces = course.replace(" ", "");
 		$.each(days, function(i, day){
 			var startOffset = (startTimeM / 60) * 100;
 			var durationOffset = (duration / 60) * 100;
-			var courseNoSpaces = course.replace(" ", "");
 			var newHTML = `<div class='calClass course-`+courseNoSpaces+` crn-`+crn+`'
 							style='top:`+startOffset+`%;height:`+durationOffset+`%;'
 							data-courseNum='`+course+`' data-section='`+section+`'
@@ -62,18 +74,41 @@ function addCourseToCalendar(crn, courseNum) {
 						   >
 						   		`+course+` `+section+`<br/>`+timeTxt+`
 						   </div>`;
-			$('td.'+day+'-'+startTimeH+'00'+startTimeAP).append(newHTML);
+			$('td.'+day+'-'+startTimeH+'00'+startTimeAP+'>.tdWrapper').append(newHTML);
 		});
 
 		var Course = {
 			'crn': crn,
 			'courseNum': courseNum,
+			'courseName': data.CourseName,
+			'location': data.Location,
+			'startTime': startTime24H,
+			'endTime': endTime24H,
+			'startDate': startDate,
+			'endDate': endDate,
 			'startTimeMin': startTimeMin,
 			'duration': duration,
-			'days': days
+			'days': days,
+			'credits': data.Credits
 		}
 
+		//Add to "Added Courses" list
+		newHtml = `<li class='list-group-item classListItem course-`+courseNoSpaces+` crn-`+data.CRN+`' 
+					data-courseNum='`+course+`' data-section='`+section+`'>`;
+			newHtml += `<p data-courseNum='`+course+`' data-section='`+section+`' data-toggle='modal' data-target='.courseInfoBox' data-coursenum='`+courseNum+`'>`;
+			newHtml += course+": "+data.CourseName+" "+data.SectionNum+"</p>";
+			newHtml += data.Credits + " Credits";
+			newHtml += `<a href='#' class='badge badge-danger ml-1 removeBtn float-right'
+							data-crn='`+data.CRN+`' data-credits='`+data.Credits+`' data-toggle='tooltip' title='Remove this section from your calendar' data-placement='top'>REMOVE</a>`;
+		newHtml += "</li>";
+
+		$('#coursesAddedList').append(newHtml);
+
 		courseList.push(Course);
+
+		creditCount += parseInt(data.Credits);
+		$('#creditCount').text(creditCount);
+		$('#classCount').text(courseList.length);
 
 		updateCalEventListeners();
 
@@ -81,33 +116,38 @@ function addCourseToCalendar(crn, courseNum) {
 }
 
 function updateCalEventListeners() {
-	$('.calClass').hover(
+	$('.calClass, .classListItem').hover(
 		function() {
-			//var courseNum = $(this).data('coursenum').replace(" ", "");
-			//console.log($(this).data('coursenum'));
-			//var section = $(this).data('section');
-			//$('.calClass.'+courseNum+'-'+section).addClass("hover");
-			//console.log('.calClass.'+courseNum+'-'+section);
-			//$('.calClass').addClass("hover");
 			var courseNum = $(this).data('coursenum').replace(" ", "");
-			$('.calClass.course-'+courseNum).addClass("hover");
+			$('.course-'+courseNum).addClass("hover");
 		},
 
 		function() {
 			$('.calClass').removeClass("hover");
+			$('.classListItem').removeClass("hover");
 		}
 	);
+
+	$('.removeBtn').unbind('click.namespace').bind('click.namespace', function() {
+		var crn = $(this).data('crn');
+		var credits = $(this).data('credits');
+		removeCourse(crn, credits);
+	});
 
 }
 
 function infoBoxEventListeners() {
-	$('.removeBtn').click(function() {
+	/*
+	$('.removeBtn').unbind('click.namespace').bind('click.namespace', function() {
 		var crn = $(this).data('crn');
+		var credits = $(this).data('credits');
 		removeCourse(crn);
 	});
+	*/
 }
 
-function removeCourse(crn) {
+function removeCourse(crn, credits) {
+	credits = parseInt(credits);
 	var indexes = $.map(courseList, function(Course, index) {
 	    if(Course.crn == crn) {
 	        return index;
@@ -117,7 +157,13 @@ function removeCourse(crn) {
 
 	courseList.splice(i, 1); //remove course from courseList
 	$('.calClass.crn-'+crn).remove();
+	$('.classListItem.crn-'+crn).remove();
 	$('.courseInfoBox').modal('hide');
+
+	creditCount = creditCount - credits;
+	classCount = courseList.length;
+	$('#creditCount').text(creditCount);
+	$('#classCount').text(classCount);
 }
 
 

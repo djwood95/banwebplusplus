@@ -178,7 +178,7 @@ class CourseMapper extends Mapper {
 	}
 
 	public function getCourseInfoForCalendar($CRN, $courseNum) {
-		$stmt = $this->db->prepare("SELECT * FROM Sections WHERE CRN=:CRN AND CourseNum=:courseNum");
+		$stmt = $this->db->prepare("SELECT s.*, c.* FROM Sections s JOIN Courses c ON s.CourseNum = c.CourseNum WHERE s.CRN=:CRN AND s.CourseNum=:courseNum");
 		$stmt->execute([
 			'CRN' => $CRN,
 			'courseNum' => $courseNum
