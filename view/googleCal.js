@@ -141,13 +141,14 @@ function calendarTest(classArray) {
         rrule = rrule.concat(",");
       }
     }
-    console.log(classArray[i].days);
+
 
     rrule = rrule.concat(";UNTIL=");
     rrule=rrule.concat(classArray[i].endDate);
     rrule = rrule.concat("T");
     rrule = rrule.concat(classArray[i].endTime);
     rrule=rrule.concat(";");
+        console.log(rrule);
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
