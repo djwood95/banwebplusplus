@@ -100,7 +100,7 @@ function handleSignoutClick(event) {
 }
 
 function calendarTest(classArray) {
-  for (i=0; i < classArray.length; i++){
+  for (var i=0; i < classArray.length; i++){
     var startDateTime = classArray[i].startDate;
     startDateTime = startDateTime.concat("T");
     startDateTime= startDateTime.concat(classArray[i].startTime);
@@ -111,8 +111,8 @@ function calendarTest(classArray) {
     endDateTime= endDateTime.concat(classArray[i].endTime);
 
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
-    for (var i = 0; i < classArray[i].days.length; j++){
-        if (var j <classARray[i].days.length-1){
+    for (var j = 0; i < classArray[i].days.length; j++){
+        if (j <classARray[i].days.length-1){
           rrule = rrule.concat(classArrray[i].days[j]);
           rrule = rrule.concat(",");
         }
