@@ -114,7 +114,6 @@ function calendarTest(classArray) {
     console.log(endDateTime);
 
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
-    var formatDay;
     for (var j = 0; j < classArray[i].days.length; j++){
       switch(classArray[i].days[j]){
         case "M":
@@ -136,7 +135,7 @@ function calendarTest(classArray) {
           break;
       }
 
-      rrule = rrule.concat(formatDay);
+
       if (j <classArray[i].days.length-1){
         rrule = rrule.concat(",");
       }
