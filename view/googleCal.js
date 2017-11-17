@@ -141,7 +141,8 @@ function calendarTest(classArray) {
       }
     }
 
-
+    var endDate = classArray[i].endDate;
+    var endTime = classArray[i].endTime;
     rrule = rrule.concat(";UNTIL=");
     endDate = endDate.replace("-", '');
     rrule=rrule.concat(classArray[i].endDate);
