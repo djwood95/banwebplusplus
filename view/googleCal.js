@@ -146,7 +146,7 @@ function calendarTest(classArray) {
     rrule=rrule.concat(classArray[i].endDate);
     rrule = rrule.concat("T");
     rrule = rrule.concat(classArray[i].endTime);
-    rrule=rrule.concat(";");
+    //rrule=rrule.concat(";");
 
       var event = {
         'summary': classArray[i].courseName,
@@ -159,10 +159,10 @@ function calendarTest(classArray) {
           'dateTime': endDateTime,
           'timeZone': 'America/Detroit'
         },
-        'recurrence':
+        'recurrence':[
           rrule
           //'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
-
+          ]
     };
     console.log(event);
     console.log(rrule);
