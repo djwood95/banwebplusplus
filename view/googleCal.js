@@ -145,10 +145,10 @@ function calendarTest(classArray) {
     var endTime = classArray[i].endTime;
     rrule = rrule.concat(";UNTIL=");
     endDate = endDate.replace("-", '');
-    rrule=rrule.concat(classArray[i].endDate);
+    rrule=rrule.concat(endDate);
     rrule = rrule.concat("T");
-    rrule = rrule.concat(classArray[i].endTime);
     endTime = endTime.replace(":", '');
+    rrule = rrule.concat(endTime);
     rrule=rrule.concat("Z");
 
       var event = {
