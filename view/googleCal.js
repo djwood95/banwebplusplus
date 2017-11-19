@@ -142,7 +142,6 @@ function calendarTest(classArray) {
 
     classArray[i].startDate = makeDate.toString();
 
-obvious crashing line
 
     var startDateTime = classArray[i].startDate;
     startDateTime = startDateTime.concat("T");
