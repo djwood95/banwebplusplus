@@ -137,9 +137,12 @@ function calendarTest(classArray) {
       }
    }
 
-    var newStartDate = classArray[i].startingDate.split('-');
-    newStartDate[2] = Number(newStartDate[2] + difference);
-    classArray[i].startDate = newStartDate.join('-');
+    var makeDate = new Date(classArray[i].startDate);
+    makeDate.setDate(makeDate.getDate() + difference);
+
+    classArray[i].startDate = makeDate.toString();
+
+obvious crashing line
 
     var startDateTime = classArray[i].startDate;
     startDateTime = startDateTime.concat("T");
