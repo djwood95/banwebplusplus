@@ -77,16 +77,30 @@ $app->post('/verifyIdToken', function(Request $request, Response $response) {
 	return $result;
 });
 
-$app->get('/addSchedule', function(Request $request, Response $response)
+$app->get('/addSchedule/{name}/{year}/{semester}', function(Request $request, Response $response)
 {
-	// TODO: What do I add here?
+	console.log("Got to AddSchedule");
+	$ScheduleName = $args['name'];
+	$UserID = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
+	$Year = $args['year'];
+	$Semester = $args['semester'];
+	console.log($UserID);
+
 	$scheduleMapper = new ScheduleMapper($this->db);
 	$scheduleMapper->AddSchedule($ScheduleName, $UserID, $Semester, $Year);
+	console.log("Finished AddSchedule");
 });
 		  
 
-$app->get('/addCourseToCalendar/{crn}', function(Request $request, Response $response) {
-	//TODO:What do I do here?
+$app->get('/addCourseToCalendar/{scheduleName}/{crn}', function(Request $request, Response $response)
+{
+	console.log("Got to AddCourseToCalendar");
+	$ScheduleName = $args['scheduleName'];
+	$UserID = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
+	$CRN = $args['crn']
+	console.log($UserID);
+
 	$scheduleMapper = new ScheduleMapper($this->db);
 	$scheduleMapper->AddCourseToSchedule($ScheduleName, $UserID, $CRN);
+	console.log("Finished AddCourseToCalendar");
 });
