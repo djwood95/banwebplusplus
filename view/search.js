@@ -25,9 +25,11 @@ function checkSignIn() {
 function signInSuccess(name) {
 	//check backend
 	$.get('/public/isLoggedIn', function(responseTxt) {
-		console.log(responseTxt);
+		//console.log(responseTxt);
 		if(responseTxt){
-			showGreenAlert("Welcome, "+name+"! You are logged in.");
+			//showGreenAlert("Welcome, "+name+"! You are logged in.");
+			var firstName = name.split(" ")[0];
+			$('.signInDropdown').text("Welcome, " + firstName);
 		}
 	});
 }
@@ -136,16 +138,24 @@ function loadCourseInfo(courseNum) {
 		});
 
 		newHtml += "<h3>Restrictions</h3>";
-		if(info.Restrictions != null) newHtml += info.Restrictions + "<br/>";
+		if(info.Restrictions != null) newHtml += info.Restrictions + "<br/><br/>";
 
 		//Parse pre-req information
-		newHtml += "<b>Pre-Requisites:</b>";
-		newHtml += "<ul>";
-		var req = info.Prereq.split("&");
+		newHtml += "<b style='text-align:left;'>Pre-Requisites:</b>";
+		newHtml += "<ul style='text-align:left;'>";
+		var req = info.Prereq.replace(/[()]+/g,'');
+			req = req.split("&");
 
 		for(var i = 0; i < req.length; i++) {
-			
-			newHtml += "<li>" + req[i] + "</li>";
+			var orData = req[i].split("|");
+			newHtml += "<li>";
+			//var courseNamesList = getCourseNamesList(orData);
+
+			for(var j = 0; j < orData.length; j++) {
+				newHtml += "<span data-toggle='tooltip' data-placement='top' title='courseNamesList[j]'>"+orData[j]+"</span>";
+				if(j+1 < orData.length) newHtml += " OR ";
+			}
+			newHtml += "</li>";
 		}
 
 
@@ -155,6 +165,12 @@ function loadCourseInfo(courseNum) {
 		$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
 
 		infoBoxEventListeners();
+	});
+}
+
+function getCourseNamesList(courseNumList) {
+	$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
+		return responseTxt
 	});
 }
 

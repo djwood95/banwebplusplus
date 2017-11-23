@@ -139,13 +139,7 @@ function updateCalEventListeners() {
 }
 
 function infoBoxEventListeners() {
-	/*
-	$('.removeBtn').unbind('click.namespace').bind('click.namespace', function() {
-		var crn = $(this).data('crn');
-		var credits = $(this).data('credits');
-		removeCourse(crn);
-	});
-	*/
+	$('[data-toggle="tooltip"]').tooltip()
 }
 
 function removeCourse(crn, credits) {

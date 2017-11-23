@@ -3,64 +3,97 @@
   <head>
     <link rel="shortcut icon" href="DonaldTrump.ico"/>
     <title>MAKE SCHEDULING GREAT AGAIN</title>
+
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <script src="googleCal.js"></script>
-
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-    <!--<script src="https://apis.google.com/js/platform.js" async defer></script>-->
 
+    <!-- Icon Set -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" />
+    
     <!-- Calendar CSS -->
     <link rel="stylesheet" href="cal.css" />
   </head>
   <body>
 
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">BanWeb++</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mr-auto">
+
+          <li class="nav-item signedInOnly">
+            <a class="nav-link" href="#">New Schedule</a>
+          </li>
+          <li class="nav-item signedInOnly">
+            <a class="nav-link" href="#">Open Schedule</a>
+          </li>
+          <li class="nav-item signedInOnly">
+            <a class="nav-link" href="#">Save Schedule</a>
+          </li>
+          <li class="nav-item signedInOnly">
+            <a class="nav-link" href="#">Add Schedule to Google Calendar</a>
+          </li>
+          <li class="nav-item dropdown signedInOnly">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Schedule
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="#">New</a>
+              <a class="dropdown-item" href="#">Open</a>
+              <a class="dropdown-item" href="#">Save</a>
+              <a class="dropdown-item" href="#">Add to Google Calendar</a>
+            </div>
+          </li>
+
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a class="nav-link nav-link-right" id='signInButton' href="#">Sign In</a>
+          </li>
+          <li class="nav-item dropdown signedInOnly">
+            <a class="nav-link dropdown-toggle signInDropdown" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Signing In...
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="#" data-toggle='modal' data-target='.completedCoursesBox'>Add courses taken</a>
+              <a class="dropdown-item" href="#">Email alerts</a>
+              <a class="dropdown-item" href="#" id='signOutButton'>Sign Out</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
 
 
+<!--
   <nav class="navbar navbar-expand-md navbar-dark bg-primary">
-    
+    <a class="navbar-brand" href="#" font-size="larger">BanWeb++</a>
+
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
         <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="navbar-collapse collapse" id="collapsingNavbar">
-      <!--<a class="navbar-nav mr-auto"></a>-->
-      <a class="navbar-brand mx-auto justify-content-center" href="#" font-size="larger"><img src="logo.png" height="10%" width="10%"></a>
-        <ul class="navbar-nav ml-auto">
-            <li class='nav-item' id='calendarTest'>TEST CALENDAR</li>
-            <li class="nav-item">
-              <a id='signInButton'>Sign In</a>
-              <a id='signOutButton'>Sign Out</a>
-              <!--
-              <a class="nav-link" href="" data-target="#myModal" data-toggle="modal" onclick="signOut();" style='float:right;'>Sign Out</a>
-              <script>
-                function signOut() {
-                  var auth2 = gapi.auth2.getAuthInstance();
-                  auth2.signOut().then(function () {
-                    $.get('/public/logout');
-                  });
-                }
-            </script>
-          -->
-            </li>
-            <!--
-            <li class="nav-item">
-                <a class="nav-link" href="" data-target="#myModal" data-toggle="modal" onclick="signOut();">Sign Out</a>
-              <script>
-                function signOut() {
-                  var auth2 = gapi.auth2.getAuthInstance();
-                  auth2.signOut().then(function () {
-                    console.log('User signed out.');
-                  });
-                }
-            </script>
-            </li>-->
+        <ul class="navbar-nav">
+          <li class='nav-item' id='calendarTest'>TEST CALENDAR</li>
+        </ul>
+        <ul class="navbar-nav" style='float:right;'>
+          <li>
+            <a id='signInButton'>Sign In</a>
+            <a id='signOutButton'>Sign Out</a>
+          </li>
         </ul>
     </div>
   </nav>
+-->
   <!--
 	<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <a class="navbar-brand" href="index.html">Banweb++<span class="sr-only">(current)</span></a>
@@ -151,45 +184,33 @@
 
       </div>
     </div>
-	  
-	</br></br></br></br></br></br></br></br>
-  <!--<meta name="google-signin-client_id" content="1079673860784-13aa7jbs3nrmo7t3j5pqk75lu795elec.apps.googleusercontent.com">-->
 
-    <!--<script> function onSignIn(googleUser) {
-
-      var id_token = googleUser.getAuthResponse().id_token;
-      console.log(id_token);
-      var profile = googleUser.getBasicProfile();
-
-      var xhr = new XMLHttpRequest();
-      var email = profile.getEmail();
-      var name = profile.getName();
-      xhr.open('POST', '/public/verifyIdToken');
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.onload = function() {
-        console.log('Signed in as: ' + xhr.responseText);
-        signInSuccess();
-      };
-      xhr.send('idtoken=' + id_token + '&email=' + email + '&name=' + name);
-    } </script>-->
-	  
-	  
     <div class='modal fade courseInfoBox' tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" area-hidden="true">
       <div class='modal-dialog modal-lg'>
         <div class='modal-content p-2 text-center'></div>
       </div>
     </div>
 
+    <div class='modal fade completedCoursesBox' tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" area-hidden="true">
+      <div class='modal-dialog modal-lg'>
+        <div class='modal-content p-2 text-center'></div>
+      </div>
+    </div>
 
-    <!-- Optional JavaScript -->
+
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
 
+    <!-- Custom JS -->
+    <script src="googleCal.js"></script>
+    <script src="completedCourses.js"></script>
     <script src="search.js"></script>
     <script src="calendar.js"></script>
 
+    <!-- Google Login API JS -->
     <script async defer src="https://apis.google.com/js/api.js"
       onload="this.onload=function(){};handleClientLoad()"
       onreadystatechange="if (this.readyState === 'complete') this.onload()">

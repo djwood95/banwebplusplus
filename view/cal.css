@@ -81,3 +81,14 @@ td.timeLabel {
 .classListItem > p:hover{
     cursor: pointer;
 }
+
+
+.signedInOnly, #signInButton {
+    display:none;
+}
+
+.dropdown-menu-scroll {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+}

@@ -90,3 +90,41 @@ $app->get('/addCourseToCalendar/{crn}', function(Request $request, Response $res
 	$scheduleMapper = new ScheduleMapper($this->db);
 	$scheduleMapper->AddCourseToSchedule($ScheduleName, $UserID, $CRN);
 });
+
+$app->get('/getPreReqCourseNames/{courseList}', function(Request $request, Response $response, $args) {
+	$courseNumList = $args['courseList'];
+	$completedCoursesMapper = new CompletedCoursesMapper($this->db);
+	$courseNamesList = $completedCoursesMapper->getPreReqCourseNames();
+	return $response->withJson($courseNamesList);
+});
+
+$app->get('/completedCourses/subjectList', function(Request $request, Response $response) {
+	$completedCoursesMapper = new completedCoursesMapper($this->db);
+	$subjectList = $completedCoursesMapper->getSubjects();
+	return $response->withJson($subjectList);
+});
+
+$app->get('/completedCourses/coursesInSubj/{subject}', function(Request $request, Response $response, $args) {
+	$subject = $args['subject'];
+
+	$completedCoursesMapper = new completedCoursesMapper($this->db);
+	$courseList = $completedCoursesMapper->getCoursesInSubj($subject);
+	return $response->withJson($courseList);
+});
+
+$app->get('/completedCourses/markComplete/{courseNum}/{subject}', function(Request $request, Response $response, $args) {
+	$subject = $args['subject'];
+	$courseNum = $args['courseNum'];
+
+	$completedCoursesMapper = new completedCoursesMapper($this->db);
+	$result = $completedCoursesMapper->markComplete($courseNum, $subject);
+	return $response->withJson($result);
+});
+
+$app->get('/completedCourses/markIncomplete/{courseNum}', function(Request $request, Response $response, $args) {
+	$courseNum = $args['courseNum'];
+
+	$completedCoursesMapper = new completedCoursesMapper($this->db);
+	$result = $completedCoursesMapper->markInComplete($courseNum);
+	return $response->withJson($result);
+});

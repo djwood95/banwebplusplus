@@ -50,13 +50,13 @@ function initClient() {
 */
 function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
-    authorizeButton.style.display = 'none';
-    signoutButton.style.display = 'block';
+    $('#signInButton').hide();
+    $('.signedInOnly').show();
     getProfileInfo();
     calendarButtonListener();
   } else {
-    authorizeButton.style.display = 'block';
-    signoutButton.style.display = 'none';
+    $('#signInButton').show();
+    $('.signedInOnly').hide();
   }
 }
 
