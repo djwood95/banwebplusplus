@@ -101,7 +101,48 @@ function handleSignoutClick(event) {
 
 function calendarTest(classArray) {
   console.log(classArray);
+
   for (var i=0; i < classArray.length; i++){
+
+     var dayOfStart = classArray[i].startingDate.getDay();
+     var firstClass;
+     var dayCount = 0;
+     var trigger = 0;
+
+     while(trigger==0){
+       switch(classArray[i].days[dayCount]){
+         case "M":
+           firstClass = 1;
+           break;
+         case "T":
+           firstClass = 2;
+           break;
+          case "W":
+           firstClass = 3;
+           break;
+         case "R":
+           firstClass = 4;
+           break;
+         case "F":
+           firstClass = 5;
+           break;
+         default:
+           break;
+       }
+
+      var difference = firstClass - dayOfStart;
+      dayCount = dayCount + 1;
+      if (difference => 0){
+        trigger = 1;
+      }
+   }
+
+    var makeDate = new Date(classArray[i].startDate);
+    makeDate.setDate(makeDate.getDate() + difference);
+
+    classArray[i].startDate = makeDate.toString();
+
+
     var startDateTime = classArray[i].startDate;
     startDateTime = startDateTime.concat("T");
     startDateTime= startDateTime.concat(classArray[i].startTime);
