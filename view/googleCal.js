@@ -104,7 +104,7 @@ function calendarTest(classArray) {
   //Making a difference in the code with this comment so i can do a test commit
   for (var i=0; i < classArray.length; i++){
 
-     var dayOfStart = classArray[i].startingDate.getDay();
+     var dayOfStart = classArray[i].startDate.getDay();
      var firstClass;
      var dayCount = 0;
      var trigger = 0;
