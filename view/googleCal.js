@@ -101,7 +101,7 @@ function handleSignoutClick(event) {
 
 function calendarTest(classArray) {
   console.log(classArray);
-  //Making a difference in code with this comment so i can do a test commit
+  //Making a difference in code
   for (var i=0; i < classArray.length; i++){
 
     var makeDate = new Date(classArray[i].startDate);
