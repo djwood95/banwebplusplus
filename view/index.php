@@ -37,7 +37,7 @@
             <a class="nav-link" href="#">Save Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
-            <a class="nav-link" href="#">Add Schedule to Google Calendar</a>
+            <a id="calendarTest" class="nav-link" href="#">Add Schedule to Google Calendar</a>
           </li>
           <li class="nav-item dropdown signedInOnly">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
