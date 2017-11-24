@@ -104,44 +104,10 @@ function calendarTest(classArray) {
   //Making a difference in the code with this comment so i can do a test commit
   for (var i=0; i < classArray.length; i++){
 
-     var dayOfStart = classArray[i].startDate.getDay();
-     var firstClass;
-     var dayCount = 0;
-     var trigger = 0;
-
-     while(trigger==0){
-       switch(classArray[i].days[dayCount]){
-         case "M":
-           firstClass = 1;
-           break;
-         case "T":
-           firstClass = 2;
-           break;
-          case "W":
-           firstClass = 3;
-           break;
-         case "R":
-           firstClass = 4;
-           break;
-         case "F":
-           firstClass = 5;
-           break;
-         default:
-           break;
-       }
-
-      var difference = firstClass - dayOfStart;
-      dayCount = dayCount + 1;
-      if (difference => 0){
-        trigger = 1;
-      }
-   }
-
     var makeDate = new Date(classArray[i].startDate);
     makeDate.setDate(makeDate.getDate() + difference);
 
     classArray[i].startDate = makeDate.toString();
-
 
     var startDateTime = classArray[i].startDate;
     startDateTime = startDateTime.concat("T");
@@ -208,6 +174,7 @@ function calendarTest(classArray) {
           //'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
         ]
     };
+
     console.log(event);
     console.log(rrule);
 
@@ -224,5 +191,29 @@ function calendarTest(classArray) {
           console.log(event);
         }
       });
+      //DELETING ORIGINAL
+      var event = {
+        'summary': classArray[i].courseName,
+        'location': classArray[i].location,
+        'start': {
+          'dateTime': startDateTime,
+          'timeZone': 'America/Detroit'
+        },
+        'end': {
+          'dateTime': endDateTime,
+          'timeZone': 'America/Detroit'
+        }
+    };
+
+    console.log(event);
+    console.log(rrule);
+
+      var request = gapi.client.calendar.events.insert({
+        'calendarId': 'primary',
+        'resource': event
+      });
+
+      request.execute(function(event) { });
+
     }
   }
