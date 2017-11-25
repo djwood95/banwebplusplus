@@ -195,7 +195,7 @@ function calendarTest(classArray) {
 
 
     var eventSearch = $("#selectNumber option:selected").attr('value');
-    console.log("eventSearch");
+    console.log(eventSearch);
 
     var eid = $("div.ep[data-eid]").attr("data-eid");
     if (eid !== undefined) {
