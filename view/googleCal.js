@@ -199,7 +199,7 @@ function calendarTest(classArray) {
     console.log("TEST LINE");
     var request = gapi.client.calendar.events.delete({
 	'calendarId': 'primary',
-	'eid':  eventId
+	'eventId':  eventId
 	});
     request.execute(function(event) {
     if(event.status == "confirmed"){} else {}
