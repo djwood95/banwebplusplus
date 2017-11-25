@@ -78,8 +78,7 @@ $app->post('/verifyIdToken', function(Request $request, Response $response) {
 });
 
 
-$app->get('/addSchedule/{name}/{year}/{semester}', function(Request $request, Response $response, $args)
-{
+$app->get('/addSchedule/{name}/{year}/{semester}', function(Request $request, Response $response, $args) {
 	console.log("Got to AddSchedule");
 	$ScheduleName = $args['name'];
 	//$UserID = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
@@ -94,13 +93,12 @@ $app->get('/addSchedule/{name}/{year}/{semester}', function(Request $request, Re
 });
 		  
 
-$app->get('/addCourseToCalendar/{scheduleName}/{crn}', function(Request $request, Response $response, $args)
-{
+$app->get('/addCourseToCalendar/{scheduleName}/{crn}', function(Request $request, Response $response, $args) {
 	console.log("Got to AddCourseToCalendar");
 	$ScheduleName = $args['scheduleName'];
 	//$UserID = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
 	$UserID = 'GO_53@protonmail.com'; //TESTING THIS TEMPORARILY!
-	$CRN = $args['crn']
+	$CRN = $args['crn'];
 	console.log($UserID);
 
 	$scheduleMapper = new ScheduleMapper($this->db);
