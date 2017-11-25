@@ -158,12 +158,12 @@ function calendarTest(classArray) {
     endTime = endTime.replace(/[:]+/g, '');
     rrule = rrule.concat(endTime);
     rrule=rrule.concat("Z");
-    //var eventId = classArray[i].courseName.concat("DELETE_ME");
+    var eventId = classArray[i].courseName.concat("DELETE_ME");
 
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
-	//'eid': eventId,
+	'id': eventId,
         'start': {
           'dateTime': startDateTime,
           'timeZone': 'America/Detroit'
@@ -186,7 +186,7 @@ function calendarTest(classArray) {
         'resource': event
       });
 
-      var eventId = request.execute(function(event) {
+        request.execute(function(event) {
         if(event.status == "confirmed"){
           showGreenAlert("Your event has been added to your calendar! "+event.htmlLink);
         }else{
