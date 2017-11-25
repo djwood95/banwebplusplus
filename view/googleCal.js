@@ -193,24 +193,17 @@ function calendarTest(classArray) {
         }
       });
       //DELETING ORIGINAL
-      var event = {
-        'summary': classArray[i].courseName,
-        'location': classArray[i].location,
-        'start': {
-          'dateTime': startDateTime,
-          'timeZone': 'America/Detroit'
-        },
-        'end': {
-          'dateTime': endDateTime,
-          'timeZone': 'America/Detroit'
-        }
-    };
+  
+    var eventId = event.getId();
+   // var cal = CalendarApp.getCalendarById("primary");
+   // var allEvents = cal.getEvents(startDateTime, endDateTime);
+   // for ( var i in allEvents ) {
+    //  var eid = events[i].getId();
+   // }
 
-    console.log(event);
+    console.log(eventId);
     console.log("TEST LINE");
-      var request = gapi.client.calendar.events.delete({
-        'calendarId': 'primary',
-        'resource': event
+      var request = gapi.client.calendar.events.delete('primary', eventId).execute();
       });
 
       request.execute(function(event) { });
