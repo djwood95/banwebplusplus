@@ -20,14 +20,14 @@
         <script>
       function saveAs() {
         var scheduleName = prompt("Enter Name to save schedule to:", "My Schedule");
-        var sName = "http://banwebplusplus.me/public/addSchedule/" + scheduleName + "/2017/Spring/";
+        var sName = "http://banwebplusplus.me/public/addSchedule/" + scheduleName + "/2017/Spring";
         if (scheduleName != null) {
           var saved = confirm("Succesfully saved as: " + scheduleName);
           window.location.href = sName;
         }
       }
     </script>
-    
+
   </head>
   <body>
 
