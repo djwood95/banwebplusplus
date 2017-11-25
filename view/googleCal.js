@@ -207,8 +207,7 @@ function calendarTest(classArray) {
     };
 
     console.log(event);
-    console.log(rrule);
-
+    console.log("TEST LINE");
       var request = gapi.client.calendar.events.delete({
         'calendarId': 'primary',
         'resource': event
