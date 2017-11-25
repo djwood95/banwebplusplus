@@ -207,6 +207,6 @@ function calendarTest(classArray) {
 	'calendarID': 'primary',
 	'eventId':  event
 	}).execute();
-
+   console.log("past Event");
     }
   }
