@@ -158,7 +158,7 @@ function calendarTest(classArray) {
     endTime = endTime.replace(/[:]+/g, '');
     rrule = rrule.concat(endTime);
     rrule=rrule.concat("Z");
-    var eventId = "DELETEMEPLS";
+    var eventId = "99999999999999";
 
       var event = {
         'summary': classArray[i].courseName,
