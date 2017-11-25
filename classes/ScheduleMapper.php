@@ -14,7 +14,7 @@ class ScheduleMapper extends Mapper
     {
         //$stmt = $this->db->prepare("CALL AddSchedule(:scheduleName, :userID, :semester, :year");
         $stmt = $this->db->prepare("INSERT into StudentSchedule (ScheduleName, GoogleId, Semester, ScheduleYear, CRN) VALUES(:scheduleName, :userID, :semester, :year) ON DUPLICATE KEY UPDATE CRN = VALUES(:CRN)");
-        $stmt->execute(['scheduleName' => $ScheduleName, 'userID' => $UserID, 'semester' => $Semester, 'year' => $Year, 'crn' => $CRN]);
+        $stmt->execute(['scheduleName' => $ScheduleName, 'userID' => $UserID, 'semester' => $Semester, 'year' => $Year, 'CRN' => $CRN]);
         if(!$stmt) die("SQL Error");
         return;
     }
