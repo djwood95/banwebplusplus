@@ -78,7 +78,7 @@ $app->post('/verifyIdToken', function(Request $request, Response $response) {
 });
 
 
-$app->get('/addSchedule/{name}/{year}/{semester}', function(Request $request, Response $response)
+$app->get('/addSchedule/{name}/{year}/{semester}', function(Request $request, Response $response, $args)
 {
 	console.log("Got to AddSchedule");
 	$ScheduleName = $args['name'];
@@ -94,7 +94,7 @@ $app->get('/addSchedule/{name}/{year}/{semester}', function(Request $request, Re
 });
 		  
 
-$app->get('/addCourseToCalendar/{scheduleName}/{crn}', function(Request $request, Response $response)
+$app->get('/addCourseToCalendar/{scheduleName}/{crn}', function(Request $request, Response $response, $args)
 {
 	console.log("Got to AddCourseToCalendar");
 	$ScheduleName = $args['scheduleName'];
