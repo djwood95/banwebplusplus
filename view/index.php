@@ -16,6 +16,18 @@
     
     <!-- Calendar CSS -->
     <link rel="stylesheet" href="cal.css" />
+
+        <script>
+      function saveAs() {
+        var scheduleName = prompt("Enter Name to save schedule to:", "My Schedule");
+        var sName = "http://banwebplusplus.me/public/addSchedule/" + scheduleName + "/2017/Spring/";
+        if (scheduleName != null) {
+          var saved = confirm("Succesfully saved as: " + scheduleName);
+          window.location.href = sName;
+        }
+      }
+    </script>
+    
   </head>
   <body>
 
@@ -210,17 +222,7 @@
     <script src="search.js"></script>
     <script src="calendar.js"></script>
 
-    <script>
-      function saveAs() {
-        var scheduleName = prompt("Enter Name to save schedule to:", "My Schedule");
-        var sName = "http://banwebplusplus.me/public/addSchedule/" + scheduleName + "/2017/Spring/";
-        if (scheduleName != null) {
-          alert("Succesfully saved as: " + scheduleName);
-        }
-        <META HTTP-EQUIV="Refresh"
-          CONTENT="3; URL=" + sName>
-      }
-    </script>
+
 
     <!-- Google Login API JS -->
     <script async defer src="https://apis.google.com/js/api.js"
