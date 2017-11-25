@@ -207,7 +207,10 @@ function calendarTest(classArray) {
 	'calendarId': 'primary',
 	'eventId':  event
 	});
-    request.execute(function(event));
-   console.log("past Event");
+    request.execute(function(event) {
+if(event.status == "confirmed"){} else {}
+});
+    console.log("past Event");
+  
     }
   }
