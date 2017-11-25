@@ -162,6 +162,7 @@ function calendarTest(classArray) {
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
+	'eventId': classArray[i].courseName.concat("DELETE_ME");
         'start': {
           'dateTime': startDateTime,
           'timeZone': 'America/Detroit'
@@ -193,30 +194,7 @@ function calendarTest(classArray) {
         }
       });
 
-
-    var eventSearch = $("#selectNumber option:selected").attr('value');
-    console.log(eventSearch);
-
-    var eid = $("div.ep[data-eid]").attr("data-eid");
-    if (eid !== undefined) {
-        var eventId = atob(eid);
-        console.log(eventId.split(" ")[0]);
-    }
-
-/*
-    var eventId;
-
-    
-    var event = {
-	        "kind": "calendar#events",
-	        "summary": classArray[i].courseName,
-	        "timeZone": 'America/Detroit',
-		"timeMin":startDateTime.concat("Z"),
-		"timeMax":endDateTime.concat("Z"),
-			  "items": [
-				    events Resource
-				   ]
-	    }
+    var eventId = classArray[i].courseName.concat("DELETE_ME");
 
     console.log(eventId);
     console.log("TEST LINE");
@@ -225,9 +203,9 @@ function calendarTest(classArray) {
 	'eventId':  eventId
 	});
     request.execute(function(event) {
-if(event.status == "confirmed"){} else {}
-});
+    if(event.status == "confirmed"){} else {}
+    });
     console.log("past Event");
-  */
+
     }
   }
