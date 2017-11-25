@@ -163,7 +163,7 @@ function calendarTest(classArray) {
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
-	'eventId': eventId,
+	'eid': eventId,
         'start': {
           'dateTime': startDateTime,
           'timeZone': 'America/Detroit'
@@ -199,7 +199,7 @@ function calendarTest(classArray) {
     console.log("TEST LINE");
     var request = gapi.client.calendar.events.delete({
 	'calendarId': 'primary',
-	'eventId':  eventId
+	'eid':  eventId
 	});
     request.execute(function(event) {
     if(event.status == "confirmed"){} else {}
