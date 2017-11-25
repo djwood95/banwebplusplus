@@ -158,7 +158,7 @@ function calendarTest(classArray) {
     endTime = endTime.replace(/[:]+/g, '');
     rrule = rrule.concat(endTime);
     rrule=rrule.concat("Z");
-    var eventId = classArray[i].courseName.concat("DELETE_ME");
+    var eventId = "DELETEMEPLS";
 
       var event = {
         'summary': classArray[i].courseName,
@@ -188,7 +188,7 @@ function calendarTest(classArray) {
 
         request.execute(function(event) {
         if(event.status == "confirmed"){
-          showGreenAlert("Your event has been added to your calendar! "+event.htmlLink);
+
         }else{
           showDangerAlert("Your event could not be added to calendar.");
           console.log(event);
