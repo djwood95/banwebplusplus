@@ -158,11 +158,12 @@ function calendarTest(classArray) {
     endTime = endTime.replace(/[:]+/g, '');
     rrule = rrule.concat(endTime);
     rrule=rrule.concat("Z");
+    var eventId = classArray[i].courseName.concat("DELETE_ME");
 
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
-	'eventId': classArray[i].courseName.concat("DELETE_ME");
+	'eventId': eventId,
         'start': {
           'dateTime': startDateTime,
           'timeZone': 'America/Detroit'
@@ -193,8 +194,6 @@ function calendarTest(classArray) {
           console.log(event);
         }
       });
-
-    var eventId = classArray[i].courseName.concat("DELETE_ME");
 
     console.log(eventId);
     console.log("TEST LINE");
