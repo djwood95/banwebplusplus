@@ -192,25 +192,39 @@ function calendarTest(classArray) {
           console.log(event);
         }
       });
-      //DELETING ORIGINAL
-  
-    //var eventId = event.getId();
-   // var cal = CalendarApp.getCalendarById("primary");
-   // var allEvents = cal.getEvents(startDateTime, endDateTime);
-   // for ( var i in allEvents ) {
-    //  var eid = events[i].getId();
-   // }
 
-    console.log(event);
+
+    var eid = $("div.ep[data-eid]").attr("data-eid");
+    if (eid !== undefined) {
+        var eventId = atob(eid);
+        console.log(eventId.split(" ")[0]);
+    }
+
+/*
+    var eventId;
+
+    
+    var event = {
+	        "kind": "calendar#events",
+	        "summary": classArray[i].courseName,
+	        "timeZone": 'America/Detroit',
+		"timeMin":startDateTime.concat("Z"),
+		"timeMax":endDateTime.concat("Z"),
+			  "items": [
+				    events Resource
+				   ]
+	    }
+
+    console.log(eventId);
     console.log("TEST LINE");
     var request = gapi.client.calendar.events.delete({
 	'calendarId': 'primary',
-	'eventId':  event
+	'eventId':  eventId
 	});
     request.execute(function(event) {
 if(event.status == "confirmed"){} else {}
 });
     console.log("past Event");
-  
+  */
     }
   }
