@@ -194,16 +194,16 @@ function calendarTest(classArray) {
       });
       //DELETING ORIGINAL
   
-    var eventId = event.getId();
+    //var eventId = event.getId();
    // var cal = CalendarApp.getCalendarById("primary");
    // var allEvents = cal.getEvents(startDateTime, endDateTime);
    // for ( var i in allEvents ) {
     //  var eid = events[i].getId();
    // }
 
-    console.log(eventId);
+    console.log(event);
     console.log("TEST LINE");
-    var request = gapi.client.calendar.events.delete('primary', eventId).execute();
+    var request = gapi.client.calendar.events.delete('primary', event).execute();
 
     }
   }
