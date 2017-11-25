@@ -104,10 +104,11 @@ function calendarTest(classArray) {
   //difference in code
   for (var i=0; i < classArray.length; i++){
 
-    var makeDate = new Date(classArray[i].startDate);
-    makeDate.setDate(makeDate.getDate() + difference);
+    //var makeDate = new Date(classArray[i].startDate);
+    //makeDate.setDate(makeDate.getDate() + difference);
 
-    classArray[i].startDate = makeDate.toString();
+
+    //classArray[i].startDate = makeDate.toString();
 
     var startDateTime = classArray[i].startDate;
     startDateTime = startDateTime.concat("T");
