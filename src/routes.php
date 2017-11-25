@@ -81,7 +81,8 @@ $app->post('/verifyIdToken', function(Request $request, Response $response) {
 $app->get('/addSchedule/{name}/{year}/{semester}', function(Request $request, Response $response, $args) {
 	console.log("Got to AddSchedule");
 	$ScheduleName = $args['name'];
-	$UserID = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
+	//$UserID = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
+	$UserID = $request->getParsedBody()['email'];
 	//$UserID = 'GO_53@protonmail.com'; //TESTING THIS TEMPORARILY!
 	$Year = $args['year'];
 	$Semester = $args['semester'];
