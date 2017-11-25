@@ -203,10 +203,7 @@ function calendarTest(classArray) {
 
     console.log(eventId);
     console.log("TEST LINE");
-      var request = gapi.client.calendar.events.delete('primary', eventId).execute();
-      });
-
-      request.execute(function(event) { });
+    var request = gapi.client.calendar.events.delete('primary', eventId).execute();
 
     }
   }
