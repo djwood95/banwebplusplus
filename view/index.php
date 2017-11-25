@@ -34,7 +34,7 @@
             <a class="nav-link" href="#">Open Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
-            <a class="nav-link" href="sName" onclick="saveAs()">Save Schedule</a>
+            <a class="nav-link" href="#" onclick="saveAs()">Save Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
             <a id="calendarTest" class="nav-link" href="#">Add Schedule to Google Calendar</a>
@@ -213,10 +213,12 @@
     <script>
       function saveAs() {
         var scheduleName = prompt("Enter Name to save schedule to:", "My Schedule");
-        document.getElementById("sName").innerHTML=http:"banwebplusplus.me/public/addSchedule/" + scheduleName + "/2017/Spring/";
+        var sName = "http://banwebplusplus.me/public/addSchedule/" + scheduleName + "/2017/Spring/";
         if (scheduleName != null) {
           alert("Succesfully saved as: " + scheduleName);
         }
+        <META HTTP-EQUIV="Refresh"
+          CONTENT="3; URL=" + sName>
       }
     </script>
 
