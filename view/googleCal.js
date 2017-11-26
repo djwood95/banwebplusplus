@@ -158,8 +158,7 @@ function calendarTest(classArray) {
     endTime = endTime.replace(/[:]+/g, '');
     rrule = rrule.concat(endTime);
     rrule=rrule.concat("Z");
-    var eventId;
-
+    
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
@@ -188,23 +187,12 @@ function calendarTest(classArray) {
 
         request.execute(function(event) {
         if(event.status == "confirmed"){
-
+	  showGreenAlert("Your event has been added to your calendar! "+event.htmlLink);
         }else{
           showDangerAlert("Your event could not be added to calendar.");
           console.log(event);
         }
       });
-
-    console.log(eventId);
-    console.log("TEST LINE");
-    var request = gapi.client.calendar.events.delete({
-	'calendarId': 'primary',
-	'eventId':  eventId
-	});
-    request.execute(function(event) {
-    if(event.status == "confirmed"){} else {}
-    });
-    console.log("past Event");
 
     }
   }
