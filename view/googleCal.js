@@ -149,6 +149,7 @@ function calendarTest(classArray) {
     var dayShift = dayOne - dayOfWeek;
     dayShift = Math.abs(dayShift);
     startDateTime = startDateTime.split('-');
+    console.log(startDateTime);
     startDateTime[2] = startDateTime[2] + dayShift;
     startDateTime = startDateTime.join('-');
 
