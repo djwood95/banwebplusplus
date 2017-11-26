@@ -125,7 +125,32 @@ function calendarTest(classArray) {
     var jsDate = new Date(startDateTime);
     var dayOfWeek = jsDate.getDay();
     console.log("DAY IS: " + dayOfWeek);
+    
+    var days = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+    var dayOne = classArray[i].days[0];
+    switch(dayOne){
+         case "M":
+             dayOne = 1;
+	     break;
+	 case "T":
+	     dayOne = 2;
+             break;
+	 case "W":
+	     dayOne = 3;
+ 	     break;
+         case "R":
+	     dayOne = 4;
+             break;
+	 case "F":
+	     dayOne = 5;
+             break;
+	}
 
+    var dayShift = dayOne - dayOfWeek;
+    dayShift = Math.abs(dayShift);
+    startDateTime = str.splot('-');
+    startDateTime[1] = startDateTime[1] + dayShift;
+    startDateTime = startDateTime.join('-');
 
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
     for (var j = 0; j < classArray[i].days.length; j++){
