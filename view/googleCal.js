@@ -122,7 +122,7 @@ function calendarTest(classArray) {
     //console.log(endDateTime);
 
 
-    var jsDate = new date(startDateTime);
+    var jsDate = new Date(startDateTime);
     var dayOfWeek = jsDate.getDay();
     console.log("DAY IS: " + dayOfWeek);
 
