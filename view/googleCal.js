@@ -149,12 +149,19 @@ function calendarTest(classArray) {
     var dayShift = dayOne - dayOfWeek;
     dayShift = Math.abs(dayShift);
     startDateTime = startDateTime.split('-');
-    var layerStartDateTime = startDateTime[2].split('T')
-    console.log(layerStartDateTime);
+    var layerStartDateTime = startDateTime[2].split('T');
+    //console.log(layerStartDateTime);
     layerStartDateTime[0] = (parseInt(layerStartDateTime[0]) + parseInt(dayShift)).toString();
     startDateTime[2] = layerStartDateTime.join('T');
     startDateTime = startDateTime.join('-');
-
+	
+    endDateTime = endDateTime.split('-');
+    var layerEndDateTime = endDateTime[2].splot('T');
+    layerEndDateTime[0] = (parseInt(layerEndDateTime[0]) + parseInt(dayShift)).toString();
+    endDateTime[2] = layerEndDateTime.join('T');
+    endDateTime = endDateTime.join('-');
+    
+    
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
     for (var j = 0; j < classArray[i].days.length; j++){
       switch(classArray[i].days[j]){
