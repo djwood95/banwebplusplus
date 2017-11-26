@@ -149,8 +149,10 @@ function calendarTest(classArray) {
     var dayShift = dayOne - dayOfWeek;
     dayShift = Math.abs(dayShift);
     startDateTime = startDateTime.split('-');
-    console.log(startDateTime);
-    startDateTime[2] = startDateTime[2] + dayShift;
+    var layerStartDateTime = startDateTime[2].split('T')
+    console.log(layerStartDateTime);
+    layerStartDateTime[0] = layerStartDateTime[0] + dayShift;
+    startDateTime[2] = layerStartDateTime.join('T');
     startDateTime = startDateTime.join('-');
 
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
