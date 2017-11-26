@@ -149,7 +149,7 @@ function calendarTest(classArray) {
     var dayShift = dayOne - dayOfWeek;
     dayShift = Math.abs(dayShift);
     startDateTime = startDateTime.split('-');
-    startDateTime[1] = startDateTime[1] + dayShift;
+    startDateTime[2] = startDateTime[2] + dayShift;
     startDateTime = startDateTime.join('-');
 
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
