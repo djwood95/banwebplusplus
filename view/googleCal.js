@@ -158,12 +158,12 @@ function calendarTest(classArray) {
     endTime = endTime.replace(/[:]+/g, '');
     rrule = rrule.concat(endTime);
     rrule=rrule.concat("Z");
-    var eventId = "99999999999999";
+    var eventId;
 
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
-	'id': eventId,
+	'iCalUID': 'DELETEME',
         'start': {
           'dateTime': startDateTime,
           'timeZone': 'America/Detroit'
