@@ -156,7 +156,7 @@ function calendarTest(classArray) {
     startDateTime = startDateTime.join('-');
 	
     endDateTime = endDateTime.split('-');
-    var layerEndDateTime = endDateTime[2].splot('T');
+    var layerEndDateTime = endDateTime[2].split('T');
     layerEndDateTime[0] = (parseInt(layerEndDateTime[0]) + parseInt(dayShift)).toString();
     endDateTime[2] = layerEndDateTime.join('T');
     endDateTime = endDateTime.join('-');
