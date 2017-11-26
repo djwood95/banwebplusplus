@@ -83,7 +83,7 @@ function addCourseToCalendar(crn, courseNum) {
 			'crn': crn,
 			'courseNum': courseNum,
 			'courseName': data.CourseName,
-			'location': data.Location,
+			'location': locationText(data.Location),
 			'startTime': startTime24H,
 			'endTime': endTime24H,
 			'startDate': startDate,
