@@ -121,6 +121,12 @@ function calendarTest(classArray) {
     endDateTime= endDateTime.concat(classArray[i].endTime);
     //console.log(endDateTime);
 
+
+    var jsDate = new date(startDateTime);
+    var dayOfWeek = jsDate.getDay();
+    console.log("DAY IS: " + dayOfWeek);
+
+
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
     for (var j = 0; j < classArray[i].days.length; j++){
       switch(classArray[i].days[j]){
