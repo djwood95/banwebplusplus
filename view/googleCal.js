@@ -151,7 +151,7 @@ function calendarTest(classArray) {
     startDateTime = startDateTime.split('-');
     var layerStartDateTime = startDateTime[2].split('T')
     console.log(layerStartDateTime);
-    layerStartDateTime[0] = layerStartDateTime[0] + dayShift;
+    layerStartDateTime[0] = (parseInt(layerStartDateTime[0]) + parseInt(dayShift)).toString();
     startDateTime[2] = layerStartDateTime.join('T');
     startDateTime = startDateTime.join('-');
 
