@@ -163,7 +163,7 @@ function calendarTest(classArray) {
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
-	'iCalUID': 'DELETEME',
+	//'iCalUID': 'DELETEME',
         'start': {
           'dateTime': startDateTime,
           'timeZone': 'America/Detroit'
