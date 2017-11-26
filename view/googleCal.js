@@ -53,16 +53,20 @@ function updateSigninStatus(isSignedIn) {
     $('#signInButton').hide();
     $('.signedInOnly').show();
     getProfileInfo();
-    calendarButtonListener();
+    navButtonListener();
   } else {
     $('#signInButton').show();
     $('.signedInOnly').hide();
   }
 }
 
-function calendarButtonListener() {
+/**
+ * Listener for nav buttons - triggered after user is signed in
+ * and buttons are shown
+ */
+function navButtonListener() {
   $('#calendarTest').click(function() {
-    calendarTest(courseList);
+    addScheduleToGoogleCal(courseList);
   });
 }
 
@@ -73,12 +77,13 @@ function handleAuthClick(event) {
   gapi.auth2.getAuthInstance().signIn();
 }
 
+/**
+ * Verifies id token on backend, sets PHP session vars with account info
+ */
 function getProfileInfo() {
   var GoogleUser = gapi.auth2.getAuthInstance().currentUser.get();
-  //var id_token = GoogleUser.getId();
   var profile = GoogleUser.getBasicProfile();
   var id_token = GoogleUser.getAuthResponse().id_token;
-  //var id_token = profile.getId();
 
   var xhr = new XMLHttpRequest();
   var email = profile.getEmail();
@@ -99,58 +104,50 @@ function handleSignoutClick(event) {
   $.get('/public/logout');
 }
 
-function calendarTest(classArray) {
-  console.log(classArray);
-  //difference in code
+/**
+ * Adds courses currently shown on calendar to Google Calendar
+ */
+function addScheduleToGoogleCal(classArray) {
+  
+  var errorCount = 0;
   for (var i=0; i < classArray.length; i++){
-
-    //var makeDate = new Date(classArray[i].startDate);
-    //makeDate.setDate(makeDate.getDate() + difference);
-
-
-    //classArray[i].startDate = makeDate.toString();
 
     var startDateTime = classArray[i].startDate;
     startDateTime = startDateTime.concat("T");
     startDateTime= startDateTime.concat(classArray[i].startTime);
-  //  console.log(startDateTime);
-
 
     var endDateTime = classArray[i].startDate;
     endDateTime = endDateTime.concat("T");
     endDateTime= endDateTime.concat(classArray[i].endTime);
-    //console.log(endDateTime);
-
 
     var jsDate = new Date(startDateTime);
     var dayOfWeek = jsDate.getDay();
-    console.log("DAY IS: " + dayOfWeek);
     
     var days = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
     var dayOne = classArray[i].days[0];
+
     switch(dayOne){
-         case "M":
-             dayOne = 1;
-	     break;
-	 case "T":
-	     dayOne = 2;
-             break;
-	 case "W":
-	     dayOne = 3;
- 	     break;
-         case "R":
-	     dayOne = 4;
-             break;
-	 case "F":
-	     dayOne = 5;
-             break;
-	}
+      case "M":
+        dayOne = 1;
+        break;
+      case "T":
+        dayOne = 2;
+        break;
+      case "W":
+        dayOne = 3;
+        break;
+      case "R":
+        dayOne = 4;
+        break;
+      case "F":
+        dayOne = 5;
+        break;
+    }
 
     var dayShift = dayOne - dayOfWeek;
     dayShift = Math.abs(dayShift);
     startDateTime = startDateTime.split('-');
     var layerStartDateTime = startDateTime[2].split('T');
-    //console.log(layerStartDateTime);
     layerStartDateTime[0] = (parseInt(layerStartDateTime[0]) + parseInt(dayShift)).toString();
     startDateTime[2] = layerStartDateTime.join('T');
     startDateTime = startDateTime.join('-');
@@ -160,7 +157,6 @@ function calendarTest(classArray) {
     layerEndDateTime[0] = (parseInt(layerEndDateTime[0]) + parseInt(dayShift)).toString();
     endDateTime[2] = layerEndDateTime.join('T');
     endDateTime = endDateTime.join('-');
-    
     
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
     for (var j = 0; j < classArray[i].days.length; j++){
@@ -184,10 +180,10 @@ function calendarTest(classArray) {
           break;
       }
 
-
       if (j <classArray[i].days.length-1){
         rrule = rrule.concat(",");
       }
+
     }
 
     var endDate = classArray[i].endDate;
@@ -200,40 +196,39 @@ function calendarTest(classArray) {
     rrule = rrule.concat(endTime);
     rrule=rrule.concat("Z");
     
-      var event = {
-        'summary': classArray[i].courseName,
-        'location': classArray[i].location,
-	//'iCalUID': 'DELETEME',
-        'start': {
-          'dateTime': startDateTime,
-          'timeZone': 'America/Detroit'
-        },
-        'end': {
-          'dateTime': endDateTime,
-          'timeZone': 'America/Detroit'
-        },
-        'recurrence': [
-          rrule
-          //'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
-        ]
+    var event = {
+      'summary': classArray[i].courseName,
+      'location': classArray[i].location,
+      'start': {
+        'dateTime': startDateTime,
+        'timeZone': 'America/Detroit'
+      },
+      'end': {
+        'dateTime': endDateTime,
+        'timeZone': 'America/Detroit'
+      },
+      'recurrence': [
+        rrule
+      ]
     };
 
-    console.log(event);
-    console.log(rrule);
+    var request = gapi.client.calendar.events.insert({
+      'calendarId': 'primary',
+      'resource': event
+    });
 
-      var request = gapi.client.calendar.events.insert({
-        'calendarId': 'primary',
-        'resource': event
-      });
+    request.execute(function(event) {
+      if(event.status != "confirmed"){
+        errorCount++;
+      }
+    });
 
-        request.execute(function(event) {
-        if(event.status == "confirmed"){
-	  showGreenAlert("Your event has been added to your calendar! "+event.htmlLink);
-        }else{
-          showDangerAlert("Your event could not be added to calendar.");
-          console.log(event);
-        }
-      });
-
-    }
   }
+
+  if(errorCount == 0){
+    showGreenAlert("Your schedule has been added to Google Calendar!");
+  }else{
+    showDangerAlert("Your schedule could not be added to calendar.");
+    console.log(event);
+  }
+}

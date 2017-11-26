@@ -1,39 +1,32 @@
-
+/**
+ * Listeners for when the page is first loaded
+ */
 $(document).ready(function(){
 
 	$('#searchBox').on("input", function(){search();});
 	getAvailableSemesters();
 
-	/*
-	$('.full').click(function(){
-		alert('TEST');
-		var courseNum = $(this).data('coursenum');
-		loadCourseInfo(courseNum);
-	});
-	*/
-
-	checkSignIn();
-
 });
 
-function checkSignIn() {
-	$.get('/public/isLoggedIn', function(responseTxt) {
-		//alert(responseTxt);
-	});
-}
-
+/**
+ * Check backend if user is signed in
+ */
 function signInSuccess(name) {
 	//check backend
 	$.get('/public/isLoggedIn', function(responseTxt) {
-		//console.log(responseTxt);
 		if(responseTxt){
-			//showGreenAlert("Welcome, "+name+"! You are logged in.");
 			var firstName = name.split(" ")[0];
 			$('.signInDropdown').text("Welcome, " + firstName);
+		}else{
+			showDangerAlert("Sorry, there was a problem signing you in.");
+			console.log(responseTxt);
 		}
 	});
 }
 
+/**
+ * Get list of semesters available in database, add them to dropdown list
+ */
 function getAvailableSemesters() {
 	$.get('/public/getAvailableSemesters', function(responseTxt) {
 		var semesterList = responseTxt;
@@ -46,7 +39,10 @@ function getAvailableSemesters() {
 	});
 }
 
-// For buttons embedded in search results, add event listeners here!!
+/**
+ * Listeners for buttons in the search results
+ * Triggered everytime search results are updated
+ */
 function listenForSearchClickEvents() {
 	$('.courseInfoBox').on('show.bs.modal', function(event){
 		var clicker = $(event.relatedTarget);
@@ -61,7 +57,8 @@ function listenForSearchClickEvents() {
 	});
 }
 
-var buildingNames = [];
+/* Building names and abbreviations List */
+const buildingNames = [];
 	buildingNames[1] = {"abbr": "Admin", "full": "Administration Building"};
 	buildingNames[3] = {"abbr": "Lakeshore Center", "full": "Michigan Tech Lakeshore Center"};
 	buildingNames[4] = {"abbr": "ROTC", "full": "ROTC Building"};
@@ -109,31 +106,31 @@ var buildingNames = [];
 	buildingNames[804] = {"abbr": "Recreational Sports Fields", "full": "Recreational Sports Fields"};
 	buildingNames[805] = {"abbr": "Broomball Courts", "full": "Broomball Courts"};
 
+
+/**
+ * Gets course info from server and puts it into course info pop-up box
+ */
 function loadCourseInfo(courseNum) {
 	var newHtml = "";
 	var semester = $('#semester').val();
 	$.get('/public/getCourseInfo/' +semester + "/" + courseNum, function(responseTxt){
-		console.log(responseTxt);
-		//var data = JSON.parse(responseTxt);
+
 		var info = responseTxt[courseNum];
 		newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
 		newHtml += info.Credits + " Credits (" + info.LectureCredits + " Lec/" + info.RecitationCredits + " Rec/" + info.LabCredits + " Lab) | ";
 		newHtml += "Offered " + info.SemestersOffered + " Semesters<br/>";
-		//newHtml += "Pre-Reqs: " + info.Prereq + " | Co-Reqs: " + info.Coreq;
-		//newHtml += " | Restrictions: " + info.Restrictions + "<hr/>";
 		newHtml += "<hr/>";
 		newHtml += info.Description + "<br/><br/>";
 
 		newHtml += "<h3>Sections</h3>";
 		$.each(info.SectionInfo, function(CRN, sectionInfo){
 			newHtml += "<p>" + sectionInfo.Semester + " " + sectionInfo.SectionNum + " " + CRN + ": " + sectionInfo.Days + " " + sectionInfo.SectionTime;
-			newHtml += " " + locationText(sectionInfo.Location);
+			newHtml += " " + locationText(sectionInfo.Location, 'html');
 			newHtml += " - " + sectionInfo.Instructor + " ";
 			var badgeColor = getBadgeColor(sectionInfo.Capacity - sectionInfo.SectionActual);
 			newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Filled Slots'>";
 				newHtml += sectionInfo.SectionActual + "/" + sectionInfo.Capacity;
 			newHtml += "</span>";
-			//newHtml += removeButton(CRN);
 			newHtml += "</p>";
 		});
 
@@ -143,6 +140,11 @@ function loadCourseInfo(courseNum) {
 		//Parse pre-req information
 		newHtml += "<b style='text-align:left;'>Pre-Requisites:</b>";
 		newHtml += "<ul style='text-align:left;'>";
+		var allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
+			allReqs = allReqs.replace(/[&|]+/g, ','); //separate all courses by ,
+			allReqs = allReqs.split(","); //split into an array of all courses
+		var courseNamesList = getCourseNamesList(allReqs);
+
 		var req = info.Prereq.replace(/[()]+/g,'');
 			req = req.split("&");
 
@@ -168,13 +170,20 @@ function loadCourseInfo(courseNum) {
 	});
 }
 
+
 function getCourseNamesList(courseNumList) {
 	$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
-		return responseTxt
+		console.log("course names" + responseTxt);
+		return responseTxt;
 	});
 }
 
-function locationText(location) {
+/**
+ * Converts a building number into a building name and room number
+ * @param  {[String]} location [A string containing building number and room number separated by space]
+ * @param  {[String]} mode     ["html" or "text" - output mode]
+ */
+function locationText(location, mode) {
 	try{
 		var buildingNum = parseInt(location.split(" ")[0]);
 		var roomNum = location.split(" ")[1];
@@ -186,9 +195,16 @@ function locationText(location) {
 		var abbrLocation = "Unknown Location";
 	}
 
-	return "<span title='"+fullLocation+"'>"+abbrLocation+"</span>";
+	if(mode == "html"){
+		return "<span title='"+fullLocation+"'>"+abbrLocation+"</span>";
+	}else{
+		return abbrLocation;
+	}
 }
 
+/**
+ * Generates text for remove button
+ */
 function removeButton(CRN) {
 	var removeButton = "";
 	$.each(courseList, function(i, Course){
@@ -202,6 +218,10 @@ function removeButton(CRN) {
 	return removeButton;
 }
 
+
+/**
+ * Determines badge color based on remaining slots in class
+ */
 function getBadgeColor(slotsRemaining) {
 	var badgeColor = "primary";
 	switch(true){
@@ -216,23 +236,25 @@ function getBadgeColor(slotsRemaining) {
 	return badgeColor;
 }
 
+/**
+ * Search for course - triggered whenever text in searchBox changes
+ */
 function search() {
 	var query = $('#searchBox').val();
 	var semester = $('#semester').val();
-	console.log("Trying to search for " + query);
 	$.get('/public/search/' + semester + "/" + query, function(responseTxt, status) {
-		console.log(status);
 		try {
 			var data = responseTxt;
-			//console.log(data);
 			displaySearchResults(data);
 		} catch(e) {
-			//console.log(e);
 			displayNoResults();
 		}
 	});
 }
 
+/**
+ * Parse and display search results data
+ */
 function displaySearchResults(data) {
 	var html = "";
 	$.each(data, function(courseNum, e){
@@ -258,6 +280,7 @@ function displaySearchResults(data) {
 	listenForSearchClickEvents();
 }
 
+/* Special case to display no results message */
 function displayNoResults() {
 	$("#searchResults").html("<li class='list-group-item'><i>No Results.</i></li>");
 }

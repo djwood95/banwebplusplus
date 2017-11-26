@@ -1,23 +1,27 @@
 <?php
 
-class ScheduleMapper extends Mapper
-{
-    public function AddCourseToSchedule($ScheduleName, $UserID, $CRN)
-    {
-        $stmt = $this->db->prepare("CALL AddCourseToSchedule(:scheduleName, :userID, :crn");
-        $stmt->execute(['scheduleName' => $ScheduleName, 'userID' => $UserID, 'crn' => $CRN]);
-        if(!$stmt) die("SQL Error");
-        return;
+class ScheduleMapper extends Mapper {
+
+    public function SaveSchedule($ScheduleName, $Semester, $Year, $CRNList) {
+
+        if(self::scheduleExists($ScheduleName, $Semester, $Year)) {
+
+        } else {
+
+        }
+    }
+
+    private function scheduleExists($name, $semester, $year) {
+        $stmt = $con->prepare("SELECT COUNT(*) FROM studentschedule WHERE GoogleId=:userId AND ScheduleName=:scheduleName AND Semester=:semester");
+        $stmt->execute([
+            'userId' => $_SESSION['userId'],
+            'scheduleName' => $ScheduleName,
+            'semester' => $semester
+        ]);
+
+        return $stmt->fetchColumn() == 1; // return true if there is a schedule w/same name/semester for user
     }
     
-    public function AddSchedule($ScheduleName, $UserID, $Semester, $Year)
-    {
-        //$stmt = $this->db->prepare("CALL AddSchedule(:scheduleName, :userID, :semester, :year");
-        $stmt = $this->db->prepare("INSERT into StudentSchedule (ScheduleName, GoogleId, Semester, ScheduleYear) VALUES(:scheduleName, :userID, :semester, :year)");
-        $stmt->execute(['scheduleName' => $ScheduleName, 'userID' => $UserID, 'semester' => $Semester, 'year' => $Year]);
-        if(!$stmt) die("SQL Error");
-        return;
-    }
 }
 
 ?>
