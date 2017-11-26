@@ -16,6 +16,18 @@
     
     <!-- Calendar CSS -->
     <link rel="stylesheet" href="cal.css" />
+
+        <script>
+      function saveAs() {
+        var scheduleName = prompt("Enter Name to save schedule to:", "My Schedule");
+        var sName = "http://banwebplusplus.me/public/addSchedule/" + scheduleName + "/2017/Spring";
+        if (scheduleName != null) {
+          var saved = confirm("Succesfully saved as: " + scheduleName);
+          window.location.href = sName;
+        }
+      }
+    </script>
+
   </head>
   <body>
 
@@ -34,10 +46,10 @@
             <a class="nav-link" href="#">Open Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
-            <a class="nav-link" href="#">Save Schedule</a>
+            <a class="nav-link" href="#" onclick="saveAs()">Save Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
-            <a class="nav-link" href="#">Add Schedule to Google Calendar</a>
+            <a id="calendarTest" class="nav-link" href="#">Add Schedule to Google Calendar</a>
           </li>
           <li class="nav-item dropdown signedInOnly">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -209,6 +221,8 @@
     <script src="completedCourses.js"></script>
     <script src="search.js"></script>
     <script src="calendar.js"></script>
+
+
 
     <!-- Google Login API JS -->
     <script async defer src="https://apis.google.com/js/api.js"

@@ -101,47 +101,14 @@ function handleSignoutClick(event) {
 
 function calendarTest(classArray) {
   console.log(classArray);
-
+  //difference in code
   for (var i=0; i < classArray.length; i++){
 
-     var dayOfStart = classArray[i].startingDate.getDay();
-     var firstClass;
-     var dayCount = 0;
-     var trigger = 0;
+    //var makeDate = new Date(classArray[i].startDate);
+    //makeDate.setDate(makeDate.getDate() + difference);
 
-     while(trigger==0){
-       switch(classArray[i].days[dayCount]){
-         case "M":
-           firstClass = 1;
-           break;
-         case "T":
-           firstClass = 2;
-           break;
-          case "W":
-           firstClass = 3;
-           break;
-         case "R":
-           firstClass = 4;
-           break;
-         case "F":
-           firstClass = 5;
-           break;
-         default:
-           break;
-       }
 
-      var difference = firstClass - dayOfStart;
-      dayCount = dayCount + 1;
-      if (difference => 0){
-        trigger = 1;
-      }
-   }
-
-    var makeDate = new Date(classArray[i].startDate);
-    makeDate.setDate(makeDate.getDate() + difference);
-
-    classArray[i].startDate = makeDate.toString();
-
+    //classArray[i].startDate = makeDate.toString();
 
     var startDateTime = classArray[i].startDate;
     startDateTime = startDateTime.concat("T");
@@ -154,6 +121,47 @@ function calendarTest(classArray) {
     endDateTime= endDateTime.concat(classArray[i].endTime);
     //console.log(endDateTime);
 
+
+    var jsDate = new Date(startDateTime);
+    var dayOfWeek = jsDate.getDay();
+    console.log("DAY IS: " + dayOfWeek);
+    
+    var days = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+    var dayOne = classArray[i].days[0];
+    switch(dayOne){
+         case "M":
+             dayOne = 1;
+	     break;
+	 case "T":
+	     dayOne = 2;
+             break;
+	 case "W":
+	     dayOne = 3;
+ 	     break;
+         case "R":
+	     dayOne = 4;
+             break;
+	 case "F":
+	     dayOne = 5;
+             break;
+	}
+
+    var dayShift = dayOne - dayOfWeek;
+    dayShift = Math.abs(dayShift);
+    startDateTime = startDateTime.split('-');
+    var layerStartDateTime = startDateTime[2].split('T');
+    //console.log(layerStartDateTime);
+    layerStartDateTime[0] = (parseInt(layerStartDateTime[0]) + parseInt(dayShift)).toString();
+    startDateTime[2] = layerStartDateTime.join('T');
+    startDateTime = startDateTime.join('-');
+	
+    endDateTime = endDateTime.split('-');
+    var layerEndDateTime = endDateTime[2].split('T');
+    layerEndDateTime[0] = (parseInt(layerEndDateTime[0]) + parseInt(dayShift)).toString();
+    endDateTime[2] = layerEndDateTime.join('T');
+    endDateTime = endDateTime.join('-');
+    
+    
     var rrule = "RRULE:FREQ=WEEKLY;BYDAY=";
     for (var j = 0; j < classArray[i].days.length; j++){
       switch(classArray[i].days[j]){
@@ -191,10 +199,11 @@ function calendarTest(classArray) {
     endTime = endTime.replace(/[:]+/g, '');
     rrule = rrule.concat(endTime);
     rrule=rrule.concat("Z");
-
+    
       var event = {
         'summary': classArray[i].courseName,
         'location': classArray[i].location,
+	//'iCalUID': 'DELETEME',
         'start': {
           'dateTime': startDateTime,
           'timeZone': 'America/Detroit'
@@ -208,6 +217,7 @@ function calendarTest(classArray) {
           //'RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;UNTIL=2017-12-14T21:00:00;'
         ]
     };
+
     console.log(event);
     console.log(rrule);
 
@@ -216,13 +226,14 @@ function calendarTest(classArray) {
         'resource': event
       });
 
-      request.execute(function(event) {
+        request.execute(function(event) {
         if(event.status == "confirmed"){
-          showGreenAlert("Your event has been added to your calendar! "+event.htmlLink);
+	  showGreenAlert("Your event has been added to your calendar! "+event.htmlLink);
         }else{
           showDangerAlert("Your event could not be added to calendar.");
           console.log(event);
         }
       });
+
     }
   }
