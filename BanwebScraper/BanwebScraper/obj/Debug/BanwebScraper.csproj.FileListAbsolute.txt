@@ -8,3 +8,5 @@ C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\bin\Debu
 C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\obj\Debug\BanwebScraper.csprojResolveAssemblyReference.cache
 C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\obj\Debug\BanwebScraper.exe
 C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\obj\Debug\BanwebScraper.pdb
+C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\bin\Debug\EASendMail45.dll
+C:\Users\Andrew\Source\Repos\banwebplusplus\BanwebScraper\BanwebScraper\bin\Debug\MySql.Data.xml
