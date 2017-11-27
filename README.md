@@ -19,7 +19,8 @@ How to add classes to schedule (currently):
 2. Search for the course (Can be something like 'CS 1121' or 'Concur' with autofilling for 'Concurrent Programming'.
 3. View Available slots by pressing the info button under the search tab for the class you are interested in
 4. Click the green "Add" button next to the section you are interested in and it will add the course to the calendar to the right.
-5. Available soon: Login to Google (Top Right) and have the ability to save and load schedules perminantly.
+5. Login to Google (Top Right) and have the ability to upload your schedule to your primary google calendar.
+6. When logged in you can save and load schedules perminantly.
 
 Details on functionality:
 There are multiple separate parts to banwebplusplus. Those include:
