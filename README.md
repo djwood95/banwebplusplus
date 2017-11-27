@@ -23,9 +23,9 @@ How to add classes to schedule (currently):
 
 Details on functionality:
 There are multiple separate parts to banwebplusplus. Those include:
-1. Banweb HTML Scraper and Parser
+1. Banweb HTML Scraper and Parser<br/>
 Written in C# for speed benefits, this scrapes banweb's public page that shows class's and all information, then parses it into a consistent format that is imported into our own database. The scraper runs approximately every 5 minutes to keep information up-to-date. Code for the scraper is available in the BanWebScraper folder, but is run on a separate server from the rest of the site, since it requires a Windows server to run.
-2. Backend database that the parser pushes to
+2. Database<br/>
 The database is what holds all the tables for user information, class information, and anything that you would want to access when scheduling classes on banweb. It also includes tables for the schedules for each user.
-3. User interface that is used to interact with everything (located at banwebplusplus.me)
+3. User interface that is used to interact with everything (located at banwebplusplus.me)<br/>
 Located in the view folder, main page index.php, this is what the user will be interfacing with. It is setup as a single-page application - the only page fully loaded is index.php. All of the site's functions are then triggered through javascript, which requests information from the backend database when necessary. PHP is used on the backend to interface between the javascript and MySQL database.
