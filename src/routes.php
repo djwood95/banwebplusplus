@@ -82,6 +82,7 @@ $app->get('/saveSchedule/{name}/{year}/{semester}/{CRNList}', function(Request $
 	$ScheduleName = $args['name'];
 	$Year = $args['year'];
 	$Semester = $args['semester'];
+	$CRNList = $args['CRNList'];
 
 	$scheduleMapper = new ScheduleMapper($this->db);
 	$scheduleMapper->saveSchedule($ScheduleName, $Semester, $Year, $CRNList);

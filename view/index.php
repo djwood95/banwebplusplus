@@ -20,7 +20,44 @@
         <script>
       function saveAs() {
         var scheduleName = prompt("Enter Name to save schedule to:", "My Schedule");
-        var sName = "http://banwebplusplus.me/public/addSchedule/" + scheduleName + "/2017/Spring";
+        var VariableIGrabbed = $('#semester').val();
+        var ArrayThing = VariableIGrabbed.split(' ');
+        var Semester = ArrayThing[0];
+        var Year = ArrayThing[1];
+        var crnList = [];
+
+        for(var i = 0; i < courseList.length; i++) {
+            crnList[i] = courseList[i]['crn']; 
+        }
+
+        var crns = crnList.join();
+
+        var sName = "/public/saveSchedule/" + scheduleName + "/" + Year + "/" + Semester + "/" + crns;
+        console.log(sName);
+        if (scheduleName != null) {
+          var saved = confirm("Succesfully saved as: " + scheduleName);
+          window.location.href = sName;
+        }
+      }
+    </script>
+
+    <script>
+      function loadCalendar() {
+        var scheduleName = prompt("Enter a saved schedule name to open:", "My Schedule");
+        var VariableIGrabbed = $('#semester').val();
+        var ArrayThing = VariableIGrabbed.split(' ');
+        var Semester = ArrayThing[0];
+        var Year = ArrayThing[1];
+        var crnList = [];
+
+        for(var i = 0; i < courseList.length; i++) {
+            crnList[i] = courseList[i]['crn']; 
+        }
+
+        var crns = crnList.join();
+
+        var sName = "/public/saveSchedule/" + scheduleName + "/" + Year + "/" + Semester + "/" + crns;
+        console.log(sName);
         if (scheduleName != null) {
           var saved = confirm("Succesfully saved as: " + scheduleName);
           window.location.href = sName;
@@ -43,7 +80,7 @@
             <a class="nav-link" href="#">New Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
-            <a class="nav-link" href="#">Open Schedule</a>
+            <a class="nav-link" href="#" onclick="loadCalendar()">Open Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
             <a class="nav-link" href="#" onclick="saveAs()">Save Schedule</a>
