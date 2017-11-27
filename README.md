@@ -35,5 +35,3 @@ To go into more detail on each of those 3 parts:
   The database is what holds all the tables for user information, class information, and anything that you would want to access when scheduling classes on banweb. It also includes tables for the schedules for each user.
 3. User interface:
   Located in the view folder, main page index.html, this is what the user will be interfacing with (until we get a login page working). On here you can currently view a non-working calendar and a beginning to work search function. The search function searches the database for classes that match the search terms and returns them below. 
-  
-Remember this is STILL (edit 11/05) a WIP. More functionality to be added in coming last few weeks. 
