@@ -4,6 +4,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using EASendMail;
 using System.Text.RegularExpressions;
 using System.Threading;
 using HtmlAgilityPack;
@@ -30,7 +31,7 @@ namespace BanwebScraper
                                                        _sectionPushCommands;
         private readonly Dictionary<string, DateTime>  _lastPushInfo;
 
-        private bool                                   _firstRun = true;
+        private bool                                   _firstRun;
         private List<List<object>>                     _courseParameters,
                                                        _sectionParameters;
         private HashSet<string>                        _sectionList,
@@ -38,6 +39,10 @@ namespace BanwebScraper
         #endregion
 
         #region Initialization
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public Scraper()
         {
             _connectionString = new MySqlConnectionStringBuilder
@@ -105,17 +110,21 @@ namespace BanwebScraper
                 new List<object> {"@Coreqs", MySqlDbType.VarChar, 255}
             };
         }
+
+        /// <summary>
+        /// Starts the loop that runs the program
+        /// </summary>
         public void Run()
         {
-            // modified & implemented wait timer: https://stackoverflow.com/a/18342182
             var sw = new Stopwatch();
             while (true)
             {
                 sw.Start();
-                for (var i = 0; !PushCourseInfo() && i < 5; i++) WaitForInput(10000);
+                for (var i = 0; _firstRun && !PushCourseInfo() && i < 5; i++) WaitForInput(10000);
                 for (var i = 0; i < 24; i++)
                 {
                     PushAllSectionInfo();
+                    SendEmailAlerts();
                     Console.Write($"[{DateTime.Now:s}]  -  Waiting for next run, press <Enter> to quit ");
                     sw.Stop();
                     if (WaitForInput(600000 - (int) sw.ElapsedMilliseconds)) return;
@@ -126,13 +135,18 @@ namespace BanwebScraper
         }
         #endregion
 
+
         #region Controller Methods
+
+        /// <summary>
+        /// Pushes the section information for all current and upcoming semesters
+        /// </summary>
         private void PushAllSectionInfo()
         {
             Console.Write($"[{DateTime.Now:s}]  -  Section Info Running");
             _web.Load(RefreshUrl);
 
-            _sectionList = RunQuery("SELECT crn FROM Sections");
+            _sectionList = RunQueryHashSet("SELECT crn FROM Sections");
             foreach (var section in GetSections())
             {
                 Console.Write(".");
@@ -145,6 +159,11 @@ namespace BanwebScraper
 
             Console.WriteLine(" Done");
         }
+        /// <summary>
+        /// Pushes the section information for the input semester
+        /// </summary>
+        /// <param name="pageName">The title of the HTML page holding the section information to push</param>
+        /// <returns>True if the section information was uploaded correctly, false otherwise</returns>
         private bool PushSectionInfo(string pageName)
         {
             var doc = new HtmlDocument();
@@ -184,10 +203,14 @@ namespace BanwebScraper
             return true;
         }
 
+        /// <summary>
+        /// Pushes the course information for all valid courses on Banweb
+        /// </summary>
+        /// <returns>True if the information is uploaded correctly, false otherwise</returns>
         private bool PushCourseInfo()
         {
             Console.Write($"[{DateTime.Now:s}]  -  Course Info Running....... ");
-            _courseList = RunQuery("SELECT CourseNum FROM Courses");
+            _courseList = RunQueryHashSet("SELECT CourseNum FROM Courses");
             HtmlDocument doc;
 
             try
@@ -216,9 +239,18 @@ namespace BanwebScraper
             Console.WriteLine("Done");
             return true;
         }
+
         #endregion
 
         #region Parsing
+
+        /// <summary>
+        /// Gets a list of sections that need to be updated
+        /// </summary>
+        /// <returns>
+        /// A List of pages that need to be updated and the last time that information was updated.
+        /// If _firstRun is true, this will return all available sections
+        /// </returns>
         private IEnumerable<KeyValuePair<string, DateTime>> GetSections()
         {
             var sections = new List<KeyValuePair<string, DateTime>>();
@@ -231,6 +263,11 @@ namespace BanwebScraper
             }
             return sections;
         }
+        /// <summary>
+        /// Parses the HTML page for an input section and returns a List of data to be uploaded
+        /// </summary>
+        /// <param name="doc">The HTML page to parse</param>
+        /// <returns>A List of information for each section</returns>
         private static List<List<string>> ParseSections(HtmlDocument doc)
         {
             var resultSet = new List<List<string>>();
@@ -266,6 +303,11 @@ namespace BanwebScraper
             return resultSet;
         }
 
+        /// <summary>
+        /// Parses the HTML page for course information
+        /// </summary>
+        /// <param name="doc">The HTML page containing course information</param>
+        /// <returns>A List of information for each course</returns>
         private static List<List<string>> ParseCourses(HtmlDocument doc)
         {
             var resultString = "";
@@ -311,6 +353,10 @@ namespace BanwebScraper
             NormalizeCourses(resultSet);
             return resultSet;
         }
+        /// <summary>
+        /// Normalizes the list returned by ParseCourses to make SQL's job easier
+        /// </summary>
+        /// <param name="courses">The course information returned by ParseCourses</param>
         private static void NormalizeCourses(IEnumerable<List<string>> courses)
         {
             foreach (var course in courses)
@@ -340,6 +386,11 @@ namespace BanwebScraper
                 }
             }
         }
+        /// <summary>
+        /// Fills individual lists with blank information when Banweb doesn't fill some information
+        /// </summary>
+        /// <param name="l">A single list of course information</param>
+        /// <param name="i">The iteration number</param>
         private static void HandleOptional(IList<string> l, int i)
         {
             string s;
@@ -358,9 +409,20 @@ namespace BanwebScraper
             if (s == string.Empty) l.Insert(i, null);
             else l[i] = s;
         }
+
         #endregion
 
         #region Database Push
+
+        /// <summary>
+        /// Pushes a List of information to the server
+        /// </summary>
+        /// <param name="resultSet">The set of data to push</param>
+        /// <param name="commands">Either the insert or update command for the given set of data</param>
+        /// <param name="parameterSet">The list of parameters for the given commands</param>
+        /// <param name="set">The list of all CRNs we've already updated. Helps us decide if we should run the update or insert command</param>
+        /// <param name="year">The year relevant to the dataset</param>
+        /// <param name="semester">The semester relevant to the dataset</param>
         private void Push(ICollection<List<string>> resultSet, IReadOnlyList<string> commands, IEnumerable<List<object>> parameterSet, ICollection<string> set, string year = "", string semester = "")
         {
             using (var connection = new MySqlConnection(_connectionString))
@@ -428,22 +490,59 @@ namespace BanwebScraper
             }
         }
 
+        /// <summary>
+        /// Scrubs HTML formatting out of strings
+        /// </summary>
+        /// <param name="s">The string to scrub</param>
+        /// <returns>A normalized string</returns>
         private static string ScrubHtml(string s)
         {
             if (s == null) return null;
             s = Regex.Replace(s.Replace("&nbsp;", "").Trim('\n', ' '), @"\s{2,}", " ");
             return s == string.Empty ? null : s;
         }
+        /// <summary>
+        /// Scrubs HTML formatting out of ints
+        /// </summary>
+        /// <param name="htmlstring">The string to scrub</param>
+        /// <returns>A normalized int</returns>
         private static int? ScrubHtmlInt(string htmlstring)
         {
             var s = ScrubHtml(htmlstring);
             return s == null ? default(int?) : int.Parse(s);
         }
 
-        private HashSet<string> RunQuery(string query)
+        /// <summary>
+        /// Runs an SQL query that returns a Dictionary of two types
+        /// </summary>
+        /// <typeparam name="TKey">The Key type</typeparam>
+        /// <typeparam name="TValue">The Value type</typeparam>
+        /// <param name="query">The query to run</param>
+        /// <returns>A Dictionary containing information</returns>
+        private Dictionary<TKey, TValue> RunQueryDictionary<TKey, TValue>(string query)
         {
-            var dt = new DataTable();
+            return RunQueryDataTable(query).Rows.Cast<DataRow>().ToDictionary(dr => (TKey) dr[0], dr => (TValue) dr[1]);
+        }
+        /// <summary>
+        /// Runs an SQL query that returns a Hash Set
+        /// </summary>
+        /// <param name="query">The query to run</param>
+        /// <returns>A HashSet containing information</returns>
+        private HashSet<string> RunQueryHashSet(string query)
+        {
             var result = new HashSet<string>();
+            foreach (DataRow dr in RunQueryDataTable(query).Rows)
+                result.Add(dr[0].ToString());
+            return result;
+        }
+        /// <summary>
+        /// Runs an SQL query that returns a DataTable
+        /// </summary>
+        /// <param name="query">The query to run</param>
+        /// <returns>A DataTable containing information</returns>
+        private DataTable RunQueryDataTable(string query)
+        {
+            var result = new DataTable();
 
             try
             {
@@ -451,9 +550,7 @@ namespace BanwebScraper
                 using (var command = new MySqlCommand(query, connection))
                 {
                     connection.Open();
-                    dt.Load(command.ExecuteReader());
-                    foreach (DataRow dr in dt.Rows)
-                        result.Add(dr[0].ToString());
+                    result.Load(command.ExecuteReader());
                 }
             }
             catch (Exception e)
@@ -463,9 +560,34 @@ namespace BanwebScraper
 
             return result;
         }
+        /// <summary>
+        /// Runs an SQL query with no return
+        /// </summary>
+        /// <param name="query">The query to run</param>
+        private void RunQueryNonExecute(string query)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(_connectionString))
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\n" + e);
+            }
+        }
+
         #endregion
 
         #region Waiter
+
+        /// <summary>
+        /// Starts the waithandler when requested
+        /// </summary>
         private static void Waiter()
         {
             while (!_ct.IsCancellationRequested)
@@ -475,24 +597,117 @@ namespace BanwebScraper
                 _gotInputFlag.Set();
             }
         }
+        /// <summary>
+        /// The other half of the waithandler
+        /// </summary>
+        /// <param name="timeoutTime">The amount of time to wait</param>
+        /// <returns>True if we get input, false is we time out</returns>
         private static bool WaitForInput(int timeoutTime = Timeout.Infinite)
         {
             if (timeoutTime <= 0) return false;
             _waitForInputFlag.Set();
             return _gotInputFlag.WaitOne(timeoutTime);
         }
+
+        #endregion
+
+        #region Email Alerts
+
+        /// <summary>
+        /// Handles sending all the email alerts to any users that have requested them and deletes the request from the database if we are successful
+        /// </summary>
+        private void SendEmailAlerts()
+        {
+            Console.Write($"[{DateTime.Now:s}]  -  Sending Email Alerts...... ");
+
+            var nextSem = GetNextSemester();
+            var sections = RunQueryDictionary<int, int>($"SELECT CRN, SlotsRemaining FROM Sections WHERE Semester LIKE \"{nextSem.Key}\" AND Year = {nextSem.Value} AND SlotsRemaining > 0");
+            var courses = RunQueryDictionary<int, string>("SELECT CRN, CONCAT(Sections.CourseNum, \": \", CourseName) FROM Sections INNER JOIN Courses ON Sections.CourseNum = Courses.CourseNum");
+            var alerts = RunQueryDataTable("SELECT Email, CRN FROM EmailAlerts");
+            var sent = new DataTable();
+            sent.Columns.Add(new DataColumn("Email", typeof(string)));
+            sent.Columns.Add(new DataColumn("CRN", typeof(int)));
+
+            var mail = new SmtpMail("TryIt") {From = "adjimene@mtu.edu"};
+            var client = new SmtpClient();
+            var server = new SmtpServer("smtp.gmail.com")
+            {
+                Port = 587,
+                ConnectType = SmtpConnectType.ConnectSSLAuto,
+                User = "banwebpp@gmail.com",
+                Password = Secret.Password
+            };
+
+            foreach (DataRow dr in alerts.Rows)
+            {
+                if (!sections.ContainsKey((int) dr[1])) continue;
+                
+                var email = (string)dr[0];
+                var crn = (int)dr[1];
+                var isare = sections[crn] > 1 ? "are" : "is";
+                mail.To = email;
+                mail.Subject = $"BanwebPlusPlus Class Opening {crn}";
+                mail.TextBody = $"This is an automated message from BanwebPlusPlus. There {isare} currently {sections[crn]} openings in {courses[crn]}[{crn}].";
+
+                try
+                {
+                    client.SendMail(server, mail);
+                    sent.Rows.Add(email, crn);
+                }
+                catch (Exception e) { Console.WriteLine($"Error sending email: {e}"); }
+            }
+
+            foreach (DataRow dr in sent.Rows)
+                RunQueryNonExecute($"DELETE FROM EmailAlerts WHERE Email = \"{dr[0]}\" AND CRN = {dr[1]}");
+
+            Console.WriteLine("Done");
+        }
+        /// <summary>
+        /// Determines which semester the email alerts are most likely about. It should be the next semester that isn't already in progress
+        /// </summary>
+        /// <returns>A KeyValuePair containing the Semester and Year of the upcoming semester</returns>
+        private KeyValuePair<string, string> GetNextSemester()
+        {
+            var sts = GetSections();
+            var pageName = GetSections().First(s => new DateTime(int.Parse(s.Key.Substring(0, 4)), int.Parse(s.Key.Substring(4, 2)), 1).CompareTo(DateTime.Now) > 0).Key;
+
+            var year = pageName.Substring(0, 4);
+            string semester;
+            switch (pageName.Substring(4, 2))
+            {
+                case "01": semester = "Spring"; break;
+                case "05": semester = "Summer"; break;
+                case "08": semester = "Fall"; break;
+                default: semester = "Unknown"; break;
+            }
+
+            return new KeyValuePair<string, string>(semester, year);
+        }
+
         #endregion
 
         #region IDisposable Support
+
         private bool _disposedValue;
         
+        /// <inheritdoc />
+        /// <summary>
+        /// Disposes of unused resources that we no longer need
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+        /// <summary>
+        /// Finalizer. To be used by the Garbage collector only.
+        /// </summary>
         ~Scraper() { Dispose(false); }
 
+        /// <summary>
+        /// Disposes of unused resources that we no longer need
+        /// </summary>
+        /// <param name="disposing">True if user-called, false if garbage collected</param>
         private void Dispose(bool disposing)
         {
             if (_disposedValue) return;
@@ -514,6 +729,7 @@ namespace BanwebScraper
 
             _disposedValue = true;
         }
+
         #endregion
     }
 }
