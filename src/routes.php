@@ -123,26 +123,11 @@ $app->get('/getScheduleInfo/{id}', function(Request $request, Response $response
 
 	return $response->withJson($scheduleInfo);
 });
-		  
-
-$app->get('/addCourseToCalendar/{scheduleName}/{crn}', function(Request $request, Response $response, $args) {
-	//console.log("Got to AddCourseToCalendar");
-	$ScheduleName = $args['scheduleName'];
-	//$UserID = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
-	$UserID = 'GO_53@protonmail.com'; //TESTING THIS TEMPORARILY!
-	$CRN = $args['crn'];
-	//console.log($UserID);
-
-	$scheduleMapper = new ScheduleMapper($this->db);
-	$scheduleMapper->AddCourseToSchedule($ScheduleName, $UserID, $CRN);
-	//console.log("Finished AddCourseToCalendar");
-});
 
 $app->get('/getPreReqCourseNames/{courseList}', function(Request $request, Response $response, $args) {
-	$courseNumList = $args['courseList'];
+	$courseNumList = explode(",", $args['courseList']);
 	$completedCoursesMapper = new CompletedCoursesMapper($this->db);
-	//$courseNamesList = $completedCoursesMapper->getPreReqCourseNames();
-	$courseNamesList = "test";
+	$courseNamesList = $completedCoursesMapper->getPreReqCourseNames($courseNumList);
 	return $response->withJson($courseNamesList);
 });
 

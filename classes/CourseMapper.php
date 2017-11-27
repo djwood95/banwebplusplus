@@ -57,6 +57,8 @@ class CourseMapper extends Mapper {
 				$sectionInfo[$CRN]['SectionTime'] = $row['SectionTime'];
 				$sectionInfo[$CRN]['Location'] = $row['Location'];
 				$sectionInfo[$CRN]['Instructor'] = $row['Instructor'];
+				$sectionInfo[$CRN]['SectionActual'] = $row['SectionActual'];
+				$sectionInfo[$CRN]['Capacity'] = $row['Capacity'];
 				$sectionInfo[$CRN]['Semester'] = self::getSemesterFromDate($row['Dates'], $row['Year']);
 				$results[$courseNum]['SectionInfo'] = $sectionInfo;
 			}else{	//This course has already been seen - just add new section info
@@ -70,6 +72,8 @@ class CourseMapper extends Mapper {
 				$sectionInfo[$CRN]['SectionTime'] = $row['SectionTime'];
 				$sectionInfo[$CRN]['Location'] = $row['Location'];
 				$sectionInfo[$CRN]['Instructor'] = $row['Instructor'];
+				$sectionInfo[$CRN]['SectionActual'] = $row['SectionActual'];
+				$sectionInfo[$CRN]['Capacity'] = $row['Capacity'];
 				$sectionInfo[$CRN]['Semester'] = self::getSemesterFromDate($row['Dates'], $row['Year']);
 				$results[$courseNum]['SectionInfo'] = $sectionInfo;	//then add the updated sectionInfo array back to the main results array
 			}

@@ -117,7 +117,7 @@ const buildingNames = [];
 function loadCourseInfo(courseNum) {
 	var newHtml = "";
 	var semester = $('#semester').val();
-	$.get('/public/getCourseInfo/' +semester + "/" + courseNum, function(responseTxt){
+	$.get('/public/getCourseInfo/' +semester + "/" + courseNum, function(responseTxt) {
 
 		var info = responseTxt[courseNum];
 		newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
@@ -147,38 +147,46 @@ function loadCourseInfo(courseNum) {
 		var allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
 			allReqs = allReqs.replace(/[&|]+/g, ','); //separate all courses by ,
 			allReqs = allReqs.split(","); //split into an array of all courses
-		var courseNamesList = getCourseNamesList(allReqs);
 
-		var req = info.Prereq.replace(/[()]+/g,'');
-			req = req.split("&");
+		courseNumList = allReqs.join();
 
-		for(var i = 0; i < req.length; i++) {
-			var orData = req[i].split("|");
-			newHtml += "<li>";
-			//var courseNamesList = getCourseNamesList(orData);
+		$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
+			var courseNamesList = responseTxt;
 
-			for(var j = 0; j < orData.length; j++) {
-				newHtml += "<span data-toggle='tooltip' data-placement='top' title='courseNamesList[j]'>"+orData[j]+"</span>";
-				if(j+1 < orData.length) newHtml += " OR ";
+			var req = info.Prereq.replace(/[()]+/g,'');
+				req = req.split("&");
+
+			for(var i = 0; i < req.length; i++) {
+				var orData = req[i].split("|");
+				newHtml += "<li>";
+
+				for(var j = 0; j < orData.length; j++) {
+					var completedColor = "";
+					if(courseNamesList[j].isComplete) {
+						completedColor = "green";
+					}else{
+						completedColor = "red";
+					}
+
+					newHtml += "<span data-toggle='tooltip' style='color:"+completedColor+"' data-placement='top' title='"+courseNamesList[j].courseName+"'>"+orData[j]+"</span>";
+					if(j+1 < orData.length) newHtml += " OR ";
+				}
+				newHtml += "</li>";
 			}
-			newHtml += "</li>";
-		}
 
+			newHtml += "</ul>";
 
-		newHtml += "</ul>";
-
-
-		$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
-
-		infoBoxEventListeners();
+			$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
+			infoBoxEventListeners();
+		});
 	});
 }
 
 
 function getCourseNamesList(courseNumList) {
+	courseNumList = courseNumList.join();
 	$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
-		console.log("course names" + responseTxt);
-		return responseTxt;
+		return responseTxt.split(',');
 	});
 }
 
@@ -274,6 +282,10 @@ function displaySearchResults(data) {
 				html += "<a href='#' class='badge badge-success mr-1 addCourseBtn' data-coursecrn='"+CRN+"' data-coursenum='"+courseNum+"'>Add</a>";
 				html += sectionData.Semester + " " + sectionData.SectionNum + ": " + sectionData.Days + " " + sectionData.SectionTime;
 				html += " - " + "<a href='http://www.ratemyprofessors.com/search.jsp?query="+sectionData.Instructor+"+mtu' target='_new'>"+sectionData.Instructor+"</a>";
+				var badgeColor = getBadgeColor(sectionData.Capacity - sectionData.SectionActual);
+				html += " <span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Filled Slots'>";
+					html += sectionData.SectionActual + "/" + sectionData.Capacity;
+				html += "</span>";
 			html += "</p>";
 		});
 

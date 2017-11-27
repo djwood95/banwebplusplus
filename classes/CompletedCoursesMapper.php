@@ -77,16 +77,37 @@ class CompletedCoursesMapper extends Mapper {
     public function getPreReqCourseNames($courseList) {
         $courseNamesList = [];
 
-        $stmt = $this->db->prepare("SELECT CourseName FROM courses WHERE CourseNum=:courseNum");
+        $stmt = $this->db->prepare("SELECT CourseName FROM Courses WHERE CourseNum=:courseNum");
         foreach($courseList as $courseNum) {
+            if(substr($courseNum, -1) == 'C'){
+                $coReq = " (Can be taken at same time)";
+                $courseNum = substr($courseNum, 0, -1);
+            }else{
+                $coReq = "";
+            }
+
+            //echo $courseNum;
+
             $stmt->execute(['courseNum' => $courseNum]);
 
             while($row = $stmt->fetch()) {
-                $courseNamesList[] = $row['CourseName'];
+                $courseNamesList[] = ['courseName' => $row['CourseName'].$coReq, 'isComplete' => self::courseIsComplete($courseNum)];
             }
         }
 
         return $courseNamesList;
+    }
+
+    private function courseIsComplete($courseNum) {
+
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM CompletedCourses WHERE CourseNum=:CourseNum AND GoogleId=:userId");
+        $stmt->execute([
+            'CourseNum' => $courseNum,
+            'userId' => $_SESSION['userId']
+        ]);
+
+        return $stmt->fetchColumn() == 1;
+
     }
 }
 
