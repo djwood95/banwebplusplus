@@ -62,6 +62,7 @@ function openSchedule(id, name) {
         $('.openScheduleBox').modal('hide');
         currentScheduleId = id;
         $('#currentScheduleName').text("Currently Editing " + name);
+        listenForSearchClickEvents();
     });
 }
 
