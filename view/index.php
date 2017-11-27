@@ -29,7 +29,7 @@
         <ul class="navbar-nav mr-auto">
 
           <li class="nav-item signedInOnly">
-            <a class="nav-link" href="#" onclick="clearCalendar()">New Schedule</a>
+            <a class="nav-link" href="#" onclick="clearCalendar('new')">New Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
             <a class="nav-link" href="#" data-toggle='modal' data-target='.openScheduleBox'>Open Schedule</a>
@@ -40,6 +40,7 @@
           <li class="nav-item signedInOnly">
             <a id="calendarTest" class="nav-link" href="#">Add Schedule to Google Calendar</a>
           </li>
+          <!--
           <li class="nav-item dropdown signedInOnly">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Schedule
@@ -51,6 +52,7 @@
               <a class="dropdown-item" href="#">Add to Google Calendar</a>
             </div>
           </li>
+        -->
 
         </ul>
 
@@ -94,6 +96,7 @@
         </div>
 
         <div class='col-xl'>
+          <p id='currentScheduleName'></p>
           <table id='calendar'>
             <colgroup>
               <col span='1' class='timeLabelCol' />

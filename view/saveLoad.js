@@ -12,17 +12,24 @@ function saveAs() {
 
     var crns = crnList.join();
 
-    var sName = "/public/saveSchedule/" + scheduleName + "/" + Year + "/" + Semester + "/" + crns;
-    console.log(sName);
-    if (scheduleName != null) {
-      var saved = confirm("Succesfully saved as: " + scheduleName);
-      window.location.href = sName;
-    }
+    $.get('/public/saveScheduleAs/'+ scheduleName + "/" + Year + "/" + Semester + "/" + crns, function(responseTxt) {
+        console.log("save as..." + responseTxt);
+        currentScheduleId = responseTxt.id;
+        $('#currentScheduleName').text("Currently Editing " + scheduleName);
+    });
 }
 
 function saveCurrentSchedule() {
-    if(currentScheduleInfo != null) {
+    if(currentScheduleId != null) {
+        var crnList = [];
+        for(var i = 0; i < courseList.length; i++) {
+            crnList[i] = courseList[i]['crn']; 
+        }
+        var crns = crnList.join();
 
+        $.get('/public/saveSchedule/'+currentScheduleId+'/'+crns, function(responseTxt) {
+            console.log("Schedule Saved!" + responseTxt);
+        });
     }
 }
 
@@ -35,7 +42,7 @@ function loadSchedulesList() {
 
         newHtml += "<div class='list-group'>"
         $.each(responseTxt, function(i, data) {
-            newHtml += "<a href='#' class='list-group-item list-group-item-action' onclick=\"openSchedule('"+data.id+"')\">";
+            newHtml += "<a href='#' class='list-group-item list-group-item-action' onclick=\"openSchedule('"+data.id+"', '"+data.ScheduleName+"')\">";
                 newHtml += "<b>"+data.ScheduleName+"</b> "+data.Semester+" "+data.ScheduleYear;
             newHtml += "</a>";
         });
@@ -45,20 +52,25 @@ function loadSchedulesList() {
     });
 }
 
-function openSchedule(id) {
+function openSchedule(id, name) {
+    clearCalendar();
     $.get('/public/openSchedule/'+id, function(responseTxt) {
         $.each(responseTxt, function(i, course) {
             addCourseToCalendar(course.CRN, course.CourseNum);
             console.log(course.CRN, course.CourseNum);
-            $('#openScheduleBox').modal('hide');
         });
+        $('.openScheduleBox').modal('hide');
         currentScheduleId = id;
+        $('#currentScheduleName').text("Currently Editing " + name);
     });
 }
 
-function clearCalendar() {
-    $.each(courseList, function(i, course) {
+function clearCalendar(mode) {
+    currentScheduleId = null;
+    $('#currentScheduleName').text("");
+
+    while(courseList.length > 0){
+        course = courseList[0];
         removeCourse(course.crn, course.credits);
-    });
-    saveCurrentSchedule();
+    };
 }

@@ -2,12 +2,20 @@
 
 class ScheduleMapper extends Mapper {
 
-    public function SaveSchedule($ScheduleName, $Semester, $Year, $CRNList) {
+    public function SaveScheduleAs($ScheduleName, $Semester, $Year, $CRNList) {
 
-          $stmt = $this->db->prepare("INSERT into StudentSchedule (ScheduleName, GoogleId, Semester, ScheduleYear, CRN) VALUES(:scheduleName, :userID, :semester, :year, :CRNList) ON DUPLICATE KEY UPDATE CRN=:CRNList");
+          $stmt = $this->db->prepare("INSERT INTO StudentSchedule (ScheduleName, GoogleId, Semester, ScheduleYear, CRN) VALUES (:scheduleName, :userID, :semester, :year, :CRNList)");
           $stmt->execute(['scheduleName' => $ScheduleName, 'userID' => $_SESSION['userId'], 'semester' => $Semester, 'year' => $Year, 'CRNList' => $CRNList]);
           if(!$stmt) die("SQL Error");
-          return;
+
+          return $this->db->lastInsertId();
+    }
+
+    public function saveSchedule($id, $CRNList) {
+        $stmt = $this->db->prepare("UPDATE StudentSchedule SET CRN=:CRNList WHERE id=:id");
+        $stmt->execute(['CRNList' => $CRNList, 'id' => $id]);
+
+        if(!$stmt) die("SQL Error");
     }
 
     public function getScheduleList() {
@@ -33,7 +41,6 @@ class ScheduleMapper extends Mapper {
             'id' => $id
         ]);
 
-        clearCalendar();
         while($row = $stmt->fetch()) {
             
             $CRNList = explode(",", $row['CRN']);
