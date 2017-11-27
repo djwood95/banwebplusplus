@@ -78,14 +78,50 @@ $app->post('/verifyIdToken', function(Request $request, Response $response) {
 });
 
 
-$app->get('/saveSchedule/{name}/{year}/{semester}/{CRNList}', function(Request $request, Response $response, $args) {
+$app->get('/saveScheduleAs/{name}/{year}/{semester}/{CRNList}', function(Request $request, Response $response, $args) {
 	$ScheduleName = $args['name'];
 	$Year = $args['year'];
 	$Semester = $args['semester'];
 	$CRNList = $args['CRNList'];
 
 	$scheduleMapper = new ScheduleMapper($this->db);
-	$scheduleMapper->saveSchedule($ScheduleName, $Semester, $Year, $CRNList);
+	$scheduleId = $scheduleMapper->saveScheduleAs($ScheduleName, $Semester, $Year, $CRNList);
+	return $response->withJson(['id' => $scheduleId]);
+});
+
+$app->get('/saveSchedule/{id}/{CRNList}', function(Request $request, Response $response, $args) {
+	$id = $args['id'];
+	$CRNList = $args['CRNList'];
+
+	$scheduleMapper = new ScheduleMapper($this->db);
+	$result = $scheduleMapper->saveSchedule($id, $CRNList);
+
+});
+
+$app->get('/getScheduleList', function(Request $request, Response $response, $args) {
+
+	$scheduleMapper = new ScheduleMapper($this->db);
+	$scheduleList = $scheduleMapper->getScheduleList();
+
+	return $response->withJson($scheduleList);
+});
+
+$app->get('/openSchedule/{id}', function(Request $request, Response $response, $args) {
+	$id = $args['id'];
+
+	$scheduleMapper = new ScheduleMapper($this->db);
+	$CRNList = $scheduleMapper->openSchedule($id);
+
+	return $response->withJson($CRNList);
+});
+
+$app->get('/getScheduleInfo/{id}', function(Request $request, Response $response, $args) {
+	$id = $args['id'];
+
+	$scheduleMapper = new ScheduleMapper($this->db);
+	$scheduleInfo = $scheduleMapper->getScheduleInfo($id);
+
+	return $response->withJson($scheduleInfo);
 });
 		  
 

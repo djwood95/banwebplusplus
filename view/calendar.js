@@ -2,6 +2,7 @@ var count = 0;
 var calList = [];
 var courseList = []; //an array of course objects that have been added to the calendar
 var creditCount = 0;
+var currentScheduleId = null;
 function addCourseToCalendar(crn, courseNum) {
 	$.get('/public/getCourseInfoForCalendar/' + crn + `/` + courseNum, function(responseTxt){
 
@@ -113,6 +114,7 @@ function addCourseToCalendar(crn, courseNum) {
 		$('#classCount').text(courseList.length);
 
 		updateCalEventListeners();
+		saveCurrentSchedule();
 
 	});
 }
@@ -160,6 +162,7 @@ function removeCourse(crn, credits) {
 	classCount = courseList.length;
 	$('#creditCount').text(creditCount);
 	$('#classCount').text(classCount);
+	saveCurrentSchedule();
 }
 
 
