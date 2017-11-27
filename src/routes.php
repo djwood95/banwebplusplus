@@ -87,6 +87,32 @@ $app->get('/saveSchedule/{name}/{year}/{semester}/{CRNList}', function(Request $
 	$scheduleMapper = new ScheduleMapper($this->db);
 	$scheduleMapper->saveSchedule($ScheduleName, $Semester, $Year, $CRNList);
 });
+
+$app->get('/getScheduleList', function(Request $request, Response $response, $args) {
+
+	$scheduleMapper = new ScheduleMapper($this->db);
+	$scheduleList = $scheduleMapper->getScheduleList();
+
+	return $response->withJson($scheduleList);
+});
+
+$app->get('/openSchedule/{id}', function(Request $request, Response $response, $args) {
+	$id = $args['id'];
+
+	$scheduleMapper = new ScheduleMapper($this->db);
+	$CRNList = $scheduleMapper->openSchedule($id);
+
+	return $response->withJson($CRNList);
+});
+
+$app->get('/getScheduleInfo/{id}', function(Request $request, Response $response, $args) {
+	$id = $args['id'];
+
+	$scheduleMapper = new ScheduleMapper($this->db);
+	$scheduleInfo = $scheduleMapper->getScheduleInfo($id);
+
+	return $response->withJson($scheduleInfo);
+});
 		  
 
 $app->get('/addCourseToCalendar/{scheduleName}/{crn}', function(Request $request, Response $response, $args) {

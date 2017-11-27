@@ -6,6 +6,10 @@ $(document).ready(function(){
 	$('#searchBox').on("input", function(){search();});
 	getAvailableSemesters();
 
+	$('.openScheduleBox').on('show.bs.modal', function(event){
+		loadSchedulesList();
+	});
+
 });
 
 /**

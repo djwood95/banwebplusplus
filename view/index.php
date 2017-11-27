@@ -17,54 +17,6 @@
     <!-- Calendar CSS -->
     <link rel="stylesheet" href="cal.css" />
 
-        <script>
-      function saveAs() {
-        var scheduleName = prompt("Enter Name to save schedule to:", "My Schedule");
-        var VariableIGrabbed = $('#semester').val();
-        var ArrayThing = VariableIGrabbed.split(' ');
-        var Semester = ArrayThing[0];
-        var Year = ArrayThing[1];
-        var crnList = [];
-
-        for(var i = 0; i < courseList.length; i++) {
-            crnList[i] = courseList[i]['crn']; 
-        }
-
-        var crns = crnList.join();
-
-        var sName = "/public/saveSchedule/" + scheduleName + "/" + Year + "/" + Semester + "/" + crns;
-        console.log(sName);
-        if (scheduleName != null) {
-          var saved = confirm("Succesfully saved as: " + scheduleName);
-          window.location.href = sName;
-        }
-      }
-    </script>
-
-    <script>
-      function loadCalendar() {
-        var scheduleName = prompt("Enter a saved schedule name to open:", "My Schedule");
-        var VariableIGrabbed = $('#semester').val();
-        var ArrayThing = VariableIGrabbed.split(' ');
-        var Semester = ArrayThing[0];
-        var Year = ArrayThing[1];
-        var crnList = [];
-
-        for(var i = 0; i < courseList.length; i++) {
-            crnList[i] = courseList[i]['crn']; 
-        }
-
-        var crns = crnList.join();
-
-        var sName = "/public/saveSchedule/" + scheduleName + "/" + Year + "/" + Semester + "/" + crns;
-        console.log(sName);
-        if (scheduleName != null) {
-          var saved = confirm("Succesfully saved as: " + scheduleName);
-          window.location.href = sName;
-        }
-      }
-    </script>
-
   </head>
   <body>
 
@@ -77,13 +29,13 @@
         <ul class="navbar-nav mr-auto">
 
           <li class="nav-item signedInOnly">
-            <a class="nav-link" href="#">New Schedule</a>
+            <a class="nav-link" href="#" onclick="clearCalendar()">New Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
-            <a class="nav-link" href="#" onclick="loadCalendar()">Open Schedule</a>
+            <a class="nav-link" href="#" data-toggle='modal' data-target='.openScheduleBox'>Open Schedule</a>
           </li>
           <li class="nav-item signedInOnly">
-            <a class="nav-link" href="#" onclick="saveAs()">Save Schedule</a>
+            <a class="nav-link" href="#" onclick="saveAs()">Save Schedule As...</a>
           </li>
           <li class="nav-item signedInOnly">
             <a id="calendarTest" class="nav-link" href="#">Add Schedule to Google Calendar</a>
@@ -120,48 +72,6 @@
       </div>
     </nav>
 
-
-
-<!--
-  <nav class="navbar navbar-expand-md navbar-dark bg-primary">
-    <a class="navbar-brand" href="#" font-size="larger">BanWeb++</a>
-
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="navbar-collapse collapse" id="collapsingNavbar">
-        <ul class="navbar-nav">
-          <li class='nav-item' id='calendarTest'>TEST CALENDAR</li>
-        </ul>
-        <ul class="navbar-nav" style='float:right;'>
-          <li>
-            <a id='signInButton'>Sign In</a>
-            <a id='signOutButton'>Sign Out</a>
-          </li>
-        </ul>
-    </div>
-  </nav>
--->
-  <!--
-	<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="index.html">Banweb++<span class="sr-only">(current)</span></a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="nav navbar-nav navbar-right">
-          <li class="nav-item">
-            
-          </li>
-          <li class="nav-item">
-            
-          </li>
-        </ul>
-      </div>
-    </nav>
- -->
-    <!--<script src="https://apis.google.com/js/platform.js" async defer></script>-->
     <div class='container-fluid mt-5'>
 
       <div class="alert alert-danger" role="alert" style='display:none;'></div>
@@ -246,6 +156,12 @@
       </div>
     </div>
 
+    <div class='modal fade openScheduleBox' tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" area-hidden="true">
+      <div class='modal-dialog modal-lg'>
+        <div class='modal-content p-2 text-center'></div>
+      </div>
+    </div>
+
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
@@ -254,10 +170,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
 
     <!-- Custom JS -->
+    <script src="calendar.js"></script> <!-- contains global vars, include first -->
     <script src="googleCal.js"></script>
     <script src="completedCourses.js"></script>
     <script src="search.js"></script>
-    <script src="calendar.js"></script>
+    <script src="saveLoad.js"></script>
 
 
 
