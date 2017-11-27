@@ -38,7 +38,7 @@ class CompletedCoursesMapper extends Mapper {
     }
 
     private function isCompleted($courseNum) {
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM completedcourses WHERE CourseNum=:courseNum AND GoogleId=:userId");
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM CompletedCourses WHERE CourseNum=:courseNum AND GoogleId=:userId");
         $stmt->execute([
             'courseNum' => $courseNum,
             'userId' => $_SESSION['userId']
