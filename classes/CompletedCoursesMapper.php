@@ -50,7 +50,7 @@ class CompletedCoursesMapper extends Mapper {
     }
 
     public function markComplete($courseNum, $subject) {
-        $stmt = $this->db->prepare("INSERT INTO completedcourses (GoogleId, Subject, CourseNum) VALUES (:userId, :subject, :courseNum)");
+        $stmt = $this->db->prepare("INSERT INTO CompletedCourses (GoogleId, Subject, CourseNum) VALUES (:userId, :subject, :courseNum)");
         $stmt->execute([
             'userId' => $_SESSION['userId'],
             'subject' => $subject,
@@ -63,7 +63,7 @@ class CompletedCoursesMapper extends Mapper {
     }
 
     public function markIncomplete($courseNum) {
-        $stmt = $this->db->prepare("DELETE FROM completedcourses WHERE GoogleId=:userId AND CourseNum=:courseNum");
+        $stmt = $this->db->prepare("DELETE FROM CompletedCourses WHERE GoogleId=:userId AND CourseNum=:courseNum");
         $stmt->execute([
             'courseNum' => $courseNum,
             'userId' => $_SESSION['userId']
