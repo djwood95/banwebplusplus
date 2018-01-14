@@ -20,7 +20,7 @@ class Scraper extends Mapper {
 	}
  
 
-	private function scrapeSemester($semesterCode, $subject) {
+	private function scrapeSemester($semesterCode, $subject, $mode) {
 
 		$curl = curl_init();
 
