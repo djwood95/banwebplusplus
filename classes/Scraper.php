@@ -2,6 +2,7 @@
 
 use Sunra\PhpSimple\HtmlDomParser;
 use PHPHtmlParser\Dom;
+use DiDom\Document;
 
 class Scraper extends Mapper {
 
@@ -75,8 +76,7 @@ class Scraper extends Mapper {
 	/* Reads HTML file -> Parses relevant data -> Writes to DB for given semester */
 	private function parseHTML($html, $semesterCode) {
 
-		$dom = new Dom;
-		$dom->load($html);
+		$dom = new Document($html);
 		$dataTable = $dom->find('table.datadisplaytable')[0];
 		$tableRows = $dataTable->find('tr');
 
