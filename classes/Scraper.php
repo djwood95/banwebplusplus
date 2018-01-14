@@ -9,11 +9,14 @@ class Scraper extends Mapper {
 	public function updateSections($subject, $mode) {
 
 		$semesterCodeList = self::getAvailableSemesters();
+		$startMemory = memory_get_usage();
 
 		foreach($semesterCodeList as $semesterCode) {
 			self::scrapeSemester($semesterCode, $subject, $mode);
 		}
 
+		$memory = memory_get_usage() - $startMemory;
+		echo $memory/1000 . " kb";
 	}
  
 
