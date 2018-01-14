@@ -95,7 +95,7 @@ class Scraper extends Mapper {
 				//$rem = (int) trim(preg_replace('/[^0-9]/', '', $cols[11]->text())); (not necessary so ignored)
 				$data['location'] = trim($cols[14]->text());
 
-				if($mode = "detailed") {
+				if($mode == "detailed") {
 					$data['campus'] = trim($cols[4]->text());
 					$data['credits'] = (int) trim($cols[5]->text());
 					$data['title'] = trim($cols[6]->text());
