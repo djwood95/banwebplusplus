@@ -12,7 +12,7 @@ class Scraper extends Mapper {
 	public function generateBanwebFiles() {
 
 		$semesterCodeList = self::getAvailableSemesters();
-		$subjects = ['ACC'];
+		$subjects = ['EE'];
 
 		foreach($semesterCodeList as $semesterCode) {
 			foreach($subjects as $subject) {
