@@ -12,11 +12,12 @@ $app->get('/newUser/{username}', function (Request $request, Response $response,
 	$users = $mapper->addUser($username);
 });
 
-$app->get('/updateSections', function(Request $request, Response $response) {
+$app->get('/updateSections/{subject}/{mode}', function(Request $request, Response $response, $args) {
+	$subject = $args['subject'];
+	$mode = $args['mode'];
 	$scraper = new Scraper($this->db);
-	$result = $scraper->generateBanwebFiles();
+	$result = $scraper->updateSections($subject, $mode);
 	echo $result;
-	//$response = $response->withJson($result);
 	return $response;
 });
 

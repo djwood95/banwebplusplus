@@ -5,29 +5,15 @@ use PHPHtmlParser\Dom;
 use DiDom\Document;
 
 class Scraper extends Mapper {
-
-	//const SUBJECTS = ['ACC', 'AF', 'AR', 'ATM', 'BMB', 'BL', 'BE', 'BUS', 'BA', 'CM', 'CH', 'CEE', 'CSE', 'CS', 'CMG', 'EC', 'ED', 'EE', 'EET', 'ENG', 'ESL', 'ENT', 'FIN', 'FW', 'GE', 'HU', 'EH', 'MGT', 'MIS', 'MKT', 'MY', 'MA', 'MEEM', 'MET', 'OSM', 'HON', 'PE', 'PH', 'PSY', 'SA', 'SS', 'SU', 'SAT', 'UN', 'FA'];
-	//const SUBJECTS = ['EE'];
 	
-	public function generateBanwebFiles() {
+	public function updateSections($subject, $mode) {
 
 		$semesterCodeList = self::getAvailableSemesters();
-		$subjects = ['EE'];
 
 		foreach($semesterCodeList as $semesterCode) {
-			foreach($subjects as $subject) {
-				//$startTime = time();
-				echo "<b>$semesterCode $subject</b><br/>";
-				self::scrapeSemester($semesterCode, $subject);
-				//$endTime = time();
-
-				//echo "$subject: " . $endTime - $startTime . "<br/>";
-			}
+			self::scrapeSemester($semesterCode, $subject, $mode);
 		}
 
-		//self::getCourseDescriptions();
-
-		//self::getExtraInfo("201801", "ACC", "4500", "13009");
 	}
  
 
@@ -67,14 +53,15 @@ class Scraper extends Mapper {
       if ($err) {
         return "cURL Error #:" . $err;
       } else {
-        //Save response into an html file
-		self::parseHTML($response, $semesterCode);
+        //Parse the HTML
+		self::parseHTML($response, $semesterCode, $mode);
       }
 
 	}
 
-	/* Reads HTML file -> Parses relevant data -> Writes to DB for given semester */
-	private function parseHTML($html, $semesterCode) {
+	/* Reads HTML file -> Parses relevant data -> 
+	Returns assoc. array with all data (note that array can vary depending on mode) */
+	private function parseHTML($html, $semesterCode, $mode) {
 
 		$dom = new Document($html);
 		$dataTable = $dom->find('table.datadisplaytable')[0];
@@ -90,42 +77,34 @@ class Scraper extends Mapper {
 		foreach($tableRows as $i => $row) {
 			$cols = $row->find('td');
 			if(count($cols) > 0 && count($cols[0]->find('a')) > 0) {
-				$crn = trim($cols[0]->find('a')[0]->text());
 
+				$data = array();
+				//Get the basics that need frequent updating
+				$data['crn'] = trim($cols[0]->find('a')[0]->text());
 				$subj = trim($cols[1]->text());
 				$crse = trim($cols[2]->text());
-				$coursenum = $subj." ".$crse;
-				$section = trim($cols[3]->text());
-				$campus = trim($cols[4]->text());
-				$credits = (int) trim($cols[5]->text());
-				$title = trim($cols[6]->text());
-				$days = trim($cols[7]->text());
-				$time = trim($cols[8]->text());
-				$cap = (int) trim(preg_replace('/[^0-9]/', '', $cols[9]->text()));
-				$act = (int) trim(preg_replace('/[^0-9]/', '', $cols[10]->text()));
-				$rem = (int) trim(preg_replace('/[^0-9]/', '', $cols[11]->text()));
-				$instructor = trim($cols[12]->text());
-				$dates = trim($cols[13]->text());
-				$location = trim($cols[14]->text());
-				$fee = trim($cols[15]->text());
+				$data['courseNum'] = $subj." ".$crse;
+				$data['section'] = trim($cols[3]->text());
+				$data['days'] = trim($cols[7]->text());
+				$data['time'] = trim($cols[8]->text());
+				$data['cap'] = (int) trim(preg_replace('/[^0-9]/', '', $cols[9]->text()));
+				$data['act'] = (int) trim(preg_replace('/[^0-9]/', '', $cols[10]->text()));
+				//$rem = (int) trim(preg_replace('/[^0-9]/', '', $cols[11]->text())); (not necessary so ignored)
+				$data['location'] = trim($cols[14]->text());
 
-				//$extraInfo = self::getExtraInfo($semesterCode, $subj, $crse, $crn);
+				if($mode = "detailed") {
+					$data['campus'] = trim($cols[4]->text());
+					$data['credits'] = (int) trim($cols[5]->text());
+					$data['title'] = trim($cols[6]->text());
+					$data['instructor'] = trim($cols[12]->text());
+					$data['dates'] = trim($cols[13]->text());
+					$data['fee'] = trim($cols[15]->text());
 
-				echo "CRN: $crn<br/>";
-				echo "CourseNum: $coursenum<br/>";
-				echo "Section: $section<br/>";
-				echo "Credits: $credits<br/>";
-				echo "Title: $title<br/>";
-				echo "Days/Time: $days $time<br/>";
-				echo "cap/act/rem: $cap/$act/$rem<br/>";
-				echo "instructor: $instructor<br/>";
-				echo "dates: $dates<br/>";
-				echo "location: $location<br/>";
-				echo "fee: $fee<br/>";
-				print_r($extraInfo);
-				echo "<br/><br/>";
-				//print_r($extraInfo);
-				//echo "\n";
+					$extraInfo = self::getExtraInfo($semesterCode, $subj, $crse, $crn);
+					$data = array_merge($data, $extraInfo);
+				}
+
+				print_r($data);
 			}
 
 		}
