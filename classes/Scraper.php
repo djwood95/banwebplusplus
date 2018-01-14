@@ -90,24 +90,24 @@ class Scraper extends Mapper {
 		foreach($tableRows as $i => $row) {
 			$cols = $row->find('td');
 			if(count($cols) > 0 && count($cols[0]->find('a')) > 0) {
-				$crn = trim($cols[0]->find('a')->text);
+				$crn = trim($cols[0]->find('a')[0]->text());
 
-				$subj = trim($cols[1]->text);
-				$crse = trim($cols[2]->text);
+				$subj = trim($cols[1]->text());
+				$crse = trim($cols[2]->text());
 				$coursenum = $subj." ".$crse;
-				$section = trim($cols[3]->text);
-				$campus = trim($cols[4]->text);
-				$credits = (int) trim($cols[5]->text);
-				$title = trim($cols[6]->text);
-				$days = trim($cols[7]->text);
-				$time = trim($cols[8]->text);
-				$cap = (int) trim(preg_replace('/[^0-9]/', '', $cols[9]->text));
-				$act = (int) trim(preg_replace('/[^0-9]/', '', $cols[10]->text));
-				$rem = (int) trim(preg_replace('/[^0-9]/', '', $cols[11]->text));
-				$instructor = trim($cols[12]->text);
-				$dates = trim($cols[13]->text);
-				$location = trim($cols[14]->text);
-				$fee = trim($cols[15]->text);
+				$section = trim($cols[3]->text());
+				$campus = trim($cols[4]->text());
+				$credits = (int) trim($cols[5]->text());
+				$title = trim($cols[6]->text());
+				$days = trim($cols[7]->text());
+				$time = trim($cols[8]->text());
+				$cap = (int) trim(preg_replace('/[^0-9]/', '', $cols[9]->text()));
+				$act = (int) trim(preg_replace('/[^0-9]/', '', $cols[10]->text()));
+				$rem = (int) trim(preg_replace('/[^0-9]/', '', $cols[11]->text()));
+				$instructor = trim($cols[12]->text());
+				$dates = trim($cols[13]->text());
+				$location = trim($cols[14]->text());
+				$fee = trim($cols[15]->text());
 
 				//$extraInfo = self::getExtraInfo($semesterCode, $subj, $crse, $crn);
 
