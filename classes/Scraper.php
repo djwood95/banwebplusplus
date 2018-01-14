@@ -110,7 +110,6 @@ class Scraper extends Mapper {
 
 				//$extraInfo = self::getExtraInfo($semesterCode, $subj, $crse, $crn);
 
-				/*
 				echo "CRN: $crn\n";
 				echo "CourseNum: $coursenum\n";
 				echo "Section: $section\n";
@@ -124,7 +123,6 @@ class Scraper extends Mapper {
 				echo "fee: $fee\n";
 				print_r($extraInfo);
 				echo "\n\n";
-				*/
 				//print_r($extraInfo);
 				//echo "\n";
 			}
