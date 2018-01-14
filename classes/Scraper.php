@@ -268,7 +268,7 @@ class Scraper extends Mapper {
 		foreach($semesterList as $semesterElement) {
 			$semesterName = $semesterElement->plaintext;
 			$semesterCode = $semesterElement->value;
-			$semesterYear = (int) explode(" ", $semesterName)[1];
+			$semesterYear = explode(" ", $semesterName)[1];
 
 			//If semester is within last year, add it to list of semesters to scrape.
 			if($semesterYear >= $earliestYear){
