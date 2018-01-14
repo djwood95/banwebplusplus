@@ -6,19 +6,21 @@ use PHPHtmlParser\Dom;
 class Scraper extends Mapper {
 
 	//const SUBJECTS = ['ACC', 'AF', 'AR', 'ATM', 'BMB', 'BL', 'BE', 'BUS', 'BA', 'CM', 'CH', 'CEE', 'CSE', 'CS', 'CMG', 'EC', 'ED', 'EE', 'EET', 'ENG', 'ESL', 'ENT', 'FIN', 'FW', 'GE', 'HU', 'EH', 'MGT', 'MIS', 'MKT', 'MY', 'MA', 'MEEM', 'MET', 'OSM', 'HON', 'PE', 'PH', 'PSY', 'SA', 'SS', 'SU', 'SAT', 'UN', 'FA'];
-	const SUBJECTS = ['EE'];
+	//const SUBJECTS = ['EE'];
 	
 	public function generateBanwebFiles() {
 
 		$semesterCodeList = self::getAvailableSemesters();
+		$subjects = ['EE'];
 
 		foreach($semesterCodeList as $semesterCode) {
-			foreach(self::SUBJECTS as $subject) {
-				$startTime = time();
+			foreach($subjects as $subject) {
+				//$startTime = time();
+				echo "<b>$semesterCode $subject</b><br/>";
 				self::scrapeSemester($semesterCode, $subject);
-				$endTime = time();
+				//$endTime = time();
 
-				echo "$subject: " . $endTime - $startTime . "<br/>";
+				//echo "$subject: " . $endTime - $startTime . "<br/>";
 			}
 		}
 
@@ -109,19 +111,19 @@ class Scraper extends Mapper {
 
 				//$extraInfo = self::getExtraInfo($semesterCode, $subj, $crse, $crn);
 
-				echo "CRN: $crn\n";
-				echo "CourseNum: $coursenum\n";
-				echo "Section: $section\n";
-				echo "Credits: $credits\n";
-				echo "Title: $title\n";
-				echo "Days/Time: $days $time\n";
-				echo "cap/act/rem: $cap/$act/$rem\n";
-				echo "instructor: $instructor";
-				echo "dates: $dates\n";
-				echo "location: $location\n";
-				echo "fee: $fee\n";
+				echo "CRN: $crn<br/>";
+				echo "CourseNum: $coursenum<br/>";
+				echo "Section: $section<br/>";
+				echo "Credits: $credits<br/>";
+				echo "Title: $title<br/>";
+				echo "Days/Time: $days $time<br/>";
+				echo "cap/act/rem: $cap/$act/$rem<br/>";
+				echo "instructor: $instructor<br/>";
+				echo "dates: $dates<br/>";
+				echo "location: $location<br/>";
+				echo "fee: $fee<br/>";
 				print_r($extraInfo);
-				echo "\n\n";
+				echo "<br/><br/>";
 				//print_r($extraInfo);
 				//echo "\n";
 			}

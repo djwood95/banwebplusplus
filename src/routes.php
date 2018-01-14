@@ -15,7 +15,8 @@ $app->get('/newUser/{username}', function (Request $request, Response $response,
 $app->get('/updateSections', function(Request $request, Response $response) {
 	$scraper = new Scraper($this->db);
 	$result = $scraper->generateBanwebFiles();
-	$response = $response->withJson($result);
+	echo $result;
+	//$response = $response->withJson($result);
 	return $response;
 });
 
