@@ -12,6 +12,13 @@ $app->get('/newUser/{username}', function (Request $request, Response $response,
 	$users = $mapper->addUser($username);
 });
 
+$app->get('/updateSections', function(Request $request, Response $response) {
+	$scraper = new Scraper($this->db);
+	$result = $scraper->generateBanwebFiles();
+	$response = $response->withJson($result);
+	return $response;
+});
+
 $app->get('/getAvailableSemesters', function(Request $request, Response $response) {
 	$courseMapper = new CourseMapper($this->db);
 	$semesterList = $courseMapper->getAvailableSemesters();
