@@ -11,7 +11,7 @@ class Scraper extends Mapper {
 	public function generateBanwebFiles() {
 
 		$semesterCodeList = self::getAvailableSemesters();
-		$subjects = ['EE'];
+		$subjects = ['ACC'];
 
 		foreach($semesterCodeList as $semesterCode) {
 			foreach($subjects as $subject) {
