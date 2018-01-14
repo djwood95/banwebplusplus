@@ -20,8 +20,12 @@ $container['logger'] = function ($c) {
 
 //Database Connection
 $container['db'] = function($c) {
-	$db = $c->get('settings')['db'];
-	$pdo = new PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['dbname'], $db['user'], $db['password']);
+    $db_host = $_ENV['db_host'];
+    $db_dbname = $_ENV['db_dbname'];
+    $db_user = $_ENV['db_user'];
+    $db_password = $_ENV['db_password'];
+
+	$pdo = new PDO("mysql:host=$db_host;dbname=$db_dbname", $db_user, $db_password);
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     return $pdo;

@@ -19,6 +19,11 @@ $app->get('/updateSections', function(Request $request, Response $response) {
 	return $response;
 });
 
+$app->get('/test', function(Request $request, Response $response) {
+	$response = $response->withJson($_ENV['env_name']);
+	return $response;
+});
+
 $app->get('/getAvailableSemesters', function(Request $request, Response $response) {
 	$courseMapper = new CourseMapper($this->db);
 	$semesterList = $courseMapper->getAvailableSemesters();
