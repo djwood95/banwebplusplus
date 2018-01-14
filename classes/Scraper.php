@@ -81,14 +81,13 @@ class Scraper extends Mapper {
 		echo "Number of Rows: " . count($tableRows) . "\n";
 
 		// Stop if no info found to prevent errors later on
-		if(strpos($html, "No classes were found that meet your search criteria") !== false || count($tableRows) == 0) {
+		if(strpos($html, "No classes were found that meet your search criteria") !== false) {
 			return null;
 		}
 
 		foreach($tableRows as $i => $row) {
 			$cols = $row->find('td');
-			if(count($cols) > 0) {
-				if(count($cols[0]->find('a')) == 0) return null;
+			if(count($cols) > 0 && count($cols[0]->find('a')) > 0) {
 				$crn = trim($cols[0]->find('a')->text);
 
 				$subj = trim($cols[1]->text);
