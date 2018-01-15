@@ -12,6 +12,8 @@ use DiDom\Document;
 class Scraper extends Mapper {
 	
 	private $courseDescriptions;
+	private $subjects = ['ACC', 'AF', 'AR', 'ATM', 'BMB', 'BL', 'BE', 'BUS', 'BA', 'CM', 'CH', 'CEE', 'CSE', 'CS', 'CMG', 'EC', 'ED', 'EE', 'EET', 'ENG', 'ESL', 'ENT', 'FIN', 'FW', 'GE', 'HU', 'EH', 'MGT', 'MIS', 'MKT', 'MY', 'MA', 'MEEM', 'MET', 'OSM', 'HON', 'PE', 'PH', 'PSY', 'SA', 'SS', 'SU', 'SAT', 'TE', 'UN', 'FA'];
+
 
 	public function updateSections($subject, $mode) {
 
@@ -21,8 +23,16 @@ class Scraper extends Mapper {
 		if($mode == "detailed") $this->courseDescriptions = self::getCourseDescriptions();
 		//print_r($this->courseDescriptions);
 
-		foreach($semesterCodeList as $semesterCode) {
-			self::scrapeSemester($semesterCode, $subject, $mode);
+		if($subject == "all") {
+			foreach($semesterCodeList as $semesterCode) {
+				foreach($this->subjects as $subject) {
+					self::scrapeSemester($semesterCode, $subject, $mode);
+				}
+			}
+		} else {
+			foreach($semesterCodeList as $semesterCode) {
+				self::scrapeSemester($semesterCode, $subject, $mode);
+			}
 		}
 
 		$memory = memory_get_usage() - $startMemory;
