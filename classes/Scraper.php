@@ -277,7 +277,7 @@ class Scraper extends Mapper {
 						$data['type'] = "Unkown";
 					}
 
-					$data['online'] = ($campus == "1" ? false : true);
+					$data['online'] = ($campus == "1" ? 0 : 1);
 					$data['credits'] = trim($cols[5]->text());
 					$data['title'] = trim($cols[6]->text());
 					$data['dates'] = trim($cols[13]->text());
