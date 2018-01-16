@@ -128,7 +128,9 @@ class CourseMapper extends Mapper {
 	public function getCourseInfo($courseNum, $semester) {
 		$semesterName = explode(" ", $semester)[0];
 		$semesterYear = explode(" ", $semester)[1];
-		$stmt = $this->db->prepare("SELECT s.*, c.* FROM Courses c JOIN Sections s ON c.CourseNum = s.CourseNum WHERE c.CourseNum=:courseNum AND s.Semester=:semesterName AND s.Year=:semesterYear");
+		$stmt = $this->db->prepare("SELECT s.*, c.*, s.timestamp AS lastModified FROM Courses c JOIN Sections s ON c.CourseNum = s.CourseNum
+									WHERE c.CourseNum=:courseNum AND s.Semester=:semesterName AND s.Year=:semesterYear
+									ORDER BY s.timestamp DESC");
 		$stmt->execute([
 			'courseNum' => $courseNum,
 			'semesterName' => $semesterName,
@@ -162,6 +164,9 @@ class CourseMapper extends Mapper {
 				$sectionInfo[$CRN]['Capacity'] = $row['Capacity'];
 				$sectionInfo[$CRN]['Semester'] = self::getSemesterFromDate($row['Dates'], $row['Year']);
 				$results[$courseNum]['SectionInfo'] = $sectionInfo;
+
+				$lastModifiedText = round((time() - strtotime($row['lastModified'])) / 60) . " minutes ago";
+				$results[$courseNum]['lastModified'] = $lastModifiedText;
 			}else{	//This course has already been seen - just add new section info
 				$sectionInfo = $results[$courseNum]['SectionInfo']; //load in the sections we already have
 				$CRN = $row['CRN'];

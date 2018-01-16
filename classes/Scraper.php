@@ -17,21 +17,21 @@ class Scraper extends Mapper {
 
 	public function updateSections($subject, $mode) {
 
-		$semesterCodeList = self::getAvailableSemesters();
+		$semesterList = self::getAvailableSemesters();
 		$startMemory = memory_get_usage();
 
 		if($mode == "detailed") $this->courseDescriptions = self::getCourseDescriptions();
 		//print_r($this->courseDescriptions);
 
 		if($subject == "all") {
-			foreach($semesterCodeList as $semesterCode) {
+			foreach($semesterList as $semesterData) {
 				foreach($this->subjects as $subject) {
-					self::scrapeSemester($semesterCode, $subject, $mode);
+					self::scrapeSemester($semesterData, $subject, $mode);
 				}
 			}
 		} else {
-			foreach($semesterCodeList as $semesterCode) {
-				self::scrapeSemester($semesterCode, $subject, $mode);
+			foreach($semesterList as $semesterData) {
+				self::scrapeSemester($semesterData, $subject, $mode);
 			}
 		}
 
@@ -40,8 +40,9 @@ class Scraper extends Mapper {
 	}
  
 
-	private function scrapeSemester($semesterCode, $subject, $mode) {
+	private function scrapeSemester($semesterData, $subject, $mode) {
 
+		$semesterCode = $semesterData['code'];
 		$curl = curl_init();
 
 	    curl_setopt_array($curl, array(
@@ -77,15 +78,160 @@ class Scraper extends Mapper {
         return "cURL Error #:" . $err;
       } else {
         //Parse the HTML
-		self::parseHTML($response, $semesterCode, $mode);
+		$data = self::parseHTML($response, $semesterData, $mode);
+		echo "<hr/>";
+		self::updateDatabase($data, $mode);
       }
 
 	}
 
+	private function updateDatabase($data, $mode) {
+		foreach($data as $courseData) {
+			if($courseData != null) {
+				$courseNum = $courseData['courseNum'];
+				$crn = $courseData['crn'];
+				print_r($courseData)."<br/><br/>";
+
+				if($mode == "detailed") {
+					if(self::courseExists($courseNum)) {
+						$stmt = $this->db->prepare("UPDATE Courses SET CourseName=:title, Description=:description, SemestersOffered=:semestersOffered, LectureCredits=:lecCredits, RecitationCredits=:recCredits, LabCredits=:labCredits, Restrictions=:restrictions, Prereq=:preReqs WHERE CourseNum=:courseNum");
+						$stmt->execute([
+							'title' => $courseData['title'],
+							'description' => $courseData['description'],
+							'semestersOffered' => $courseData['semestersOffered'],
+							'lecCredits' => $courseData['lecCredits'],
+							'recCredits' => $courseData['recCredits'],
+							'labCredits' => $courseData['labCredits'],
+							'restrictions' => $courseData['restrictions'],
+							'preReqs' => $courseData['preReqs'],
+							'courseNum' => $courseNum
+						]);
+					} else {
+						$stmt = $this->db->prepare("INSERT INTO Courses (CourseNum, CourseName, Description, SemestersOffered, LectureCredits, RecitationCredits, LabCredits, Restrictions, Prereq)
+											VALUES(:courseNum, :title, :description, :semestersOffered, :lecCredits, :recCredits, :labCredits, :restrictions, :preReqs)");
+						$stmt->execute([
+							'courseNum' => $courseNum,
+							'title' => $courseData['title'],
+							'description' => $courseData['description'],
+							'semestersOffered' => $courseData['semestersOffered'],
+							'lecCredits' => $courseData['lecCredits'],
+							'recCredits' => $courseData['recCredits'],
+							'labCredits' => $courseData['labCredits'],
+							'restrictions' => $courseData['restrictions'],
+							'preReqs' => $courseData['preReqs']
+						]);
+					}
+
+					if(self::sectionExists($crn, $courseData['semester'], $courseData['year'])) {
+						$stmt = $this->db->prepare("UPDATE Sections SET CourseNum=:courseNum, SectionNum=:section, Type=:type, Days=:days, SectionTime=:time, Location=:location, SectionActual=:act, Capacity=:cap, Instructor=:instructor, Dates=:dates, Fee=:fee, Online=:online, Credits=:credits WHERE CRN=:crn AND Semester=:semester AND Year=:year");
+						$stmt->execute([
+							'courseNum' => $courseNum,
+							'section' => $courseData['section'],
+							'type' => $courseData['type'],
+							'days' => $courseData['days'],
+							'time' => $courseData['time'],
+							'location' => $courseData['location'],
+							'act' => $courseData['act'],
+							'cap' => $courseData['cap'],
+							'instructor' => $courseData['instructor'],
+							'dates' => $courseData['dates'],
+							'fee' => $courseData['fee'],
+							'online' => $courseData['online'],
+							'credits' => $courseData['credits'],
+							'crn' => $courseData['crn'],
+							'semester' => $courseData['semester'],
+							'year' => $courseData['year']
+						]);
+					} else {
+						$stmt = $this->db->prepare("INSERT INTO  Sections (CourseNum, SectionNum, Type, Days, SectionTime, Location, SectionActual, Capacity, Instructor, Dates, Fee, Online, Credits, 												   Semester, Year, CRN)
+													VALUES(:courseNum, :section, :type, :days, :time, :location, :act, :cap, :instructor, :dates, :fee, :online, :credits, :semester, :year, :crn)");
+						$stmt->execute([
+							'courseNum' => $courseNum,
+							'section' => $courseData['section'],
+							'type' => $courseData['type'],
+							'days' => $courseData['days'],
+							'time' => $courseData['time'],
+							'location' => $courseData['location'],
+							'act' => $courseData['act'],
+							'cap' => $courseData['cap'],
+							'instructor' => $courseData['instructor'],
+							'dates' => $courseData['dates'],
+							'fee' => $courseData['fee'],
+							'online' => $courseData['online'],
+							'credits' => $courseData['credits'],
+							'semester' => $courseData['semester'],
+							'year' => $courseData['year'],
+							'crn' => $courseData['crn']
+						]);
+					}
+
+				// SIMPLE MODE //
+				} else {
+					if(self::sectionExists($crn, $courseData['semester'], $courseData['year'])) {
+						$stmt = $this->db->prepare("UPDATE Sections SET SectionNum=:section, Days=:days, SectionTime=:time, Location=:location, SectionActual=:act, Capacity=:cap, Instructor=:instructor  WHERE CRN=:crn AND Semester=:semester AND Year=:year");
+						$stmt->execute([
+							'section' => $courseData['section'],
+							'days' => $courseData['days'],
+							'time' => $courseData['time'],
+							'location' => $courseData['location'],
+							'act' => $courseData['act'],
+							'cap' => $courseData['cap'],
+							'instructor' => $courseData['instructor'],
+							'crn' => $courseData['crn'],
+							'semester' => $courseData['semester'],
+							'year' => $courseData['year']
+						]);
+					} else {
+						$stmt = $this->db->prepare("INSERT INTO Sections (SectionNum, SectionTime, Location, SectionActual, Capacity, Instructor)
+											VALUES(:section, :days, :time, :location, :act, :cap, :instructor)");
+						$stmt->execute([
+							'section' => $courseData['section'],
+							'days' => $courseData['days'],
+							'time' => $courseData['time'],
+							'location' => $courseData['location'],
+							'act' => $courseData['act'],
+							'cap' => $courseData['cap'],
+							'instructor' => $courseData['instructor']
+						]);
+					}
+				}
+			}
+		}
+	}
+
+	private function courseExists($courseNum) {
+		$stmt = $this->db->prepare("SELECT COUNT(*) AS numCourses FROM Courses WHERE CourseNum=:courseNum");
+		$stmt->execute([
+			'courseNum' => $courseNum
+		]);
+
+		while($row = $stmt->fetch()) {
+			$numCourses = $row['numCourses'];
+		}
+
+		return ($numCourses == 1); //return true if course exists
+	}
+
+	private function sectionExists($crn, $semester, $year) {
+		$stmt = $this->db->prepare("SELECT COUNT(*) AS numCourses FROM Sections WHERE CRN=:crn AND Semester=:semester AND year=:year");
+		$stmt->execute([
+			'crn' => $crn,
+			'semester' => $semester,
+			'year' => $year
+		]);
+
+		while($row = $stmt->fetch()) {
+			$numCourses = $row['numCourses'];
+		}
+
+		return ($numCourses == 1); //return true if course exists
+	}
+
 	/* Reads HTML file -> Parses relevant data -> 
 	Returns assoc. array with all data (note that array can vary depending on mode) */
-	private function parseHTML($html, $semesterCode, $mode) {
+	private function parseHTML($html, $semesterData, $mode) {
 
+		$semesterCode = $semesterData['code'];
 		$dom = new Document($html);
 		$dataTable = $dom->find('table.datadisplaytable')[0];
 		$tableRows = $dataTable->find('tr');
@@ -97,19 +243,23 @@ class Scraper extends Mapper {
 			return null;
 		}
 
+		$allData = array();
 		foreach($tableRows as $i => $row) {
 			$cols = $row->find('td');
 			if(count($cols) > 0 && count($cols[0]->find('a')) > 0) {
 
 				$data = array();
 				//Get the basics that need frequent updating
+				$data['semester'] = $semesterData['name'];
+				$data['year'] = $semesterData['year'];
+				$data['instructor'] = trim($cols[12]->text());
 				$crn = trim($cols[0]->find('a')[0]->text());
 				$data['crn'] = $crn;
 				$subj = trim($cols[1]->text());
 				$crse = trim($cols[2]->text());
 				$data['courseNum'] = $subj." ".$crse;
 				$data['section'] = trim($cols[3]->text());
-				$data['days'] = trim($cols[7]->text());
+				$data['days'] = trim(preg_replace('/[^MTWRF]/', '', $cols[7]->text()));
 				$data['time'] = trim($cols[8]->text());
 				$data['cap'] = (int) trim(preg_replace('/[^0-9]/', '', $cols[9]->text()));
 				$data['act'] = (int) trim(preg_replace('/[^0-9]/', '', $cols[10]->text()));
@@ -117,10 +267,19 @@ class Scraper extends Mapper {
 				$data['location'] = trim($cols[14]->text());
 
 				if($mode == "detailed") {
-					$data['campus'] = trim($cols[4]->text());
-					$data['credits'] = (int) trim($cols[5]->text());
+					$campus = trim($cols[4]->text());
+
+					if($data['section'][0] == "L") {
+						$data['type'] = "Lab";
+					} elseif($data['section'][0] == "R") {
+						$data['type'] = "Lecture";
+					} else {
+						$data['type'] = "Unkown";
+					}
+
+					$data['online'] = ($campus == "1" ? false : true);
+					$data['credits'] = trim($cols[5]->text());
 					$data['title'] = trim($cols[6]->text());
-					$data['instructor'] = trim($cols[12]->text());
 					$data['dates'] = trim($cols[13]->text());
 					$data['fee'] = trim($cols[15]->text());
 
@@ -128,23 +287,25 @@ class Scraper extends Mapper {
 					echo $data['courseNum'];
 					if(isset($this->courseDescriptions[$data['courseNum']])) {
 						$extraInfo = $this->courseDescriptions[$data['courseNum']];
-						print_r($extraInfo);
-						echo "<br/>";
+						//print_r($extraInfo);
+						//echo "<br/>";
 						$data = array_merge($data, $extraInfo);
 					} else {
 						$extraInfo = self::getExtraInfo($semesterCode, $subj, $crse, $crn);
-						print_r($extraInfo);
-						echo "<br/>";
+						//print_r($extraInfo);
+						//echo "<br/>";
 						$data = array_merge($data, $extraInfo);
 						echo " ";
 					}
 			
 				}
 
-				//print_r($data);
+				$allData[] = $data;
 			}
 
 		}
+
+		return $allData;
 
 	}
 
@@ -165,15 +326,15 @@ class Scraper extends Mapper {
 		$description = $description[1];
 
 		preg_match("/<b>Lec-Rec-Lab:<\/b> \((\d)-(\d)-(\d)\)<br>/", $html, $labRecLec);
-		$labCredits = $labRecLec[1];
-		$recCredits = $labRecLec[2];
-		$lecCredits = $labRecLec[3];
+		$labCredits = count($labRecLec) > 0 ? $labRecLec[1] : 0;
+		$recCredits = count($labRecLec) > 0 ? $labRecLec[2] : 0;
+		$lecCredits = count($labRecLec) > 0 ? $labRecLec[3] : 0;
 
 		preg_match("/<b>Semesters Offered:<\/b> ([\S\s]+?)<br>/", $html, $semestersOffered);
 		$semestersOffered = $semestersOffered[1];
 
 		preg_match("/<b>Pre-Requisite\(s\):<\/b> ([\S\s]+?)<br> <\/td>/", $html, $preReqs);
-		$preReqs = $preReqs[1];
+		$preReqs = count($preReqs) > 0 ? $preReqs[1] : null;
 		$preReqs = str_replace("and", "&", $preReqs);
 		$preReqs = str_replace("or", "|", $preReqs);
 
@@ -225,19 +386,19 @@ class Scraper extends Mapper {
 			$courseNum = $matches[1];
 			//echo $courseNum." ";
 			$courseDescriptions[$courseNum] = [
-				'title' => $matches[2],
-				'description' => $matches[3],
-				'lecCredits' => $matches[5],
-				'recCredits' => $matches[6],
-				'labCredits' => $matches[7],
-				'semestersOffered' => $matches[8]
+				'title' => trim($matches[2]),
+				'description' => trim($matches[3]),
+				'lecCredits' => (int) $matches[5],
+				'recCredits' => (int) $matches[6],
+				'labCredits' => (int) $matches[7],
+				'semestersOffered' => trim($matches[8])
 			];
 
 			preg_match("/<b>Pre-Requisite\(s\):<\/b> ([\S\s]+?)<br>/", $courseHtml, $matches);
-			$courseDescriptions[$courseNum]['preReqs'] = $matches[1];
+			$courseDescriptions[$courseNum]['preReqs'] = count($matches) > 0 ? $matches[1] : null;
 
 			preg_match("/<b>Restrictions: <\/b>\n([\S\s]+?)<br>/", $courseHtml, $matches);
-			$courseDescriptions[$courseNum]['restrictions'] = $matches[1];
+			$courseDescriptions[$courseNum]['restrictions'] = count($matches) > 0 ? $matches[1] : "";
 		}
 
 		return $courseDescriptions;
@@ -291,10 +452,11 @@ class Scraper extends Mapper {
 			$semesterName = $semesterElement->plaintext;
 			$semesterCode = $semesterElement->value;
 			$semesterYear = explode(" ", $semesterName)[1];
+			$semesterName2 = explode(" ", $semesterName)[0];
 
 			//If semester is within last year, add it to list of semesters to scrape.
 			if($semesterYear >= $earliestYear){
-				$semesterCodeList[] = $semesterCode;
+				$semesterCodeList[] = ['code' => $semesterCode, 'name' => $semesterName2, 'year' => $semesterYear];
 			}
 		}
 

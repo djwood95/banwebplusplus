@@ -138,7 +138,8 @@ $app->get('/getScheduleInfo/{id}', function(Request $request, Response $response
 	return $response->withJson($scheduleInfo);
 });
 
-$app->get('/getPreReqCourseNames/{courseList}', function(Request $request, Response $response, $args) {
+$app->get('/getPreReqCourseNames/[{courseList}]', function(Request $request, Response $response, $args) {
+	if(!isset($args['courseList'])) return $response; //no pre-reqs
 	$courseNumList = explode(",", $args['courseList']);
 	$completedCoursesMapper = new CompletedCoursesMapper($this->db);
 	$courseNamesList = $completedCoursesMapper->getPreReqCourseNames($courseNumList);

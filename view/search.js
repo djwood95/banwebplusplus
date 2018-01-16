@@ -144,17 +144,31 @@ function loadCourseInfo(courseNum) {
 		//Parse pre-req information
 		newHtml += "<b style='text-align:left;'>Pre-Requisites:</b>";
 		newHtml += "<ul style='text-align:left;'>";
-		var allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
+
+		var allReqs = [];
+		var courseNumList;
+		if(info.preReq != null) {
+			allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
 			allReqs = allReqs.replace(/[&|]+/g, ','); //separate all courses by ,
 			allReqs = allReqs.split(","); //split into an array of all courses
+		}
+
+		//Add blank pre-req if necessary
+		if(allReqs.length == 0) {
+			allReqs.push("");
+			newHtml += "<li><i>None</i></li>";
+		}
 
 		courseNumList = allReqs.join();
 
 		$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
 			var courseNamesList = responseTxt;
 
-			var req = info.Prereq.replace(/[()]+/g,'');
+			var req = [];
+			if(info.preReq != null) {
+				req = info.Prereq.replace(/[()]+/g,'');
 				req = req.split("&");
+			}
 
 			for(var i = 0; i < req.length; i++) {
 				var orData = req[i].split("|");
@@ -175,6 +189,8 @@ function loadCourseInfo(courseNum) {
 			}
 
 			newHtml += "</ul>";
+			newHtml += "<br/><br/>";
+			newHtml += "<i style='font-size:.75em;'>Updated "+info.lastModified+"</i>";
 
 			$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
 			infoBoxEventListeners();
