@@ -182,6 +182,8 @@ class Scraper extends Mapper {
 							'year' => $courseData['year']
 						]);
 					} else {
+						// Due to issues with things like CRN not being set in simple mode, insertions only made in detailed mode
+						/*
 						$stmt = $this->db->prepare("INSERT INTO Sections (SectionNum, Days, SectionTime, Location, SectionActual, Capacity, Instructor)
 											VALUES(:section, :days, :time, :location, :act, :cap, :instructor)");
 						$stmt->execute([
@@ -193,6 +195,7 @@ class Scraper extends Mapper {
 							'cap' => $courseData['cap'],
 							'instructor' => $courseData['instructor']
 						]);
+						*/
 					}
 				}
 			}
