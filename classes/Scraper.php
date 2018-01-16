@@ -182,7 +182,7 @@ class Scraper extends Mapper {
 							'year' => $courseData['year']
 						]);
 					} else {
-						$stmt = $this->db->prepare("INSERT INTO Sections (SectionNum, SectionTime, Location, SectionActual, Capacity, Instructor)
+						$stmt = $this->db->prepare("INSERT INTO Sections (SectionNum, Days, SectionTime, Location, SectionActual, Capacity, Instructor)
 											VALUES(:section, :days, :time, :location, :act, :cap, :instructor)");
 						$stmt->execute([
 							'section' => $courseData['section'],

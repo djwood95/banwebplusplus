@@ -147,7 +147,6 @@ class CourseMapper extends Mapper {
 				$results[$courseNum]['Description'] = $row['Description'];
 				$results[$courseNum]['Credits'] = $row['Credits'];
 				$results[$courseNum]['Prereq'] = $row['Prereq'];
-				$results[$courseNum]['Coreq'] = $row['Coreq'];
 				$results[$courseNum]['LectureCredits'] = $row['LectureCredits'];
 				$results[$courseNum]['RecitationCredits'] = $row['RecitationCredits'];
 				$results[$courseNum]['LabCredits'] = $row['LabCredits'];
