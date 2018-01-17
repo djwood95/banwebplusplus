@@ -153,13 +153,13 @@ function loadCourseInfo(courseNum) {
 			allReqs = allReqs.split(","); //split into an array of all courses
 		}
 
+		courseNumList = allReqs.join();
+
 		//Add blank pre-req if necessary
-		if(allReqs.length == 0) {
+		if(courseNumList.length == 0) {
 			allReqs.push("");
 			newHtml += "<li><i>None</i></li>";
 		}
-
-		courseNumList = allReqs.join();
 
 		$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
 			var courseNamesList = responseTxt;
