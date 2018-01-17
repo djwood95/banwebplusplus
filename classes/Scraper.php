@@ -123,7 +123,7 @@ class Scraper extends Mapper {
 					}
 
 					if(self::sectionExists($crn, $courseData['semester'], $courseData['year'])) {
-						$stmt = $this->db->prepare("UPDATE Sections SET CourseNum=:courseNum, SectionNum=:section, Type=:type, Days=:days, SectionTime=:time, Location=:location, SectionActual=:act, Capacity=:cap, Instructor=:instructor, Dates=:dates, Fee=:fee, Online=:online, Credits=:credits WHERE CRN=:crn AND Semester=:semester AND Year=:year");
+						$stmt = $this->db->prepare("UPDATE Sections SET CourseNum=:courseNum, SectionNum=:section, Type=:type, Days=:days, SectionTime=:time, Location=:location, SectionActual=:act, Capacity=:cap, Instructor=:instructor, Dates=:dates, Fee=:fee, Online=:online, Credits=:credits, lastModified=:currentTime WHERE CRN=:crn AND Semester=:semester AND Year=:year");
 						$stmt->execute([
 							'courseNum' => $courseNum,
 							'section' => $courseData['section'],
@@ -140,11 +140,12 @@ class Scraper extends Mapper {
 							'credits' => $courseData['credits'],
 							'crn' => $courseData['crn'],
 							'semester' => $courseData['semester'],
-							'year' => $courseData['year']
+							'year' => $courseData['year'],
+							'currentTime' => date("Y-m-d H:i:s")
 						]);
 					} else {
-						$stmt = $this->db->prepare("INSERT INTO  Sections (CourseNum, SectionNum, Type, Days, SectionTime, Location, SectionActual, Capacity, Instructor, Dates, Fee, Online, Credits, 												   Semester, Year, CRN)
-													VALUES(:courseNum, :section, :type, :days, :time, :location, :act, :cap, :instructor, :dates, :fee, :online, :credits, :semester, :year, :crn)");
+						$stmt = $this->db->prepare("INSERT INTO  Sections (CourseNum, SectionNum, Type, Days, SectionTime, Location, SectionActual, Capacity, Instructor, Dates, Fee, Online, Credits, 												   Semester, Year, CRN, lastModified)
+													VALUES(:courseNum, :section, :type, :days, :time, :location, :act, :cap, :instructor, :dates, :fee, :online, :credits, :semester, :year, :crn, :currentTime)");
 						$stmt->execute([
 							'courseNum' => $courseNum,
 							'section' => $courseData['section'],
@@ -161,14 +162,15 @@ class Scraper extends Mapper {
 							'credits' => $courseData['credits'],
 							'semester' => $courseData['semester'],
 							'year' => $courseData['year'],
-							'crn' => $courseData['crn']
+							'crn' => $courseData['crn'],
+							'currentTime' => date("Y-m-d H:i:s")
 						]);
 					}
 
 				// SIMPLE MODE //
 				} else {
 					if(self::sectionExists($crn, $courseData['semester'], $courseData['year'])) {
-						$stmt = $this->db->prepare("UPDATE Sections SET SectionNum=:section, Days=:days, SectionTime=:time, Location=:location, SectionActual=:act, Capacity=:cap, Instructor=:instructor  WHERE CRN=:crn AND Semester=:semester AND Year=:year");
+						$stmt = $this->db->prepare("UPDATE Sections SET SectionNum=:section, Days=:days, SectionTime=:time, Location=:location, SectionActual=:act, Capacity=:cap, Instructor=:instructor, lastModified=:currentTime  WHERE CRN=:crn AND Semester=:semester AND Year=:year");
 						$stmt->execute([
 							'section' => $courseData['section'],
 							'days' => $courseData['days'],
@@ -179,7 +181,8 @@ class Scraper extends Mapper {
 							'instructor' => $courseData['instructor'],
 							'crn' => $courseData['crn'],
 							'semester' => $courseData['semester'],
-							'year' => $courseData['year']
+							'year' => $courseData['year'],
+							'currentTime' => date("Y-m-d H:i:s")
 						]);
 					} else {
 						// Due to issues with things like CRN not being set in simple mode, insertions only made in detailed mode
