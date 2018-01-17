@@ -26,6 +26,7 @@ class Scraper extends Mapper {
 		if($subject == "all") {
 			foreach($semesterList as $semesterData) {
 				foreach($this->subjects as $subject) {
+					echo $semesterData['name']." ".$semesterData['year']." | $subject | $mode<br/>";
 					self::scrapeSemester($semesterData, $subject, $mode);
 				}
 			}
@@ -79,6 +80,7 @@ class Scraper extends Mapper {
       } else {
         //Parse the HTML
 		$data = self::parseHTML($response, $semesterData, $mode);
+		print_r($data);
 		echo "<hr/>";
 		self::updateDatabase($data, $mode);
       }
@@ -242,8 +244,6 @@ class Scraper extends Mapper {
 		$dataTable = $dom->find('table.datadisplaytable')[0];
 		$tableRows = $dataTable->find('tr');
 
-		echo "Number of Rows: " . count($tableRows) . "\n";
-
 		// Stop if no info found to prevent errors later on
 		if(strpos($html, "No classes were found that meet your search criteria") !== false) {
 			return null;
@@ -252,28 +252,28 @@ class Scraper extends Mapper {
 		$allData = array();
 		foreach($tableRows as $i => $row) {
 			$cols = $row->find('td');
-			if(count($cols) == 15 && count($cols[0]->find('a')) > 0) {
+			if(count($cols) == 16 && count($cols[0]->find('a')) > 0) {
 
 				$data = array();
-				echo "<b>".count($cols)."</b><br/><br/>";
+				//echo "<b>".count($cols)."</b><br/><br/>";
 				//Get the basics that need frequent updating
 				//print_r($cols);
 				//echo "<br/><br/>";
 				$data['semester'] = $semesterData['name'];
 				$data['year'] = $semesterData['year'];
-				$data['instructor'] = $cols[12] == null ? "" : trim($cols[12]->text());
-				$crn = $cols[0] == null ? "" : trim($cols[0]->find('a')[0]->text());
+				$data['instructor'] = trim($cols[12]->text());
+				$crn = trim($cols[0]->find('a')[0]->text());
 				$data['crn'] = $crn;
-				$subj = $cols[1] == null ? "" : trim($cols[1]->text());
-				$crse = $cols[2] == null ? "" : trim($cols[2]->text());
+				$subj = trim($cols[1]->text());
+				$crse = trim($cols[2]->text());
 				$data['courseNum'] = $subj." ".$crse;
-				$data['section'] = $cols[3] == null ? "" : trim($cols[3]->text());
-				$data['days'] = $cols[7] == null ? "" : trim(preg_replace('/[^MTWRF]/', '', $cols[7]->text()));
-				$data['time'] = $cols[8] == null ? "" : trim($cols[8]->text());
-				$data['cap'] = $cols[9] == null ? "" : (int) trim(preg_replace('/[^0-9]/', '', $cols[9]->text()));
-				$data['act'] = $cols[10] == null ? "" : (int) trim(preg_replace('/[^0-9]/', '', $cols[10]->text()));
+				$data['section'] = trim($cols[3]->text());
+				$data['days'] = trim(preg_replace('/[^MTWRF]/', '', $cols[7]->text()));
+				$data['time'] = trim($cols[8]->text());
+				$data['cap'] = (int) trim(preg_replace('/[^0-9]/', '', $cols[9]->text()));
+				$data['act'] = (int) trim(preg_replace('/[^0-9]/', '', $cols[10]->text()));
 				//$rem = (int) trim(preg_replace('/[^0-9]/', '', $cols[11]->text())); (not necessary so ignored)
-				$data['location'] = $cols[14] == null ? "" : trim($cols[14]->text());
+				$data['location'] = trim($cols[14]->text());
 
 				if($mode == "detailed") {
 
@@ -285,12 +285,12 @@ class Scraper extends Mapper {
 						$data['type'] = "Unkown";
 					}
 
-					$campus = $cols[4] == null ? "" : trim($cols[4]->text());
+					$campus = trim($cols[4]->text());
 					$data['online'] = ($campus == "1" ? 0 : 1);
-					$data['credits'] = $cols[5] == null ? "" : trim($cols[5]->text());
-					$data['title'] = $cols[6] == null ? "" : trim($cols[6]->text());
-					$data['dates'] = $cols[13] == null ? "" : trim($cols[13]->text());
-					$data['fee'] = $cols[15] == null ? "" : trim($cols[15]->text());
+					$data['credits'] = trim($cols[5]->text());
+					$data['title'] = trim($cols[6]->text());
+					$data['dates'] = trim($cols[13]->text());
+					$data['fee'] = trim($cols[15]->text());
 
 					// If course description has not been retrieved, get it from banweb
 					if(isset($this->courseDescriptions[$data['courseNum']])) {
@@ -303,7 +303,7 @@ class Scraper extends Mapper {
 						//print_r($extraInfo);
 						//echo "<br/>";
 						$data = array_merge($data, $extraInfo);
-						echo " ";
+						//echo " ";
 					}
 			
 				}
