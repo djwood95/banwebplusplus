@@ -252,28 +252,30 @@ class Scraper extends Mapper {
 		$allData = array();
 		foreach($tableRows as $i => $row) {
 			$cols = $row->find('td');
-			if(count($cols) > 0 && count($cols[0]->find('a')) > 0) {
+			if(count($cols) == 15 && count($cols[0]->find('a')) > 0) {
 
 				$data = array();
+				echo "<b>".count($cols)."</b><br/><br/>";
 				//Get the basics that need frequent updating
+				//print_r($cols);
+				//echo "<br/><br/>";
 				$data['semester'] = $semesterData['name'];
 				$data['year'] = $semesterData['year'];
-				$data['instructor'] = trim($cols[12]->text());
-				$crn = trim($cols[0]->find('a')[0]->text());
+				$data['instructor'] = $cols[12] == null ? "" : trim($cols[12]->text());
+				$crn = $cols[0] == null ? "" : trim($cols[0]->find('a')[0]->text());
 				$data['crn'] = $crn;
-				$subj = trim($cols[1]->text());
-				$crse = trim($cols[2]->text());
+				$subj = $cols[1] == null ? "" : trim($cols[1]->text());
+				$crse = $cols[2] == null ? "" : trim($cols[2]->text());
 				$data['courseNum'] = $subj." ".$crse;
-				$data['section'] = trim($cols[3]->text());
-				$data['days'] = trim(preg_replace('/[^MTWRF]/', '', $cols[7]->text()));
-				$data['time'] = trim($cols[8]->text());
-				$data['cap'] = (int) trim(preg_replace('/[^0-9]/', '', $cols[9]->text()));
-				$data['act'] = (int) trim(preg_replace('/[^0-9]/', '', $cols[10]->text()));
+				$data['section'] = $cols[3] == null ? "" : trim($cols[3]->text());
+				$data['days'] = $cols[7] == null ? "" : trim(preg_replace('/[^MTWRF]/', '', $cols[7]->text()));
+				$data['time'] = $cols[8] == null ? "" : trim($cols[8]->text());
+				$data['cap'] = $cols[9] == null ? "" : (int) trim(preg_replace('/[^0-9]/', '', $cols[9]->text()));
+				$data['act'] = $cols[10] == null ? "" : (int) trim(preg_replace('/[^0-9]/', '', $cols[10]->text()));
 				//$rem = (int) trim(preg_replace('/[^0-9]/', '', $cols[11]->text())); (not necessary so ignored)
-				$data['location'] = trim($cols[14]->text());
+				$data['location'] = $cols[14] == null ? "" : trim($cols[14]->text());
 
 				if($mode == "detailed") {
-					$campus = trim($cols[4]->text());
 
 					if($data['section'][0] == "L") {
 						$data['type'] = "Lab";
@@ -283,14 +285,14 @@ class Scraper extends Mapper {
 						$data['type'] = "Unkown";
 					}
 
+					$campus = $cols[4] == null ? "" : trim($cols[4]->text());
 					$data['online'] = ($campus == "1" ? 0 : 1);
-					$data['credits'] = trim($cols[5]->text());
-					$data['title'] = trim($cols[6]->text());
-					$data['dates'] = trim($cols[13]->text());
-					$data['fee'] = trim($cols[15]->text());
+					$data['credits'] = $cols[5] == null ? "" : trim($cols[5]->text());
+					$data['title'] = $cols[6] == null ? "" : trim($cols[6]->text());
+					$data['dates'] = $cols[13] == null ? "" : trim($cols[13]->text());
+					$data['fee'] = $cols[15] == null ? "" : trim($cols[15]->text());
 
 					// If course description has not been retrieved, get it from banweb
-					echo $data['courseNum'];
 					if(isset($this->courseDescriptions[$data['courseNum']])) {
 						$extraInfo = $this->courseDescriptions[$data['courseNum']];
 						//print_r($extraInfo);
