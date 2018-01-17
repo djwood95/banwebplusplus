@@ -147,7 +147,7 @@ function loadCourseInfo(courseNum) {
 
 		var allReqs = [];
 		//var courseNumList;
-		if(info.preReq != null) {
+		if(info.Prereq != null) {
 			allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
 			allReqs = allReqs.replace(/[&|]+/g, ','); //separate all courses by ,
 			allReqs = allReqs.split(","); //split into an array of all courses
