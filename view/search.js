@@ -146,7 +146,7 @@ function loadCourseInfo(courseNum) {
 		newHtml += "<ul style='text-align:left;'>";
 
 		var allReqs = [];
-		var courseNumList;
+		//var courseNumList;
 		if(info.preReq != null) {
 			allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
 			allReqs = allReqs.replace(/[&|]+/g, ','); //separate all courses by ,
