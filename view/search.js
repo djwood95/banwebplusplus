@@ -165,7 +165,7 @@ function loadCourseInfo(courseNum) {
 			var courseNamesList = responseTxt;
 
 			var req = [];
-			if(info.preReq != null) {
+			if(info.Prereq != null) {
 				req = info.Prereq.replace(/[()]+/g,'');
 				req = req.split("&");
 			}
