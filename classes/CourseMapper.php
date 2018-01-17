@@ -128,9 +128,9 @@ class CourseMapper extends Mapper {
 	public function getCourseInfo($courseNum, $semester) {
 		$semesterName = explode(" ", $semester)[0];
 		$semesterYear = explode(" ", $semester)[1];
-		$stmt = $this->db->prepare("SELECT s.*, c.*, s.timestamp AS lastModified FROM Courses c JOIN Sections s ON c.CourseNum = s.CourseNum
+		$stmt = $this->db->prepare("SELECT s.*, c.* FROM Courses c JOIN Sections s ON c.CourseNum = s.CourseNum
 									WHERE c.CourseNum=:courseNum AND s.Semester=:semesterName AND s.Year=:semesterYear
-									ORDER BY s.timestamp DESC");
+									ORDER BY s.lastModified DESC");
 		$stmt->execute([
 			'courseNum' => $courseNum,
 			'semesterName' => $semesterName,
