@@ -18,6 +18,7 @@ class Scraper extends Mapper {
 
 	public function updateSections($subject, $mode) {
 
+		$semesterList = self::getAvailableSemesters();
 		if($mode == "detailed") $this->courseDescriptions = self::getCourseDescriptions();
 		//print_r($this->courseDescriptions);
 
