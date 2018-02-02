@@ -14,7 +14,7 @@ $(document).ready(function(){
 
 /**
  * Check backend if user is signed in
- */
+ */ 
 function signInSuccess(name) {
 	//check backend
 	$.get('/public/isLoggedIn', function(responseTxt) {
