@@ -119,6 +119,7 @@ const buildingNames = [];
  */
 function loadCourseInfo(courseNum) {
 	var newHtml = "";
+	$('.courseInfoBox>.modal-dialog>.modal-content').html("LOADING...");
 	var semester = $('#semester').val();
 	$.get('/public/getCourseInfo/' +semester + "/" + courseNum, function(responseTxt) {
 
