@@ -116,7 +116,7 @@ const buildingNames = [];
 
 /**
  * Gets course info from server and puts it into course info pop-up box
- */
+ */ 
 function loadCourseInfo(courseNum) {
 	var newHtml = "";
 	$('.courseInfoBox>.modal-dialog>.modal-content').html("LOADING...");
