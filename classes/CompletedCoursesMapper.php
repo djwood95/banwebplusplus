@@ -79,6 +79,7 @@ class CompletedCoursesMapper extends Mapper {
 
         $stmt = $this->db->prepare("SELECT CourseName FROM Courses WHERE CourseNum=:courseNum");
         foreach($courseList as $courseNum) {
+            $courseNum = trim($courseNum);
             if(substr($courseNum, -1) == 'C'){
                 $coReq = " (Can be taken at same time)";
                 $courseNum = substr($courseNum, 0, -1);

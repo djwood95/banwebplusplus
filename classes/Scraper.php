@@ -343,8 +343,8 @@ class Scraper extends Mapper {
 
 		preg_match("/<b>Pre-Requisite\(s\):<\/b> ([\S\s]+?)<br> <\/td>/", $html, $preReqs);
 		$preReqs = count($preReqs) > 0 ? $preReqs[1] : null;
-		$preReqs = str_replace("and", "&", $preReqs);
-		$preReqs = str_replace("or", "|", $preReqs);
+		$preReqs = str_replace(" and ", "&", $preReqs);
+		$preReqs = str_replace(" or ", "|", $preReqs);
 
 		preg_match("/<b>Restrictions: <\/b>([\S\s]+?)(?><br>|<\/td>)/", $html, $rescrictions);
 		$restrictions = $rescrictions[1];
@@ -403,7 +403,10 @@ class Scraper extends Mapper {
 			];
 
 			preg_match("/<b>Pre-Requisite\(s\):<\/b> ([\S\s]+?)<br>/", $courseHtml, $matches);
-			$courseDescriptions[$courseNum]['preReqs'] = count($matches) > 0 ? $matches[1] : null;
+			$preReqs = count($matches) > 0 ? $matches[1] : null;
+			$preReqs = str_replace(" and ", "&", $preReqs);
+			$preReqs = str_replace(" or ", "|", $preReqs);
+			$courseDescriptions[$courseNum]['preReqs'] = $preReqs;
 
 			preg_match("/<b>Restrictions: <\/b>\n([\S\s]+?)<br>/", $courseHtml, $matches);
 			$courseDescriptions[$courseNum]['restrictions'] = count($matches) > 0 ? $matches[1] : "";

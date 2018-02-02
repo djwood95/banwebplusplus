@@ -35,11 +35,14 @@ function getAvailableSemesters() {
 	$.get('/public/getAvailableSemesters', function(responseTxt) {
 		var semesterList = responseTxt;
 		$.each(semesterList, function (i, semesterName) {
-		    $('#semester').append($('<option>', { 
-		        value: semesterName,
-		        text : semesterName 
-		    }));
+			$('#semester').append($('<option>', { 
+				value: semesterName,
+				text : semesterName 
+			}));
 		});
+	}).fail(function(e) {
+		showDangerAlert("There was a problem loading semester list.");
+		console.log(e);
 	});
 }
 
@@ -163,29 +166,35 @@ function loadCourseInfo(courseNum) {
 
 		$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
 			var courseNamesList = responseTxt;
+			console.log('/public/getPreReqCourseNames/'+courseNumList);
 
-			var req = [];
-			if(info.Prereq != null) {
-				req = info.Prereq.replace(/[()]+/g,'');
-				req = req.split("&");
-			}
-
-			for(var i = 0; i < req.length; i++) {
-				var orData = req[i].split("|");
-				newHtml += "<li>";
-
-				for(var j = 0; j < orData.length; j++) {
-					var completedColor = "";
-					if(courseNamesList[j].isComplete) {
-						completedColor = "green";
-					}else{
-						completedColor = "red";
-					}
-
-					newHtml += "<span data-toggle='tooltip' style='color:"+completedColor+"' data-placement='top' title='"+courseNamesList[j].courseName+"'>"+orData[j]+"</span>";
-					if(j+1 < orData.length) newHtml += " OR ";
+			try {
+				var req = [];
+				if(info.Prereq != null && info.Prereq != "") {
+					req = info.Prereq.replace(/[()]+/g,'');
+					req = req.split("&");
 				}
-				newHtml += "</li>";
+
+				for(var i = 0; i < req.length; i++) {
+					var orData = req[i].split("|");
+					newHtml += "<li>";
+
+					for(var j = 0; j < orData.length; j++) {
+						var completedColor = "";
+						if(courseNamesList[j].isComplete) {
+							completedColor = "green";
+						}else{
+							completedColor = "red";
+						}
+
+						newHtml += "<span data-toggle='tooltip' style='color:"+completedColor+"' data-placement='top' title='"+courseNamesList[j].courseName+"'>"+orData[j]+"</span>";
+						if(j+1 < orData.length) newHtml += " OR ";
+					}
+					newHtml += "</li>";
+				}
+			} catch(error) {
+				console.log(error);
+				newHtml += "<li>Unable to fetch Pre-Requisites.</li>";
 			}
 
 			newHtml += "</ul>";
@@ -194,6 +203,9 @@ function loadCourseInfo(courseNum) {
 
 			$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
 			infoBoxEventListeners();
+		}).fail(function(e) {
+			$('.courseInfoBox>.modal-dialog>.modal-content').html("Sorry, there was a problem loading the course information.");
+			console.log(e);
 		});
 	});
 }

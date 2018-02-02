@@ -187,5 +187,23 @@
       onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
 
+
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+    var sc_project=11617823; 
+    var sc_invisible=1; 
+    var sc_security="c739cb3e"; 
+    var scJsHost = (("https:" == document.location.protocol) ?
+    "https://secure." : "http://www.");
+    </script>
+    <script type="text/javascript"
+    src="https://www.statcounter.com/counter/counter.js"
+    async></script>
+    <noscript><div class="statcounter"><a title="website
+    statistics" href="http://statcounter.com/"
+    target="_blank"><img class="statcounter"
+    src="//c.statcounter.com/11617823/0/c739cb3e/1/"
+    alt="website statistics"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
   </body>
 </html>
