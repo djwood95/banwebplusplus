@@ -13,12 +13,10 @@ class Scraper extends Mapper {
 	
 	private $courseDescriptions;
 	private $subjects = ['ACC', 'AF', 'AR', 'ATM', 'BMB', 'BL', 'BE', 'BUS', 'BA', 'CM', 'CH', 'CEE', 'CSE', 'CS', 'CMG', 'EC', 'ED', 'EE', 'EET', 'ENG', 'ESL', 'ENT', 'FIN', 'FW', 'GE', 'HU', 'EH', 'MGT', 'MIS', 'MKT', 'MY', 'MA', 'MEEM', 'MET', 'OSM', 'HON', 'PE', 'PH', 'PSY', 'SA', 'SS', 'SU', 'SAT', 'TE', 'UN', 'FA'];
-
+	private $firstSubjects = ['ACC', 'AF', 'AR', 'ATM', 'BMB', 'BL', 'BE', 'BUS', 'BA', 'CM', 'CH', 'CEE', 'CSE', 'CS', 'CMG', 'EC', 'ED', 'EE', 'EET', 'ENG', 'ESL', 'ENT', 'FIN'];
+	private $lastSubjects  = ['FW', 'GE', 'HU', 'EH', 'MGT', 'MIS', 'MKT', 'MY', 'MA', 'MEEM', 'MET', 'OSM', 'HON', 'PE', 'PH', 'PSY', 'SA', 'SS', 'SU', 'SAT', 'TE', 'UN', 'FA'];
 
 	public function updateSections($subject, $mode) {
-
-		$semesterList = self::getAvailableSemesters();
-		$startMemory = memory_get_usage();
 
 		if($mode == "detailed") $this->courseDescriptions = self::getCourseDescriptions();
 		//print_r($this->courseDescriptions);
@@ -30,14 +28,26 @@ class Scraper extends Mapper {
 					self::scrapeSemester($semesterData, $subject, $mode);
 				}
 			}
+		} elseif($subject == "firstHalf") {
+			foreach($semesterList as $semesterData) {
+				foreach($this->firstSubjects as $subject) {
+					echo $semesterData['name']." ".$semesterData['year']." | $subject | $mode<br/>";
+					self::scrapeSemester($semesterData, $subject, $mode);
+				}
+			}
+		} elseif($subject == "lastHalf") {
+			foreach($semesterList as $semesterData) {
+				foreach($this->lastSubjects as $subject) {
+					echo $semesterData['name']." ".$semesterData['year']." | $subject | $mode<br/>";
+					self::scrapeSemester($semesterData, $subject, $mode);
+				}
+			}
 		} else {
 			foreach($semesterList as $semesterData) {
 				self::scrapeSemester($semesterData, $subject, $mode);
 			}
 		}
 
-		$memory = memory_get_usage() - $startMemory;
-		echo $memory/1000 . " kb";
 	}
  
 

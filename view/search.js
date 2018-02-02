@@ -123,6 +123,7 @@ function loadCourseInfo(courseNum) {
 	var semester = $('#semester').val();
 	$.get('/public/getCourseInfo/' +semester + "/" + courseNum, function(responseTxt) {
 
+		console.log(responseTxt);
 		var info = responseTxt[courseNum];
 		newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
 		newHtml += info.Credits + " Credits (" + info.LectureCredits + " Lec/" + info.RecitationCredits + " Rec/" + info.LabCredits + " Lab) | ";
