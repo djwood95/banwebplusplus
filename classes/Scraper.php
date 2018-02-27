@@ -336,59 +336,63 @@ class Scraper extends Mapper {
 		if(strpos($html, "No classes were found that meet your search criteria") !== false) {
 			return null;
 		}
-
-		$dom = HtmlDomParser::str_get_html( $html );
-		$dataTable = $dom->find('table.datadisplaytable')[0];
-		$html = $dataTable->find('tr',0)->find('td',0);
-
-		preg_match("/<td class=\"dddefault\"> <b>[\S\s]+<\/b><br> ([\S\s]+?)<br>/", $html, $description);
-		$description = $description[1];
-
-		preg_match("/<b>Lec-Rec-Lab:<\/b> \((\d)-(\d)-(\d)\)<br>/", $html, $labRecLec);
-		$labCredits = count($labRecLec) > 0 ? $labRecLec[1] : 0;
-		$recCredits = count($labRecLec) > 0 ? $labRecLec[2] : 0;
-		$lecCredits = count($labRecLec) > 0 ? $labRecLec[3] : 0;
-
-		preg_match("/<b>Semesters Offered:<\/b> ([\S\s]+?)<br>/", $html, $semestersOffered);
-		$semestersOffered = $semestersOffered[1];
-
-		preg_match("/<b>Pre-Requisite\(s\):<\/b> ([\S\s]+?)<br> <\/td>/", $html, $preReqs);
-		$preReqs = count($preReqs) > 0 ? $preReqs[1] : null;
-		$preReqs = str_replace(" and ", "&", $preReqs);
-		$preReqs = str_replace(" or ", "|", $preReqs);
-
-		preg_match("/<b>Restrictions: <\/b>([\S\s]+?)(?><br>|<\/td>)/", $html, $rescrictions);
-		$restrictions = $rescrictions[1];
-
 		
-		/*
-		$topItems = explode("<br>", $html);
-		
-		$description = trim($topItems[1]);
+		try {
+			$dom = HtmlDomParser::str_get_html( $html );
+			$dataTable = $dom->find('table.datadisplaytable')[0];
+			$html = $dataTable->find('tr',0)->find('td',0);
 
-		$labRecLec = trim(explode("</b>", $topItems[3])[1]);
-		$labRecLec = explode("-", $labRecLec);
-		$labCredits = trim(str_replace("(", "", $labRecLec[0]));
-		$recCredits = trim($labRecLec[1]);
-		$lecCredits = trim(str_replace(")", "", $labRecLec[2]));
+			preg_match("/<td class=\"dddefault\"> <b>[\S\s]+<\/b><br> ([\S\s]+?)<br>/", $html, $description);
+			$description = $description[1];
 
-		$semestersOffered = trim(explode("</b>", $topItems[4])[1]);
+			preg_match("/<b>Lec-Rec-Lab:<\/b> \((\d)-(\d)-(\d)\)<br>/", $html, $labRecLec);
+			$labCredits = count($labRecLec) > 0 ? $labRecLec[1] : 0;
+			$recCredits = count($labRecLec) > 0 ? $labRecLec[2] : 0;
+			$lecCredits = count($labRecLec) > 0 ? $labRecLec[3] : 0;
 
-		$preReqs = trim(explode("</b>", $topItems[5])[1]);
-		$preReqs = str_replace(" or ", "|", $preReqs);
-		$preReqs = str_replace(" and ", "&", $preReqs);
-		$preReqs = str_replace(" </td>", "", $preReqs);
-		*/
+			preg_match("/<b>Semesters Offered:<\/b> ([\S\s]+?)<br>/", $html, $semestersOffered);
+			$semestersOffered = $semestersOffered[1];
 
-		$data = [
-			'description' => $description,
-			'labCredits' => $labCredits,
-			'recCredits' => $recCredits,
-			'lecCredits' => $lecCredits,
-			'preReqs' => $preReqs,
-			'restrictions' => $restrictions,
-			'semestersOffered' => $semestersOffered
-		];
+			preg_match("/<b>Pre-Requisite\(s\):<\/b> ([\S\s]+?)<br> <\/td>/", $html, $preReqs);
+			$preReqs = count($preReqs) > 0 ? $preReqs[1] : null;
+			$preReqs = str_replace(" and ", "&", $preReqs);
+			$preReqs = str_replace(" or ", "|", $preReqs);
+
+			preg_match("/<b>Restrictions: <\/b>([\S\s]+?)(?><br>|<\/td>)/", $html, $rescrictions);
+			$restrictions = $rescrictions[1];
+
+			
+			/*
+			$topItems = explode("<br>", $html);
+			
+			$description = trim($topItems[1]);
+
+			$labRecLec = trim(explode("</b>", $topItems[3])[1]);
+			$labRecLec = explode("-", $labRecLec);
+			$labCredits = trim(str_replace("(", "", $labRecLec[0]));
+			$recCredits = trim($labRecLec[1]);
+			$lecCredits = trim(str_replace(")", "", $labRecLec[2]));
+
+			$semestersOffered = trim(explode("</b>", $topItems[4])[1]);
+
+			$preReqs = trim(explode("</b>", $topItems[5])[1]);
+			$preReqs = str_replace(" or ", "|", $preReqs);
+			$preReqs = str_replace(" and ", "&", $preReqs);
+			$preReqs = str_replace(" </td>", "", $preReqs);
+			*/
+
+			$data = [
+				'description' => $description,
+				'labCredits' => $labCredits,
+				'recCredits' => $recCredits,
+				'lecCredits' => $lecCredits,
+				'preReqs' => $preReqs,
+				'restrictions' => $restrictions,
+				'semestersOffered' => $semestersOffered
+			];
+		} catch(Exception $e) {
+			$data = [];
+		}
 
 		return $data;
 	}

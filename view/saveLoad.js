@@ -40,9 +40,11 @@ function loadSchedulesList() {
     $.get('/public/getScheduleList', function(responseTxt) {
         var newHtml = "<h1>Select a Schedule to Open:</h1>";
 
-        newHtml += "<div class='list-group'>"
+        newHtml += "<div class='list-group'>";
+        var semester;
         $.each(responseTxt, function(i, data) {
-            newHtml += "<a href='#' class='list-group-item list-group-item-action' onclick=\"openSchedule('"+data.id+"', '"+data.ScheduleName+"')\">";
+            semester = data.Semester + " " + data.ScheduleYear;
+            newHtml += "<a href='#' class='list-group-item list-group-item-action' onclick=\"openSchedule('"+data.id+"', '"+data.ScheduleName+"', '"+semester+"')\">";
                 newHtml += "<b>"+data.ScheduleName+"</b> "+data.Semester+" "+data.ScheduleYear;
             newHtml += "</a>";
         });
@@ -52,7 +54,7 @@ function loadSchedulesList() {
     });
 }
 
-function openSchedule(id, name) {
+function openSchedule(id, name, semester) {
     clearCalendar();
     $.get('/public/openSchedule/'+id, function(responseTxt) {
         $.each(responseTxt, function(i, course) {
@@ -61,7 +63,8 @@ function openSchedule(id, name) {
         });
         $('.openScheduleBox').modal('hide');
         currentScheduleId = id;
-        $('#currentScheduleName').text("Currently Editing " + name);
+        $('#currentScheduleName').html("Currently Editing " + name + " <i>(Auto-saves when modified)</i>");
+        $('#semester').val(semester);
         listenForSearchClickEvents();
     });
 }

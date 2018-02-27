@@ -121,49 +121,57 @@ function loadCourseInfo(courseNum) {
 	var newHtml = "";
 	$('.courseInfoBox>.modal-dialog>.modal-content').html("LOADING...");
 	var semester = $('#semester').val();
+	console.log("Load Course Info: " + semester + " " + courseNum);
 	$.get('/public/getCourseInfo/' +semester + "/" + courseNum, function(responseTxt) {
 
 		console.log(responseTxt);
 		var info = responseTxt[courseNum];
-		newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
-		newHtml += info.Credits + " Credits (" + info.LectureCredits + " Lec/" + info.RecitationCredits + " Rec/" + info.LabCredits + " Lab) | ";
-		newHtml += "Offered " + info.SemestersOffered + " Semesters<br/>";
-		newHtml += "<hr/>";
-		newHtml += info.Description + "<br/><br/>";
+		
+		try {
+			newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
+			newHtml += info.Credits + " Credits (" + info.LectureCredits + " Lec/" + info.RecitationCredits + " Rec/" + info.LabCredits + " Lab) | ";
+			newHtml += "Offered " + info.SemestersOffered + " Semesters<br/>";
+			newHtml += "<hr/>";
+			newHtml += info.Description + "<br/><br/>";
 
-		newHtml += "<h3>Sections</h3>";
-		$.each(info.SectionInfo, function(CRN, sectionInfo){
-			newHtml += "<p>" + sectionInfo.Semester + " " + sectionInfo.SectionNum + " " + CRN + ": " + sectionInfo.Days + " " + sectionInfo.SectionTime;
-			newHtml += " " + locationText(sectionInfo.Location, 'html');
-			newHtml += " - " + sectionInfo.Instructor + " ";
-			var badgeColor = getBadgeColor(sectionInfo.Capacity - sectionInfo.SectionActual);
-			newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Filled Slots'>";
-				newHtml += sectionInfo.SectionActual + "/" + sectionInfo.Capacity;
-			newHtml += "</span>";
-			newHtml += "</p>";
-		});
+			newHtml += "<h3>Sections</h3>";
+			$.each(info.SectionInfo, function(CRN, sectionInfo){
+				newHtml += "<p>" + sectionInfo.Semester + " " + sectionInfo.SectionNum + " " + CRN + ": " + sectionInfo.Days + " " + sectionInfo.SectionTime;
+				newHtml += " " + locationText(sectionInfo.Location, 'html');
+				newHtml += " - " + sectionInfo.Instructor + " ";
+				var badgeColor = getBadgeColor(sectionInfo.Capacity - sectionInfo.SectionActual);
+				newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Filled Slots'>";
+					newHtml += sectionInfo.SectionActual + "/" + sectionInfo.Capacity;
+				newHtml += "</span>";
+				newHtml += "</p>";
+			});
 
-		newHtml += "<h3>Restrictions</h3>";
-		if(info.Restrictions != null) newHtml += info.Restrictions + "<br/><br/>";
+			newHtml += "<h3>Restrictions</h3>";
+			if(info.Restrictions != null) newHtml += info.Restrictions + "<br/><br/>";
 
-		//Parse pre-req information
-		newHtml += "<b style='text-align:left;'>Pre-Requisites:</b>";
-		newHtml += "<ul style='text-align:left;'>";
+			//Parse pre-req information
+			newHtml += "<b style='text-align:left;'>Pre-Requisites:</b>";
+			newHtml += "<ul style='text-align:left;'>";
 
-		var allReqs = [];
-		//var courseNumList;
-		if(info.Prereq != null) {
-			allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
-			allReqs = allReqs.replace(/[&|]+/g, ','); //separate all courses by ,
-			allReqs = allReqs.split(","); //split into an array of all courses
-		}
+			var allReqs = [];
+			//var courseNumList;
+			if(info.Prereq != null) {
+				allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
+				allReqs = allReqs.replace(/[&|]+/g, ','); //separate all courses by ,
+				allReqs = allReqs.split(","); //split into an array of all courses
+			}
 
-		courseNumList = allReqs.join();
+			courseNumList = allReqs.join();
 
-		//Add blank pre-req if necessary
-		if(courseNumList.length == 0) {
-			allReqs.push("");
-			newHtml += "<li><i>None</i></li>";
+			//Add blank pre-req if necessary
+			if(courseNumList.length == 0) {
+				allReqs.push("");
+				newHtml += "<li><i>None</i></li>";
+			}
+		} catch(error) {
+			console.log(error);
+			$('.courseInfoBox>.modal-dialog>.modal-content').html("Sorry, there was a problem loading the course information.");
+			return;
 		}
 
 		$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
