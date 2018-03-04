@@ -80,6 +80,13 @@ function addCourseToCalendar(crn, courseNum) {
 			$('td.'+day+'-'+startTimeH+'00'+startTimeAP+'>.tdWrapper').append(newHTML);
 		});
 
+		/* No credits for labs! */
+		if(data.SectionNum.charAt(0) == "L"){
+			credits = 0;
+		}else{
+			credits = parseInt(data.Credits);
+		}
+
 		var Course = {
 			'crn': crn,
 			'courseNum': courseNum,
@@ -92,7 +99,7 @@ function addCourseToCalendar(crn, courseNum) {
 			'startTimeMin': startTimeMin,
 			'duration': duration,
 			'days': days,
-			'credits': data.Credits
+			'credits': credits
 		}
 
 		//Add to "Added Courses" list
@@ -100,16 +107,17 @@ function addCourseToCalendar(crn, courseNum) {
 					data-courseNum='`+course+`' data-section='`+section+`'>`;
 			newHtml += `<p data-courseNum='`+course+`' data-section='`+section+`' data-toggle='modal' data-target='.courseInfoBox' data-coursenum='`+courseNum+`'>`;
 			newHtml += course+": "+data.CourseName+" "+data.SectionNum+"</p>";
-			newHtml += data.Credits + " Credits";
+			newHtml += credits + " Credits";
 			newHtml += `<a href='#' class='badge badge-danger ml-1 removeBtn float-right'
-							data-crn='`+data.CRN+`' data-credits='`+data.Credits+`' data-toggle='tooltip' title='Remove this section from your calendar' data-placement='top'>REMOVE</a>`;
+							data-crn='`+data.CRN+`' data-credits='`+credits+`' data-toggle='tooltip' title='Remove this section from your calendar' data-placement='top'>REMOVE</a>`;
 		newHtml += "</li>";
 
 		$('#coursesAddedList').append(newHtml);
 
 		courseList.push(Course);
 
-		creditCount += parseInt(data.Credits);
+		creditCount += credits;
+
 		$('#creditCount').text(creditCount);
 		$('#classCount').text(courseList.length);
 

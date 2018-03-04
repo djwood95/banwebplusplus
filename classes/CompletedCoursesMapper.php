@@ -38,7 +38,7 @@ class CompletedCoursesMapper extends Mapper {
     }
 
     private function isCompleted($courseNum) {
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM completedcourses WHERE CourseNum=:courseNum AND GoogleId=:userId");
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM CompletedCourses WHERE CourseNum=:courseNum AND GoogleId=:userId");
         $stmt->execute([
             'courseNum' => $courseNum,
             'userId' => $_SESSION['userId']
@@ -50,7 +50,7 @@ class CompletedCoursesMapper extends Mapper {
     }
 
     public function markComplete($courseNum, $subject) {
-        $stmt = $this->db->prepare("INSERT INTO completedcourses (GoogleId, Subject, CourseNum) VALUES (:userId, :subject, :courseNum)");
+        $stmt = $this->db->prepare("INSERT INTO CompletedCourses (GoogleId, Subject, CourseNum) VALUES (:userId, :subject, :courseNum)");
         $stmt->execute([
             'userId' => $_SESSION['userId'],
             'subject' => $subject,
@@ -63,7 +63,7 @@ class CompletedCoursesMapper extends Mapper {
     }
 
     public function markIncomplete($courseNum) {
-        $stmt = $this->db->prepare("DELETE FROM completedcourses WHERE GoogleId=:userId AND CourseNum=:courseNum");
+        $stmt = $this->db->prepare("DELETE FROM CompletedCourses WHERE GoogleId=:userId AND CourseNum=:courseNum");
         $stmt->execute([
             'courseNum' => $courseNum,
             'userId' => $_SESSION['userId']
@@ -77,16 +77,38 @@ class CompletedCoursesMapper extends Mapper {
     public function getPreReqCourseNames($courseList) {
         $courseNamesList = [];
 
-        $stmt = $this->db->prepare("SELECT CourseName FROM courses WHERE CourseNum=:courseNum");
+        $stmt = $this->db->prepare("SELECT CourseName FROM Courses WHERE CourseNum=:courseNum");
         foreach($courseList as $courseNum) {
+            $courseNum = trim($courseNum);
+            if(substr($courseNum, -1) == 'C'){
+                $coReq = " (Can be taken at same time)";
+                $courseNum = substr($courseNum, 0, -1);
+            }else{
+                $coReq = "";
+            }
+
+            //echo $courseNum;
+
             $stmt->execute(['courseNum' => $courseNum]);
 
             while($row = $stmt->fetch()) {
-                $courseNamesList[] = $row['CourseName'];
+                $courseNamesList[] = ['courseName' => $row['CourseName'].$coReq, 'isComplete' => self::courseIsComplete($courseNum)];
             }
         }
 
         return $courseNamesList;
+    }
+
+    private function courseIsComplete($courseNum) {
+
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM CompletedCourses WHERE CourseNum=:CourseNum AND GoogleId=:userId");
+        $stmt->execute([
+            'CourseNum' => $courseNum,
+            'userId' => $_SESSION['userId']
+        ]);
+
+        return $stmt->fetchColumn() == 1;
+
     }
 }
 

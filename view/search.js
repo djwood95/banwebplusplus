@@ -14,7 +14,7 @@ $(document).ready(function(){
 
 /**
  * Check backend if user is signed in
- */
+ */ 
 function signInSuccess(name) {
 	//check backend
 	$.get('/public/isLoggedIn', function(responseTxt) {
@@ -35,11 +35,14 @@ function getAvailableSemesters() {
 	$.get('/public/getAvailableSemesters', function(responseTxt) {
 		var semesterList = responseTxt;
 		$.each(semesterList, function (i, semesterName) {
-		    $('#semester').append($('<option>', { 
-		        value: semesterName,
-		        text : semesterName 
-		    }));
+			$('#semester').append($('<option>', { 
+				value: semesterName,
+				text : semesterName 
+			}));
 		});
+	}).fail(function(e) {
+		showDangerAlert("There was a problem loading semester list.");
+		console.log(e);
 	});
 }
 
@@ -113,72 +116,115 @@ const buildingNames = [];
 
 /**
  * Gets course info from server and puts it into course info pop-up box
- */
+ */ 
 function loadCourseInfo(courseNum) {
 	var newHtml = "";
+	$('.courseInfoBox>.modal-dialog>.modal-content').html("LOADING...");
 	var semester = $('#semester').val();
-	$.get('/public/getCourseInfo/' +semester + "/" + courseNum, function(responseTxt){
+	console.log("Load Course Info: " + semester + " " + courseNum);
+	$.get('/public/getCourseInfo/' +semester + "/" + courseNum, function(responseTxt) {
 
+		console.log(responseTxt);
 		var info = responseTxt[courseNum];
-		newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
-		newHtml += info.Credits + " Credits (" + info.LectureCredits + " Lec/" + info.RecitationCredits + " Rec/" + info.LabCredits + " Lab) | ";
-		newHtml += "Offered " + info.SemestersOffered + " Semesters<br/>";
-		newHtml += "<hr/>";
-		newHtml += info.Description + "<br/><br/>";
+		
+		try {
+			newHtml += "<h1 class='text-center'>" + courseNum + " " + info.CourseName + "</h1>";
+			newHtml += info.Credits + " Credits (" + info.LectureCredits + " Lec/" + info.RecitationCredits + " Rec/" + info.LabCredits + " Lab) | ";
+			newHtml += "Offered " + info.SemestersOffered + " Semesters<br/>";
+			newHtml += "<hr/>";
+			newHtml += info.Description + "<br/><br/>";
 
-		newHtml += "<h3>Sections</h3>";
-		$.each(info.SectionInfo, function(CRN, sectionInfo){
-			newHtml += "<p>" + sectionInfo.Semester + " " + sectionInfo.SectionNum + " " + CRN + ": " + sectionInfo.Days + " " + sectionInfo.SectionTime;
-			newHtml += " " + locationText(sectionInfo.Location, 'html');
-			newHtml += " - " + sectionInfo.Instructor + " ";
-			var badgeColor = getBadgeColor(sectionInfo.Capacity - sectionInfo.SectionActual);
-			newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Filled Slots'>";
-				newHtml += sectionInfo.SectionActual + "/" + sectionInfo.Capacity;
-			newHtml += "</span>";
-			newHtml += "</p>";
-		});
+			newHtml += "<h3>Sections</h3>";
+			$.each(info.SectionInfo, function(CRN, sectionInfo){
+				newHtml += "<p>" + sectionInfo.Semester + " " + sectionInfo.SectionNum + " " + CRN + ": " + sectionInfo.Days + " " + sectionInfo.SectionTime;
+				newHtml += " " + locationText(sectionInfo.Location, 'html');
+				newHtml += " - " + sectionInfo.Instructor + " ";
+				var badgeColor = getBadgeColor(sectionInfo.Capacity - sectionInfo.SectionActual);
+				newHtml += "<span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Filled Slots'>";
+					newHtml += sectionInfo.SectionActual + "/" + sectionInfo.Capacity;
+				newHtml += "</span>";
+				newHtml += "</p>";
+			});
 
-		newHtml += "<h3>Restrictions</h3>";
-		if(info.Restrictions != null) newHtml += info.Restrictions + "<br/><br/>";
+			newHtml += "<h3>Restrictions</h3>";
+			if(info.Restrictions != null) newHtml += info.Restrictions + "<br/><br/>";
 
-		//Parse pre-req information
-		newHtml += "<b style='text-align:left;'>Pre-Requisites:</b>";
-		newHtml += "<ul style='text-align:left;'>";
-		var allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
-			allReqs = allReqs.replace(/[&|]+/g, ','); //separate all courses by ,
-			allReqs = allReqs.split(","); //split into an array of all courses
-		var courseNamesList = getCourseNamesList(allReqs);
+			//Parse pre-req information
+			newHtml += "<b style='text-align:left;'>Pre-Requisites:</b>";
+			newHtml += "<ul style='text-align:left;'>";
 
-		var req = info.Prereq.replace(/[()]+/g,'');
-			req = req.split("&");
-
-		for(var i = 0; i < req.length; i++) {
-			var orData = req[i].split("|");
-			newHtml += "<li>";
-			//var courseNamesList = getCourseNamesList(orData);
-
-			for(var j = 0; j < orData.length; j++) {
-				newHtml += "<span data-toggle='tooltip' data-placement='top' title='courseNamesList[j]'>"+orData[j]+"</span>";
-				if(j+1 < orData.length) newHtml += " OR ";
+			var allReqs = [];
+			//var courseNumList;
+			if(info.Prereq != null) {
+				allReqs = info.Prereq.replace(/[()]+/g,''); //get rid of (, )
+				allReqs = allReqs.replace(/[&|]+/g, ','); //separate all courses by ,
+				allReqs = allReqs.split(","); //split into an array of all courses
 			}
-			newHtml += "</li>";
+
+			courseNumList = allReqs.join();
+
+			//Add blank pre-req if necessary
+			if(courseNumList.length == 0) {
+				allReqs.push("");
+				newHtml += "<li><i>None</i></li>";
+			}
+		} catch(error) {
+			console.log(error);
+			$('.courseInfoBox>.modal-dialog>.modal-content').html("Sorry, there was a problem loading the course information.");
+			return;
 		}
 
+		$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
+			var courseNamesList = responseTxt;
+			console.log('/public/getPreReqCourseNames/'+courseNumList);
 
-		newHtml += "</ul>";
+			try {
+				var req = [];
+				if(info.Prereq != null && info.Prereq != "") {
+					req = info.Prereq.replace(/[()]+/g,'');
+					req = req.split("&");
+				}
 
+				for(var i = 0; i < req.length; i++) {
+					var orData = req[i].split("|");
+					newHtml += "<li>";
 
-		$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
+					for(var j = 0; j < orData.length; j++) {
+						var completedColor = "";
+						if(courseNamesList[j].isComplete) {
+							completedColor = "green";
+						}else{
+							completedColor = "red";
+						}
 
-		infoBoxEventListeners();
+						newHtml += "<span data-toggle='tooltip' style='color:"+completedColor+"' data-placement='top' title='"+courseNamesList[j].courseName+"'>"+orData[j]+"</span>";
+						if(j+1 < orData.length) newHtml += " OR ";
+					}
+					newHtml += "</li>";
+				}
+			} catch(error) {
+				console.log(error);
+				newHtml += "<li>Unable to fetch Pre-Requisites.</li>";
+			}
+
+			newHtml += "</ul>";
+			newHtml += "<br/><br/>";
+			newHtml += "<i style='font-size:.75em;'>Updated "+info.lastModified+"</i>";
+
+			$('.courseInfoBox>.modal-dialog>.modal-content').html(newHtml);
+			infoBoxEventListeners();
+		}).fail(function(e) {
+			$('.courseInfoBox>.modal-dialog>.modal-content').html("Sorry, there was a problem loading the course information.");
+			console.log(e);
+		});
 	});
 }
 
 
 function getCourseNamesList(courseNumList) {
+	courseNumList = courseNumList.join();
 	$.get('/public/getPreReqCourseNames/'+courseNumList, function(responseTxt) {
-		console.log("course names" + responseTxt);
-		return responseTxt;
+		return responseTxt.split(',');
 	});
 }
 
@@ -274,6 +320,10 @@ function displaySearchResults(data) {
 				html += "<a href='#' class='badge badge-success mr-1 addCourseBtn' data-coursecrn='"+CRN+"' data-coursenum='"+courseNum+"'>Add</a>";
 				html += sectionData.Semester + " " + sectionData.SectionNum + ": " + sectionData.Days + " " + sectionData.SectionTime;
 				html += " - " + "<a href='http://www.ratemyprofessors.com/search.jsp?query="+sectionData.Instructor+"+mtu' target='_new'>"+sectionData.Instructor+"</a>";
+				var badgeColor = getBadgeColor(sectionData.Capacity - sectionData.SectionActual);
+				html += " <span class='badge badge-"+badgeColor+"' data-toggle='tooltip' data-placement='top' title='Filled Slots'>";
+					html += sectionData.SectionActual + "/" + sectionData.Capacity;
+				html += "</span>";
 			html += "</p>";
 		});
 

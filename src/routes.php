@@ -12,6 +12,20 @@ $app->get('/newUser/{username}', function (Request $request, Response $response,
 	$users = $mapper->addUser($username);
 });
 
+$app->get('/updateSections/{subject}/{mode}', function(Request $request, Response $response, $args) {
+	$subject = $args['subject'];
+	$mode = $args['mode'];
+	$scraper = new Scraper($this->db);
+	$result = $scraper->updateSections($subject, $mode);
+	echo $result;
+	return $response;
+});
+
+$app->get('/test', function(Request $request, Response $response) {
+	$response = $response->withJson($_ENV['env_name']);
+	return $response;
+});
+
 $app->get('/getAvailableSemesters', function(Request $request, Response $response) {
 	$courseMapper = new CourseMapper($this->db);
 	$semesterList = $courseMapper->getAvailableSemesters();
@@ -123,31 +137,17 @@ $app->get('/getScheduleInfo/{id}', function(Request $request, Response $response
 
 	return $response->withJson($scheduleInfo);
 });
-		  
 
-$app->get('/addCourseToCalendar/{scheduleName}/{crn}', function(Request $request, Response $response, $args) {
-	//console.log("Got to AddCourseToCalendar");
-	$ScheduleName = $args['scheduleName'];
-	//$UserID = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile().getEmail();
-	$UserID = 'GO_53@protonmail.com'; //TESTING THIS TEMPORARILY!
-	$CRN = $args['crn'];
-	//console.log($UserID);
-
-	$scheduleMapper = new ScheduleMapper($this->db);
-	$scheduleMapper->AddCourseToSchedule($ScheduleName, $UserID, $CRN);
-	//console.log("Finished AddCourseToCalendar");
-});
-
-$app->get('/getPreReqCourseNames/{courseList}', function(Request $request, Response $response, $args) {
-	$courseNumList = $args['courseList'];
+$app->get('/getPreReqCourseNames/[{courseList}]', function(Request $request, Response $response, $args) {
+	if(!isset($args['courseList'])) return $response; //no pre-reqs
+	$courseNumList = explode(",", $args['courseList']);
 	$completedCoursesMapper = new CompletedCoursesMapper($this->db);
-	//$courseNamesList = $completedCoursesMapper->getPreReqCourseNames();
-	$courseNamesList = "test";
+	$courseNamesList = $completedCoursesMapper->getPreReqCourseNames($courseNumList);
 	return $response->withJson($courseNamesList);
 });
 
 $app->get('/completedCourses/subjectList', function(Request $request, Response $response) {
-	$completedCoursesMapper = new completedCoursesMapper($this->db);
+	$completedCoursesMapper = new CompletedCoursesMapper($this->db);
 	$subjectList = $completedCoursesMapper->getSubjects();
 	return $response->withJson($subjectList);
 });
@@ -155,7 +155,7 @@ $app->get('/completedCourses/subjectList', function(Request $request, Response $
 $app->get('/completedCourses/coursesInSubj/{subject}', function(Request $request, Response $response, $args) {
 	$subject = $args['subject'];
 
-	$completedCoursesMapper = new completedCoursesMapper($this->db);
+	$completedCoursesMapper = new CompletedCoursesMapper($this->db);
 	$courseList = $completedCoursesMapper->getCoursesInSubj($subject);
 	return $response->withJson($courseList);
 });
@@ -164,7 +164,7 @@ $app->get('/completedCourses/markComplete/{courseNum}/{subject}', function(Reque
 	$subject = $args['subject'];
 	$courseNum = $args['courseNum'];
 
-	$completedCoursesMapper = new completedCoursesMapper($this->db);
+	$completedCoursesMapper = new CompletedCoursesMapper($this->db);
 	$result = $completedCoursesMapper->markComplete($courseNum, $subject);
 	return $response->withJson($result);
 });
@@ -172,7 +172,7 @@ $app->get('/completedCourses/markComplete/{courseNum}/{subject}', function(Reque
 $app->get('/completedCourses/markIncomplete/{courseNum}', function(Request $request, Response $response, $args) {
 	$courseNum = $args['courseNum'];
 
-	$completedCoursesMapper = new completedCoursesMapper($this->db);
+	$completedCoursesMapper = new CompletedCoursesMapper($this->db);
 	$result = $completedCoursesMapper->markInComplete($courseNum);
 	return $response->withJson($result);
 });
