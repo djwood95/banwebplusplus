@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using EASendMail;
@@ -12,15 +11,13 @@ using MySql.Data.MySqlClient;
 
 namespace BanwebScraper
 {
-    internal sealed class Scraper : IDisposable
+    internal sealed class Scraper
     {
         #region Variables
+
         private const string
-            RefreshUrl      =  "https://banwebplusplus.me/public/updateCourseInfo.php",
-            CourseInfoUrl   =  "https://www.banweb.mtu.edu/pls/owa/stu_ctg_utils.p_online_all_courses_ug",
             SectionInfoUrl  =  "https://banwebplusplus.me/banwebFiles/";
 
-        private static CancellationTokenSource         _cts;
         private static CancellationToken               _ct;
         private static AutoResetEvent                  _waitForInputFlag,
                                                        _gotInputFlag;
@@ -31,9 +28,10 @@ namespace BanwebScraper
                                                        _sectionPushCommands;
         private readonly Dictionary<string, DateTime>  _lastPushInfo;
 
-        private bool                                   _firstRun;
-        private List<List<object>>                     _courseParameters,
-                                                       _sectionParameters;
+        private bool                                   _firstRun = true;
+        private readonly List<List<object>>            _courseParameters;
+        private readonly List<List<object>>            _sectionParameters;
+
         private HashSet<string>                        _sectionList,
                                                        _courseList;
         #endregion
@@ -51,22 +49,22 @@ namespace BanwebScraper
                 Port = 3306,
                 Database = "banwebpp",
                 UserID = "dbuser",
-                Password = "BanWeb++"
+                Password = Secret.Password
             }.ConnectionString;
             _web = new HtmlWeb();
 
             var waiterThread = new Thread(Waiter) {IsBackground = true};
             _waitForInputFlag = new AutoResetEvent(false);
             _gotInputFlag = new AutoResetEvent(false);
-            _cts = new CancellationTokenSource();
-            _ct = _cts.Token;
+            var cts = new CancellationTokenSource();
+            _ct = cts.Token;
             waiterThread.Start();
 
             _lastPushInfo = new Dictionary<string, DateTime>();
             _sectionPushCommands = new[]
             {
-                "INSERT INTO Sections (CourseNum,CRN,SectionNum,Days,SectionTime,Location,SectionActual,Capacity,SlotsRemaining,Instructor,Dates,Fee,Year,Semester) VALUES (CONCAT(@Subj,' ',@Crse),@CRN,@Sec,@Days,@Time,@Loc,@Act,@Cap,@Rem,@Inst,@Dates,@Fee,@Yr,@Sem)",
-                "UPDATE Sections SET CourseNum=CONCAT(@Subj,' ',@Crse), SectionNum=@Sec, Days=@Days, SectionTime=@Time, Location=@Loc, SectionActual=@Act, Capacity=@Cap, SlotsRemaining=@Rem, Instructor=@Inst, Dates=@Dates, Fee=@Fee WHERE CRN=@CRN AND Year=@Yr AND Semester=@Sem"
+                "INSERT INTO Sections (CourseNum,CRN,SectionNum,Days,SectionTime,Location,SectionActual,Capacity,SlotsRemaining,Instructor,Dates,Fee,Year,Semester,Online,Credits,Type) VALUES (CONCAT(@Subj,' ',@Crse),@CRN,@Sec,@Days,@Time,@Loc,@Act,@Cap,@Rem,@Inst,@Dates,@Fee,@Yr,@Sem,@Ol,@Cred,@Cmp)",
+                "UPDATE Sections SET CourseNum=CONCAT(@Subj,' ',@Crse), SectionNum=@Sec, Days=@Days, SectionTime=@Time, Location=@Loc, SectionActual=@Act, Capacity=@Cap, SlotsRemaining=@Rem, Instructor=@Inst, Dates=@Dates, Fee=@Fee, Online=@Ol, Credits=@Cred, Type=@Cmp WHERE CRN=@CRN AND Year=@Yr AND Semester=@Sem"
             };
             _sectionParameters = new List<List<object>>
             {
@@ -86,6 +84,7 @@ namespace BanwebScraper
                 new List<object> {"@Dates", MySqlDbType.VarChar, 64},
                 new List<object> {"@Loc", MySqlDbType.VarChar, 8},
                 new List<object> {"@Fee", MySqlDbType.VarChar, 255},
+                new List<object> {"@Ol", MySqlDbType.Int32},
                 new List<object> {"@Yr", MySqlDbType.Int32},
                 new List<object> {"@Sem", MySqlDbType.VarChar, 16}
             };
@@ -116,26 +115,14 @@ namespace BanwebScraper
         /// </summary>
         public void Run()
         {
-            var sw = new Stopwatch();
-            while (true)
-            {
-                sw.Start();
-                for (var i = 0; _firstRun && !PushCourseInfo() && i < 5; i++) WaitForInput(10000);
-                for (var i = 0; i < 24; i++)
-                {
-                    PushAllSectionInfo();
-                    SendEmailAlerts();
-                    Console.Write($"[{DateTime.Now:s}]  -  Waiting for next run, press <Enter> to quit ");
-                    sw.Stop();
-                    if (WaitForInput(600000 - (int) sw.ElapsedMilliseconds)) return;
-                    Console.WriteLine();
-                    sw.Restart();
-                }
-            }
+            bool skip = false;
+            for (var i = 0; _firstRun && !skip && !PushCourseInfo() && i < 5; i++) skip = WaitForInput(10000);
+            PushAllSectionInfo();
+            // SendEmailAlerts(); // need to find a new way to do this... trial version expired
         }
+
         #endregion
-
-
+        
         #region Controller Methods
 
         /// <summary>
@@ -146,14 +133,15 @@ namespace BanwebScraper
             Console.Write($"[{DateTime.Now:s}]  -  Section Info Running");
             _web.Load(RefreshUrl);
 
-            _sectionList = RunQueryHashSet("SELECT crn FROM Sections");
-            foreach (var section in GetSections())
+            _sectionList = RunQueryHashSet("SELECT CONCAT(crn, '|', Semester, '|', Year) FROM Sections");
+            foreach (KeyValuePair<string, DateTime> section in GetSections())
             {
                 Console.Write(".");
-                if (_lastPushInfo.ContainsKey(section.Key) && section.Value.Equals(_lastPushInfo[section.Key])) continue;
-                for (var i = 0; !PushSectionInfo(section.Key) && i < 5; i++) WaitForInput(10000);
-                if (!_lastPushInfo.ContainsKey(section.Key)) _lastPushInfo.Add(section.Key, section.Value);
-                else _lastPushInfo[section.Key] = section.Value;
+                bool skip = false;
+                //if (_lastPushInfo.ContainsKey(section.Key) && section.Value.Equals(_lastPushInfo[section.Key])) continue;
+                for (var i = 0; !PushSectionInfo(section.Key) && !skip && i < 5; i++) skip = WaitForInput(10000);
+                //if (!_lastPushInfo.ContainsKey(section.Key)) _lastPushInfo.Add(section.Key, section.Value);
+                //else _lastPushInfo[section.Key] = section.Value;
             }
             _firstRun = false;
 
@@ -190,7 +178,9 @@ namespace BanwebScraper
 
             try
             {
-                Push(ParseSections(doc), _sectionPushCommands, _sectionParameters, _sectionList, year, semester);
+                List<List<string>> sectionInfo = ParseSections(doc);
+                sectionInfo = FindChangedSectionInfo(sectionInfo, year, semester);
+                Push(sectionInfo, _sectionPushCommands, _sectionParameters, _sectionList, year, semester);
             }
             catch (Exception e)
             {
@@ -202,6 +192,38 @@ namespace BanwebScraper
             GC.Collect();
             return true;
         }
+        private List<List<string>> FindChangedSectionInfo(List<List<string>> info, string year, string semester)
+        {
+            Dictionary<int, DataRow> oldInfo = DataTableToDictionary<int>(RunQueryDataTable($"SELECT * FROM Sections WHERE Year = {year} AND Semester LIKE '{semester}'"), "CRN");
+            info.RemoveAll(x => CompareSectionInfo(x, oldInfo));
+            return info;
+        }
+        private static bool CompareSectionInfo(IReadOnlyList<string> x, IReadOnlyDictionary<int, DataRow> yt)
+        {
+            bool areEqual = false;
+            try
+            {
+                var y = yt[int.Parse(x[0])];
+                areEqual = ScrubHtmlInt(x[0]) == ScrubHtmlInt(y["CRN"].ToString()) &&
+                           ScrubHtml($"{x[1]} {x[2]}") == DbString(y["CourseNum"]) &&
+                           ScrubHtml(x[3]) == DbString(y["SectionNum"]) &&
+                           ScrubHtml(x[4]) == DbString(y["Type"]) &&
+                           ScrubHtml(x[5]) == DbString(y["Credits"]) &&
+                           ScrubHtml(x[7]) == DbString(y["Days"]) &&
+                           ScrubHtml(x[8]) == DbString(y["SectionTime"]) &&
+                           ScrubHtmlInt(x[9]) == ScrubHtmlInt(y["Capacity"].ToString()) &&
+                           ScrubHtmlInt(x[10]) == ScrubHtmlInt(y["SectionActual"].ToString()) &&
+                           ScrubHtmlInt(x[11]) == ScrubHtmlInt(y["SlotsRemaining"].ToString()) &&
+                           ScrubHtml(x[12]) == DbString(y["Instructor"]) &&
+                           ScrubHtml(x[13]) == DbString(y["Dates"]) &&
+                           ScrubHtml(x[14]) == DbString(y["Location"]) &&
+                           ScrubHtml(x[15]) == DbString(y["Fee"]) &&
+                           ScrubHtmlInt(x[16]) == 1 == (bool) y["Online"];
+            }
+            catch (KeyNotFoundException) { } // new sections don't have old values
+            catch (Exception e) { Console.WriteLine(e); }
+            return areEqual;
+        }
 
         /// <summary>
         /// Pushes the course information for all valid courses on Banweb
@@ -209,7 +231,8 @@ namespace BanwebScraper
         /// <returns>True if the information is uploaded correctly, false otherwise</returns>
         private bool PushCourseInfo()
         {
-            Console.Write($"[{DateTime.Now:s}]  -  Course Info Running....... ");
+            Console.Write($"[{DateTime.Now:s}]  -  Course Info Running.");
+            foreach (KeyValuePair<string, DateTime> unused in GetSections()) Console.Write(".");
             _courseList = RunQueryHashSet("SELECT CourseNum FROM Courses");
             HtmlDocument doc;
 
@@ -226,7 +249,9 @@ namespace BanwebScraper
 
             try
             {
-                Push(ParseCourses(doc), _coursePushCommands, _courseParameters, _courseList);
+                var courseInfo = ParseCourses(doc);
+                courseInfo = FindChangedCourseInfo(courseInfo);
+                Push(courseInfo, _coursePushCommands, _courseParameters, _courseList);
             }
             catch (Exception e)
             {
@@ -236,8 +261,36 @@ namespace BanwebScraper
             }
 
             GC.Collect();
-            Console.WriteLine("Done");
+            Console.WriteLine(" Done");
             return true;
+        }
+        private List<List<string>> FindChangedCourseInfo(List<List<string>> info)
+        {
+            Dictionary<string, DataRow> oldInfo = DataTableToDictionary<string>(RunQueryDataTable("SELECT * FROM Courses"), "CourseNum");
+            info.RemoveAll(x => CompareCourseInfo(x, oldInfo));
+            return info;
+        }
+        private static bool CompareCourseInfo(IReadOnlyList<string> x, IReadOnlyDictionary<string, DataRow> yt)
+        {
+            bool areEqual = false;
+            try
+            {
+                var y = yt[x[0]];
+                areEqual = ScrubHtml(x[0]) == DbString(y["CourseNum"]) &&
+                           ScrubHtml(x[1]) == DbString(y["CourseName"]) &&
+                           ScrubHtml(x[2]) == DbString(y["Description"]) &&
+                           ScrubHtml(x[3]) == DbString(y["Credits"]) &&
+                           ScrubHtmlInt(x[4]) == ScrubHtmlInt(y["LectureCredits"].ToString()) &&
+                           ScrubHtmlInt(x[5]) == ScrubHtmlInt(y["RecitationCredits"].ToString()) &&
+                           ScrubHtmlInt(x[6]) == ScrubHtmlInt(y["LabCredits"].ToString()) &&
+                           ScrubHtml(x[7]) == DbString(y["SemestersOffered"]) &&
+                           ScrubHtml(x[8]) == DbString(y["Restrictions"]) &&
+                           ScrubHtml(x[9]) == DbString(y["Prereq"]) &&
+                           ScrubHtml(x[10]) == DbString(y["Coreq"]);
+            }
+            catch (KeyNotFoundException) { } // new courses don't have old values
+            catch (Exception e) { Console.WriteLine(e); }
+            return areEqual;
         }
 
         #endregion
@@ -258,7 +311,8 @@ namespace BanwebScraper
             for (var i = 3; i < rows.Count - 2; i++)
             {
                 var cells = rows[i].SelectNodes("td");
-                if (_firstRun || int.Parse(cells[1].InnerText.Substring(0, 4)) > DateTime.Today.Year || int.Parse(cells[1].InnerText.Substring(0, 4)) == DateTime.Today.Year && int.Parse(cells[1].InnerText.Substring(4, 2)) >= DateTime.Today.Month)
+                var cellDate = new DateTime(int.Parse(cells[1].InnerText.Substring(0, 4)), int.Parse(cells[1].InnerText.Substring(4, 2)), 1);
+                if (_firstRun || cellDate.CompareTo(DateTime.Today) >= 0)
                     sections.Add(new KeyValuePair<string, DateTime>(cells[1].InnerText, DateTime.Parse(cells[2].InnerText)));
             }
             return sections;
@@ -280,20 +334,26 @@ namespace BanwebScraper
                     var resultRow = new List<string>();
 
                     var cells = row.SelectNodes("td");
-                    if (cells[0].InnerText == "&nbsp;")
+                    if (cells[0].InnerText.Equals("&nbsp") || cells[0].InnerText.Equals("&nbsp;"))
                     {
                         for (var i = 0; i < cells.Count; i++)
                             resultSet[resultSet.Count - 1][i] += resultSet[resultSet.Count - 1][i] != cells[i].InnerText && cells[i].InnerText != "&nbsp;" ? "|" + cells[i].InnerText : "";
                         continue;
                     }
-
-                    foreach (var cell in row.SelectNodes("td"))
+                    foreach (var cell in cells)
                     {
                         resultRow.Add(cell.InnerText);
-                        for (var i = 1; i < int.Parse(cell.Attributes["colspan"]?.Value ?? "0"); i++)
+                        for (var i = 1; i < int.Parse(cell.Attributes["colspan"]?.Value ?? "1"); i++)
                             resultRow.Add(cell.InnerText);
                     }
-                    if (resultRow.Count > 0) resultSet.Add(resultRow);
+
+                    if (resultRow.Count == 0) continue;
+                    if (resultRow.Count > 5)
+                    {
+                        resultRow.Add(resultRow[4].Contains("OL") ? "1" : "0");
+                        resultRow[4] = resultRow[4].Substring(0, 1);
+                    }
+                    resultSet.Add(resultRow);
                 }
                 catch (Exception e)
                 {
@@ -359,7 +419,7 @@ namespace BanwebScraper
         /// <param name="courses">The course information returned by ParseCourses</param>
         private static void NormalizeCourses(IEnumerable<List<string>> courses)
         {
-            foreach (var course in courses)
+            foreach (List<string> course in courses)
             {
                 try
                 {
@@ -410,6 +470,10 @@ namespace BanwebScraper
             else l[i] = s;
         }
 
+        private static Dictionary<TKey, DataRow> DataTableToDictionary<TKey>(DataTable dt, string keyName) =>
+            dt.AsEnumerable().ToDictionary(x => (TKey) x[keyName], y => y);
+        private static string DbString(object dbData) => dbData is DBNull ? null : ScrubHtml((string) dbData);
+
         #endregion
 
         #region Database Push
@@ -432,7 +496,7 @@ namespace BanwebScraper
                 using (var insertCommand = new MySqlCommand(commands[0], connection, transaction))
                 using (var updateCommand = new MySqlCommand(commands[1], connection, transaction))
                 {
-                    foreach (var parameter in parameterSet)
+                    foreach (List<object> parameter in parameterSet)
                         if (parameter.Count == 2)
                         {
                             insertCommand.Parameters.Add((string)parameter[0], (MySqlDbType)parameter[1]);
@@ -446,11 +510,14 @@ namespace BanwebScraper
                     insertCommand.Prepare();
                     updateCommand.Prepare();
 
-                    foreach (var row in resultSet)
+                    foreach (List<string> row in resultSet)
                     {
                         try
                         {
-                            var command = set.Contains(ScrubHtml(row[0])) ? updateCommand : insertCommand;
+                            MySqlCommand command;
+                            if (string.IsNullOrEmpty(semester) && string.IsNullOrEmpty(year))
+                                command = set.Contains($"{ScrubHtml(row[0])}") ? updateCommand : insertCommand;
+                            else command = set.Contains($"{ScrubHtml(row[0])}|{semester}|{year}") ? updateCommand : insertCommand;
                             for (var i = 0; i < command.Parameters.Count; i++)
                             {
                                 try
@@ -471,7 +538,7 @@ namespace BanwebScraper
                                     {
                                         case "@Yr": command.Parameters[i].Value = year; break;
                                         case "@Sem": command.Parameters[i].Value = semester; break;
-                                        default: Console.WriteLine("Wut"); break;
+                                        default: Console.WriteLine("Nani?"); break;
                                     }
                                 }
                             }
@@ -484,7 +551,7 @@ namespace BanwebScraper
                     }
                     transaction.Commit();
 
-                    foreach (var result in resultSet) result.Clear();
+                    foreach (List<string> result in resultSet) result.Clear();
                     resultSet.Clear();
                 }
             }
@@ -620,9 +687,9 @@ namespace BanwebScraper
         {
             Console.Write($"[{DateTime.Now:s}]  -  Sending Email Alerts...... ");
 
-            var nextSem = GetNextSemester();
-            var sections = RunQueryDictionary<int, int>($"SELECT CRN, SlotsRemaining FROM Sections WHERE Semester LIKE \"{nextSem.Key}\" AND Year = {nextSem.Value} AND SlotsRemaining > 0");
-            var courses = RunQueryDictionary<int, string>("SELECT CRN, CONCAT(Sections.CourseNum, \": \", CourseName) FROM Sections INNER JOIN Courses ON Sections.CourseNum = Courses.CourseNum");
+            KeyValuePair<string, string> nextSem = GetNextSemester();
+            Dictionary<int, int> sections = RunQueryDictionary<int, int>($"SELECT CRN, SlotsRemaining FROM Sections WHERE Semester LIKE \"{nextSem.Key}\" AND Year = {nextSem.Value} AND SlotsRemaining > 0");
+            Dictionary<int, string> courses = RunQueryDictionary<int, string>("SELECT CRN, CONCAT(Sections.CourseNum, \": \", CourseName) FROM Sections INNER JOIN Courses ON Sections.CourseNum = Courses.CourseNum");
             var alerts = RunQueryDataTable("SELECT Email, CRN FROM EmailAlerts");
             var sent = new DataTable();
             sent.Columns.Add(new DataColumn("Email", typeof(string)));
@@ -668,7 +735,6 @@ namespace BanwebScraper
         /// <returns>A KeyValuePair containing the Semester and Year of the upcoming semester</returns>
         private KeyValuePair<string, string> GetNextSemester()
         {
-            var sts = GetSections();
             var pageName = GetSections().First(s => new DateTime(int.Parse(s.Key.Substring(0, 4)), int.Parse(s.Key.Substring(4, 2)), 1).CompareTo(DateTime.Now) > 0).Key;
 
             var year = pageName.Substring(0, 4);
@@ -682,52 +748,6 @@ namespace BanwebScraper
             }
 
             return new KeyValuePair<string, string>(semester, year);
-        }
-
-        #endregion
-
-        #region IDisposable Support
-
-        private bool _disposedValue;
-        
-        /// <inheritdoc />
-        /// <summary>
-        /// Disposes of unused resources that we no longer need
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        /// <summary>
-        /// Finalizer. To be used by the Garbage collector only.
-        /// </summary>
-        ~Scraper() { Dispose(false); }
-
-        /// <summary>
-        /// Disposes of unused resources that we no longer need
-        /// </summary>
-        /// <param name="disposing">True if user-called, false if garbage collected</param>
-        private void Dispose(bool disposing)
-        {
-            if (_disposedValue) return;
-            if (disposing)
-            {
-                _cts.Cancel();
-                _cts.Dispose();
-                _waitForInputFlag.Dispose();
-                _gotInputFlag.Dispose();
-            }
-            _courseList.Clear();
-            _sectionList.Clear();
-            _courseParameters.Clear();
-            _sectionParameters.Clear();
-            _courseList = null;
-            _sectionList = null;
-            _courseParameters = null;
-            _sectionParameters = null;
-
-            _disposedValue = true;
         }
 
         #endregion
