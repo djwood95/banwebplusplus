@@ -1,0 +1,11 @@
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\bin\Debug\netcoreapp2.0\BanwebScraper.deps.json
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\bin\Debug\netcoreapp2.0\BanwebScraper.runtimeconfig.json
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\bin\Debug\netcoreapp2.0\BanwebScraper.runtimeconfig.dev.json
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\bin\Debug\netcoreapp2.0\BanwebScraper.dll
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\obj\Debug\netcoreapp2.0\BanwebScraper.csprojAssemblyReference.cache
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\obj\Debug\netcoreapp2.0\BanwebScraper.csproj.CoreCompileInputs.cache
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\obj\Debug\netcoreapp2.0\BanwebScraper.AssemblyInfoInputs.cache
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\obj\Debug\netcoreapp2.0\BanwebScraper.AssemblyInfo.cs
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\bin\Debug\netcoreapp2.0\BanwebScraper.pdb
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\obj\Debug\netcoreapp2.0\BanwebScraper.dll
+D:\Repos\banwebplusplus\BanwebScraper\BanwebScraperReboot\obj\Debug\netcoreapp2.0\BanwebScraper.pdb
