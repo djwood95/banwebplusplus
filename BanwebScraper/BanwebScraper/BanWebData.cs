@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace BanwebScraperReboot
 {
+    /// <summary>
+    /// Information for Banweb Courses
+    /// </summary>
     internal class Course
     {
         public string Num { get; set; }
@@ -18,6 +21,10 @@ namespace BanwebScraperReboot
         public string PreRequisites { get; set; }
         public string CoRequisites { get; set; }
 
+        /// <summary>
+        /// Gets a MySql command for inserting the course into the database
+        /// </summary>
+        /// <returns>A MySqlCommand object</returns>
         public MySqlCommand GetInsertCommand()
         {
             MySqlCommand command = new MySqlCommand("INSERT INTO Courses " +
@@ -26,6 +33,10 @@ namespace BanwebScraperReboot
             AddParameters(command);
             return command;
         }
+        /// <summary>
+        /// Gets a MySql command for updating the course in the database
+        /// </summary>
+        /// <returns>A MySqlCommand object</returns>
         public MySqlCommand GetUpdateCommand()
         {
             MySqlCommand command = new MySqlCommand("UPDATE Courses " +
@@ -36,6 +47,10 @@ namespace BanwebScraperReboot
             return command;
         }
 
+        /// <summary>
+        /// Adds parameters to a MySqlCommand object so it can be issued to the database
+        /// </summary>
+        /// <param name="command">The command to parameterize</param>
         private void AddParameters(MySqlCommand command)
         {
             command.Parameters.AddWithValue("@Crse", Num);
@@ -52,6 +67,9 @@ namespace BanwebScraperReboot
         }
     }
 
+    /// <summary>
+    /// Information for Banweb Sections
+    /// </summary>
     internal class Section
     {
         public string Crn { get; set; }
@@ -75,6 +93,10 @@ namespace BanwebScraperReboot
         public string Year { get; set; }
         public string Semester { get; set; }
 
+        /// <summary>
+        /// Adds a Section to another section, used when there is an incomplete section (meeting at different times on different days or something)
+        /// </summary>
+        /// <param name="s">The incomplete section</param>
         internal void Add(Section s)
         {
             Campus += NotEqualOrWhiteSpace(Campus, s.Campus) ? $"|{s.Campus}" : "";
@@ -87,6 +109,10 @@ namespace BanwebScraperReboot
         }
         private bool NotEqualOrWhiteSpace(string x, string y) => x != y && !string.IsNullOrWhiteSpace(y);
 
+        /// <summary>
+        /// Gets a MySql command to insert a section into the database
+        /// </summary>
+        /// <returns>A MySqlCommand object</returns>
         public MySqlCommand GetInsertCommand()
         {
             MySqlCommand command = new MySqlCommand("INSERT INTO Sections " +
@@ -95,6 +121,10 @@ namespace BanwebScraperReboot
             AddParameters(command);
             return command;
         }
+        /// <summary>
+        /// Gets a MySql command to update a section in the database
+        /// </summary>
+        /// <returns>A MySqlCommand object</returns>
         public MySqlCommand GetUpdateCommand()
         {
             MySqlCommand command = new MySqlCommand("UPDATE Sections " +
@@ -106,6 +136,10 @@ namespace BanwebScraperReboot
             return command;
         }
 
+        /// <summary>
+        /// Adds parameters to a MySql command object so it can be issued to the database
+        /// </summary>
+        /// <param name="command">The MySqlCommand object to parameterize</param>
         private void AddParameters(MySqlCommand command)
         {
             command.Parameters.AddWithValue("@CRN", Crn);

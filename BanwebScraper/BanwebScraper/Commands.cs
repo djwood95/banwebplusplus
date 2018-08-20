@@ -5,10 +5,17 @@ using System.Linq;
 
 namespace BanwebScraperReboot
 {
+    /// <summary>
+    /// Various MySql commands and helpers to use on a database
+    /// </summary>
     internal static class Commands
     {
         private static readonly string connectionString = $"server=159.203.102.52;port=3306;database=banwebpp;user id=dbuser;password={Secret.Password};SSLMode=None";
 
+        /// <summary>
+        /// Gets old course information
+        /// </summary>
+        /// <returns>A Dictionary full of old course information, organized by CourseNum</returns>
         public static Dictionary<string, DataRow> GetOldCourses()
         {
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -22,6 +29,12 @@ namespace BanwebScraperReboot
                 return dictionary;
             }
         }
+        /// <summary>
+        /// Gets old section information
+        /// </summary>
+        /// <param name="semester">The semester to fetch information for</param>
+        /// <param name="year">The year to fetch information for</param>
+        /// <returns>A Dictionary full of old course information, organized by CRN</returns>
         public static Dictionary<string, DataRow> GetOldSections(string semester, string year)
         {
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -35,6 +48,11 @@ namespace BanwebScraperReboot
                 return dictionary;
             }
         }
+
+        /// <summary>
+        /// Gets a table of emails that need to be sent
+        /// </summary>
+        /// <returns>A DataTable with information on emails that need to be sent</returns>
         public static DataTable GetEmailsToSend()
         {
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -46,6 +64,10 @@ namespace BanwebScraperReboot
                 return table;
             }
         }
+        /// <summary>
+        /// Gets section data to be used in the email section of the program
+        /// </summary>
+        /// <returns>A DataTable with all section information</returns>
         public static DataTable GetEmailData()
         {
             using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -57,11 +79,19 @@ namespace BanwebScraperReboot
                 return table;
             }
         }
+        /// <summary>
+        /// Updates the database with sent email information
+        /// </summary>
+        /// <param name="ids">The IDs of the emails that were sent</param>
         public static void UpdateSentEmails(List<long> ids)
         {
             IssueCommands(ids.Select(x => new MySqlCommand($"UPDATE EmailAlerts SET Sent = 1 WHERE Id = {x}")));
         }
 
+        /// <summary>
+        /// Function for issuing a large number of MySql commands in a transaction
+        /// </summary>
+        /// <param name="commands">The commands to issue</param>
         public static void IssueCommands(IEnumerable<MySqlCommand> commands)
         {
             using (MySqlConnection connection = new MySqlConnection(connectionString))

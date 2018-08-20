@@ -11,6 +11,9 @@ using System.Threading;
 
 namespace BanwebScraperReboot
 {
+    /// <summary>
+    /// Main class of the BanwebScraper program
+    /// </summary>
     public class Scraper
     {
         private bool _firstRun = true;
@@ -20,6 +23,10 @@ namespace BanwebScraperReboot
             _refreshUrl = "https://banwebplusplus.me/public/updateCourseInfo.php",
             _courseInfoUrl = "https://www.banweb.mtu.edu/pls/owa/stu_ctg_utils.p_online_all_courses_ug";
 
+        /// <summary>
+        /// Runs the main tasks of the program, will reattempt a number of times on failure
+        /// </summary>
+        /// <param name="maxTries">The number of times to attempt a function</param>
         public void Run(int maxTries = 5)
         {
             for (int i = 0; i < maxTries && _firstRun && !RunCourses(); i++)
@@ -32,6 +39,10 @@ namespace BanwebScraperReboot
         }
 
         #region Courses
+        /// <summary>
+        /// Runs the course scraper
+        /// </summary>
+        /// <returns>True if it sucessfully pushes to the database, false otherwise</returns>
         public bool RunCourses()
         {
             Console.WriteLine($"[{DateTime.Now:s}] - Running Course Scraper");
@@ -77,6 +88,11 @@ namespace BanwebScraperReboot
             return true;
         }
 
+        /// <summary>
+        /// Parses course information from HTML
+        /// </summary>
+        /// <param name="doc">An HtmlDocument with the information to parse</param>
+        /// <returns>An IEnumerable of Course information</returns>
         private IEnumerable<Course> ParseCourses(HtmlDocument doc)
         {
             HtmlNode content = doc.GetElementbyId("content_body");
@@ -116,6 +132,13 @@ namespace BanwebScraperReboot
 
             return courses;
         }
+        /// <summary>
+        /// Gets the text from an HtmlNode that may or may not be there based on the label from another node
+        /// </summary>
+        /// <param name="list">The list to fetch information from</param>
+        /// <param name="name">The name of the label to search for</param>
+        /// <param name="extraTrimChars">Optional parameter to add more trim characters</param>
+        /// <returns>Either an empty string or the text in the specified HtmlNode</returns>
         private string GetAttributeText(HtmlNodeCollection list, string name, char[] extraTrimChars = null)
         {
             if (extraTrimChars == null) extraTrimChars = new char[] { };
@@ -123,15 +146,31 @@ namespace BanwebScraperReboot
                 .FirstOrDefault(x => x.ChildNodes[0].InnerText.Trim(_trimChars.Concat(extraTrimChars).ToArray()).ToLower() == name)
                 ?.ChildNodes[1].InnerText.Trim(_trimChars.Concat(extraTrimChars).ToArray()) ?? "");
         }
+        /// <summary>
+        /// Replaces multiple adjacent spaces or newlines with one space
+        /// </summary>
+        /// <param name="s">The string to be replaced</param>
+        /// <returns>The altered string</returns>
         private string RemoveDoubleSpaces(string s)
         {
             return Regex.Replace(s, @"\s+", " ");
         }
+        /// <summary>
+        /// Attempts to get an index of the specified array
+        /// </summary>
+        /// <param name="array">The array to fetch from</param>
+        /// <param name="index">The index to attempt to fetch</param>
+        /// <returns>Either the empty string or the array element</returns>
         private string TryGetArray(string[] array, int index)
         {
             return array.Length > index ? array[index] : "";
         }
 
+        /// <summary>
+        /// Pushes course information to the database
+        /// </summary>
+        /// <param name="courses">The list of course informaiton to push</param>
+        /// <param name="oldCourses">The list of course information that is already in the database</param>
         private void PushCourses(IEnumerable<Course> courses, Dictionary<string, DataRow> oldCourses)
         {
             List<MySqlCommand> courseCommands = new List<MySqlCommand>();
@@ -148,6 +187,12 @@ namespace BanwebScraperReboot
             }
             Commands.IssueCommands(courseCommands);
         }
+        /// <summary>
+        /// Checks if new course data is different than what is already in the database
+        /// </summary>
+        /// <param name="c">New data</param>
+        /// <param name="dr">Old data</param>
+        /// <returns>True if new data is different, false otherwise</returns>
         private bool CourseDataChanged(Course c, DataRow dr)
         {
             return (c.Num != dr["CourseNum"].ToString() ||
@@ -165,6 +210,10 @@ namespace BanwebScraperReboot
         #endregion
 
         #region Sections
+        /// <summary>
+        /// Runs the section scraper
+        /// </summary>
+        /// <returns>True if it successfully pushes to the database, false otherwise</returns>
         public bool RunSections()
         {
             Console.WriteLine($"[{DateTime.Now:s}] - Running Section Scraper");
@@ -224,6 +273,10 @@ namespace BanwebScraperReboot
             return true;
         }
 
+        /// <summary>
+        /// Gets the HTML page names of sections that need to be pushed
+        /// </summary>
+        /// <returns>A list of HTML page names</returns>
         private IEnumerable<string> GetSections()
         {
             HtmlWeb web = new HtmlWeb();
@@ -232,6 +285,13 @@ namespace BanwebScraperReboot
             sectionRows.RemoveAll(x => (DateTime.Now - DateTime.Parse(x.SelectNodes("td")[2].InnerText)).TotalDays >= 1);
             return sectionRows.Select(x => x.SelectNodes("td")[1].InnerText);
         }
+        /// <summary>
+        /// Parses section information from HTML
+        /// </summary>
+        /// <param name="doc">The HtmlDocument to parse</param>
+        /// <param name="semester">The semester of the section data</param>
+        /// <param name="year">The year of the section data</param>
+        /// <returns>A list of parsed section information</returns>
         private List<Section> ParseSections(HtmlDocument doc, string semester, string year)
         {
             List<Section> sections = new List<Section>();
@@ -283,6 +343,11 @@ namespace BanwebScraperReboot
             return sections;
         }
 
+        /// <summary>
+        /// Pushes section information to the database
+        /// </summary>
+        /// <param name="sections">New section information</param>
+        /// <param name="oldSections">Old section information</param>
         private void PushSections(List<Section> sections, Dictionary<string, DataRow> oldSections)
         {
             List<MySqlCommand> sectionCommands = new List<MySqlCommand>();
@@ -299,6 +364,12 @@ namespace BanwebScraperReboot
             }
             Commands.IssueCommands(sectionCommands);
         }
+        /// <summary>
+        /// Checks if new course data is different than what is already on the database
+        /// </summary>
+        /// <param name="s">New section information</param>
+        /// <param name="dr">Old section information</param>
+        /// <returns>True if data has changed, false otherwise</returns>
         private bool SectionDataChanged(Section s, DataRow dr)
         {
             return $"{s.Subject} {s.CourseNum}" != dr["CourseNum"].ToString() ||
@@ -318,6 +389,10 @@ namespace BanwebScraperReboot
         }
         #endregion
 
+        /// <summary>
+        /// Sends email notifications if classes have opened up since last run
+        /// </summary>
+        /// <returns>True if all notifications are successful, false otherwise</returns>
         public bool SendEmails()
         {
             Console.WriteLine($"[{DateTime.Now:s}] - Sending Emails");
