@@ -6,3 +6,4 @@
 /private/*
 /banwebFiles/*
 .env
+/BanwebScraper/BanwebScraperReboot/Secret.cs
