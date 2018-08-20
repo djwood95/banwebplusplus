@@ -12,10 +12,10 @@
 HOW TO USE AND RUNDOWN OF HOW STUFF WORKS:
 
 To use banwebplusplus:
-Go to banwebplusplus.me
+Go to http://banwebplusplus.me
 
 How to add classes to schedule (currently):
-1. Go to banwebplusplus.me
+1. Go to http://banwebplusplus.me
 2. Search for the course (Can be something like 'CS 1121' or 'Concur' with autofilling for 'Concurrent Programming'). You can search by course number (CS 1121), course name (Concurrent), or instructor.
 3. View Available slots by pressing the info button under the search tab for the class you are interested in. This will show you detailed course information, including a description, restrictions and prerequisites, and detailed information about each available section.
 4. Click the green "Add" button next to the section you are interested in and it will add the course to the calendar to the right.
