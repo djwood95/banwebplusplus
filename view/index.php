@@ -12,8 +12,8 @@
     </script>
 
 
-    <link rel="shortcut icon" href="DonaldTrump.ico"/>
-    <title>MAKE SCHEDULING GREAT AGAIN</title>
+    <link rel="shortcut icon" href="plusplus.ico"/>
+    <title>A Better Banweb Scheduler</title>
 
     <!-- Required meta tags -->
     <meta charset="utf-8">
